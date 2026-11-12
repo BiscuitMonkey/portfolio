@@ -375,8 +375,8 @@ const CV = {
    offscreen, and tears down cleanly when the page changes. */
 const ASCII_CFG = {
   cell: 6, charset: " .`':,;-~=+*#%@", contrast: 1.15,
-  lensRadius: 60, trailLinger: 2, taper: 1.5, goo: 12,
-  ambient: true, ambientStrength: .9, ambientBlobs: 3, ambientRadius: [50, 100],
+  lensRadius: 60, trailLinger: 2.6, taper: 1.7, goo: 14,
+  ambient: true, ambientStrength: .9, ambientBlobs: 4, ambientRadius: [50, 100],
   parallax: true, parallaxTilt: 2, parallaxShift: 8, wobbleAmount: .05
 };
 class AsciiReveal {
@@ -384,11 +384,12 @@ class AsciiReveal {
     this.el = el; this.opts = opts; this.dead = false; this.visible = true;
     this.reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     this.ascii = document.createElement("canvas"); this.actx = this.ascii.getContext("2d");
+    this.ov = document.createElement("canvas"); this.ov.className = "reveal"; this.octx = this.ov.getContext("2d");
     this.rev = document.createElement("canvas"); this.rev.className = "reveal"; this.rctx = this.rev.getContext("2d");
     this.field = document.createElement("canvas"); this.fctx = this.field.getContext("2d", { willReadFrequently: true });
     this.t1 = document.createElement("canvas"); this.t1ctx = this.t1.getContext("2d");
     this.t2 = document.createElement("canvas"); this.t2ctx = this.t2.getContext("2d");
-    el.appendChild(this.ascii); el.appendChild(this.rev);
+    el.appendChild(this.ascii); el.appendChild(this.ov); el.appendChild(this.rev);
     this.pointer = { x: 0, y: 0, inside: false }; this.cur = { x: 0, y: 0 };
     this.hasCur = false; this.trail = []; this.blobs = [];
     if (opts.ambient && !this.reduced) {
@@ -437,7 +438,7 @@ class AsciiReveal {
     const w = this.el.clientWidth, h = this.el.clientHeight;
     if (!w || !h) return;
     this.w = w; this.h = h; this.dpr = dpr;
-    for (const c of [this.ascii, this.rev]) { c.width = w * dpr; c.height = h * dpr; }
+    for (const c of [this.ascii, this.ov, this.rev]) { c.width = w * dpr; c.height = h * dpr; }
     this.rctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     this.fscale = .5;
     this.field.width = Math.max(2, Math.ceil(w * this.fscale));
@@ -469,18 +470,99 @@ class AsciiReveal {
     sctx.drawImage(this.source, (cols - iw * sc) / 2, (rows - ih * sc) / 2, iw * sc, ih * sc);
     const data = sctx.getImageData(0, 0, cols, rows).data;
     const chars = this.opts.charset, th = this.theme();
+    const cs = getComputedStyle(document.documentElement);
+    this.inkRgb = th.rgb;
+    this.accentColor = cs.getPropertyValue("--link").trim() || "#2343B8";
+    this.washColor = cs.getPropertyValue("--wash").trim() || "#F4F5F7";
+    this.fontStr = cell + "px ui-monospace, Menlo, Consolas, monospace";
+    this.grid = { cell, cols, rows, lum: new Float32Array(cols * rows), hash: new Float32Array(cols * rows) };
     ctx.clearRect(0, 0, w, h);
-    ctx.font = cell + "px ui-monospace, Menlo, Consolas, monospace";
+    ctx.font = this.fontStr;
     ctx.textBaseline = "top";
     for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
-      const i = (y * cols + x) * 4;
+      const gi = y * cols + x, i = gi * 4;
       let lum = (.2126 * data[i] + .7152 * data[i + 1] + .0722 * data[i + 2]) / 255;
       lum = Math.min(1, Math.max(0, (lum - .5) * this.opts.contrast + .5));
       if (th.invert) lum = 1 - lum;
+      this.grid.lum[gi] = lum;
+      this.grid.hash[gi] = ((Math.sin(gi * 12.9898) * 43758.5453) % 1 + 1) % 1;
       const ch = chars[Math.floor(lum * (chars.length - 1))];
       if (ch === " ") continue;
       ctx.fillStyle = "rgba(" + th.rgb + "," + (.42 + lum * .58).toFixed(2) + ")";
       ctx.fillText(ch, x * cell, y * cell);
+    }
+  }
+  /* The living layer: scrambled glyphs where the photo boils back into
+     ASCII, a stir around the cursor, an intro resolve wave, and sparse
+     twinkles. Driven by the goo field the effect already computes. */
+  drawOverlay(now, t) {
+    const g = this.grid;
+    if (!g || !this.alphaPre) return;
+    const o = this.octx, cell = g.cell, chars = this.opts.charset;
+    o.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    o.clearRect(0, 0, this.w, this.h);
+    o.font = this.fontStr;
+    o.textBaseline = "top";
+    const fw = this.field.width, fh = this.field.height, fs = this.fscale;
+    const pre = this.alphaPre;
+    const ink = "rgb(" + this.inkRgb + ")";
+    const introAge = now - this.introT0, introSpan = 1100;
+    const intro = introAge < introSpan * 1.3;
+    const cx = this.cur.x, cy = this.cur.y;
+    const lens = this.opts.lensRadius, halo = lens * 1.6;
+    const nch = chars.length - 1;
+    for (let y = 0; y < g.rows; y++) {
+      for (let x = 0; x < g.cols; x++) {
+        const gi = y * g.cols + x, h01 = g.hash[gi];
+        const pxc = (x + .5) * cell, pyc = (y + .5) * cell;
+        const fx = Math.min(fw - 1, (pxc * fs) | 0), fy = Math.min(fh - 1, (pyc * fs) | 0);
+        const a = pre[fy * fw + fx];
+        if (a > 200) continue;
+        const lum = g.lum[gi];
+        let draw = false, alpha = 0, color = ink, ch = "";
+        if (intro) {
+          const delay = ((x + y) / (g.cols + g.rows)) * introSpan * .8 + h01 * introSpan * .3;
+          if (introAge < delay) {
+            ch = chars[1 + (((h01 * 997) | 0) + ((t * 14) | 0)) % nch];
+            alpha = .3 + .3 * h01;
+            draw = true;
+          }
+        }
+        if (!draw && a > 50) {
+          const k = Math.min(1, (a - 50) / 140);
+          ch = chars[1 + (((h01 * 883) | 0) + ((t * (6 + h01 * 9)) | 0)) % nch];
+          alpha = .4 + .55 * k;
+          if (h01 > .93) color = this.accentColor;
+          draw = true;
+        }
+        if (!draw && this.pointer.inside) {
+          const d = Math.hypot(pxc - cx, pyc - cy);
+          if (d < halo && d > lens * .35) {
+            const k = 1 - d / halo;
+            if (((h01 * 31 + t * (.8 + h01)) % 1) < k * .45) {
+              const base = Math.round(lum * nch);
+              ch = chars[Math.max(1, Math.min(nch, base + (((h01 * 7) | 0) % 3) - 1))];
+              alpha = .3 + .45 * k;
+              draw = true;
+            }
+          }
+        }
+        if (!draw) {
+          const tw = (h01 * 43 + t * .12) % 1;
+          if (tw > .985) {
+            ch = chars[Math.max(1, Math.round(lum * nch))];
+            alpha = .2 + .55 * Math.sin(((tw - .985) / .015) * Math.PI);
+            draw = true;
+          }
+        }
+        if (!draw || ch === " ") continue;
+        o.fillStyle = this.washColor;
+        o.fillRect(x * cell, y * cell, cell, cell);
+        o.globalAlpha = alpha;
+        o.fillStyle = color;
+        o.fillText(ch, x * cell, y * cell);
+        o.globalAlpha = 1;
+      }
     }
   }
   stamp(x, y, r, bornAt) {
@@ -508,6 +590,7 @@ class AsciiReveal {
   startLoop() {
     if (this.running || this.dead) return;
     this.running = true;
+    if (this.introT0 == null) this.introT0 = performance.now();
     const linger = (this.reduced ? .15 : this.opts.trailLinger) * 1000;
     const taper = this.opts.taper;
     const tick = (now) => {
@@ -521,7 +604,9 @@ class AsciiReveal {
         this.cur.y += (this.pointer.y - this.cur.y) * ease;
         this.brushGrow += (1 - this.brushGrow) * (this.reduced ? 1 : .12);
         const wobble = this.reduced ? 1 : 1 + .06 * Math.sin(t * 1.1) + .04 * Math.sin(t * 1.9 + 1.4);
-        const r = this.opts.lensRadius * wobble * this.brushGrow;
+        const chase = Math.hypot(this.pointer.x - this.cur.x, this.pointer.y - this.cur.y);
+        const swell = 1 + Math.min(chase / 160, .55);
+        const r = this.opts.lensRadius * wobble * this.brushGrow * swell;
         const dist = Math.hypot(this.cur.x - px, this.cur.y - py);
         const cd = this.cursorDisc, cdAlive = cd && this.trail.indexOf(cd) !== -1;
         if (dist < 1.5 && cdAlive) { cd.born = now; cd.r = r; cd.x = this.cur.x; cd.y = this.cur.y; }
@@ -577,8 +662,11 @@ class AsciiReveal {
       f.clearRect(0, 0, fw, fh);
       f.drawImage(t1, 0, 0, fw, fh);
       const id = f.getImageData(0, 0, fw, fh), pix = id.data;
-      for (let i = 3; i < pix.length; i += 4) {
+      if (!this.alphaPre || this.alphaPre.length !== fw * fh) this.alphaPre = new Uint8Array(fw * fh);
+      const pre = this.alphaPre;
+      for (let i = 3, j = 0; i < pix.length; i += 4, j++) {
         const a = pix[i];
+        pre[j] = a;
         pix[i] = a < 96 ? 0 : a > 168 ? 255 : (((a - 96) * 3.54) | 0);
       }
       f.putImageData(id, 0, 0);
@@ -591,6 +679,7 @@ class AsciiReveal {
       rc.drawImage(this.field, 0, 0, this.rev.width, this.rev.height);
       rc.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
       rc.globalCompositeOperation = "source-over";
+      if (!this.reduced) this.drawOverlay(now, t);
       if (this.opts.parallax && !this.reduced) {
         this.par.nx += (this.par.tx - this.par.nx) * .05;
         this.par.ny += (this.par.ty - this.par.ny) * .05;
@@ -598,6 +687,7 @@ class AsciiReveal {
         const tilt = this.opts.parallaxTilt, shift = this.opts.parallaxShift;
         this.el.style.transform = "perspective(900px) rotateX(" + (-ny * tilt).toFixed(2) + "deg) rotateY(" + (nx * tilt).toFixed(2) + "deg)";
         this.ascii.style.transform = "translate(" + (-nx * shift * .45).toFixed(1) + "px," + (-ny * shift * .45).toFixed(1) + "px) scale(1.05)";
+        this.ov.style.transform = this.ascii.style.transform;
         this.rev.style.transform = "translate(" + (-nx * shift).toFixed(1) + "px," + (-ny * shift).toFixed(1) + "px) scale(1.05)";
       }
       requestAnimationFrame(tick);
