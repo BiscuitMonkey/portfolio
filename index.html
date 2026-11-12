@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="Jack Walker — product designer. BFA UX Design, Savannah College of Art and Design, May 2027.">
+<meta name="description" content="Jack Walker — UX designer. BFA UX Design, Savannah College of Art and Design, May 2027.">
 <style>body{margin:0}img{max-width:100%}</style>
 </head>
 <body>
@@ -248,7 +248,7 @@ footer a:hover { color: var(--link); }
 <dialog id="lb" aria-label="Image preview"><img alt=""><p></p></dialog>
 <div id="cur" aria-hidden="true"><span id="cur-dot"></span><span id="cur-ring"><span id="cur-glyph"></span></span></div>
 <footer><div class="wrap">
-  <span>Jack Walker · Product designer · BFA UX Design, SCAD, May 2027</span>
+  <span>Jack Walker · UX Designer · BFA UX Design, SCAD, May 2027</span>
   <span><a href="https://www.linkedin.com/in/jack-walker-b20035321/" target="_blank" rel="noopener">LinkedIn</a> · walkerajack@gmail.com</span>
 </div></footer>
 
@@ -799,7 +799,7 @@ function viewHome() {
   return `<section class="intro has-portrait">
       <div class="intro-text">
         <h1>Jack Walker designs mobile and web products.</h1>
-        <p>I'm a product designer finishing my BFA in UX Design at SCAD in May 2027. Most recently I redesigned title production software as a UX/UI design intern at Stewart Title.</p>
+        <p>I'm a UX designer finishing my BFA in UX Design at SCAD in May 2027. Most recently I redesigned title production software as a UX/UI design intern at Stewart Title.</p>
         <div class="qlinks">
           <a class="qlink" href="mailto:${EMAIL}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Email</a>
           <a class="qlink" href="${LINKEDIN}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a3.5 3.5 0 0 0 5 0l4-4a3.5 3.5 0 0 0-5-5l-2 2"/><path d="M14 10a3.5 3.5 0 0 0-5 0l-4 4a3.5 3.5 0 0 0 5 5l2-2"/></svg>LinkedIn</a>
@@ -835,7 +835,7 @@ function viewCase(p) {
 function viewOther() {
   return `<section class="intro" style="padding-bottom:0">
       <h1>Other Work</h1>
-      <p>Work outside product design that shapes how I design: illustration, print, research and 3D.</p>
+      <p>Work outside UX design that shapes how I design: illustration, print, research and 3D.</p>
       <div class="toc">${OTHER.map(o => `<a href="#other-work" data-jump="${o.id}">${esc(o.title)}</a>`).join("")}</div>
     </section>
     ${OTHER.map(o => `<section class="piece" id="o-${o.id}"><h2>${esc(o.title)}</h2><p class="col" style="color:var(--muted)">${esc(o.lede)}</p>${o.blocks.map(block).join("")}</section>`).join("")}`;
@@ -848,7 +848,7 @@ function viewAbout() {
   return `<div class="about">
       <div>
         <h1>About</h1>
-        <p class="lead">I'm Jack, a product designer from Dallas, Texas, finishing my BFA in UX Design at Savannah College of Art &amp; Design. I design mobile and web products and take them from first sketches to developer-ready files.</p>
+        <p class="lead">I'm Jack, a UX designer from Dallas, Texas, finishing my BFA in UX Design at Savannah College of Art &amp; Design. I design mobile and web products and take them from first sketches to developer-ready files.</p>
         ${DRAFT ? `<div class="col" style="margin-top:16px">${todo("A line or two in your own voice: what kind of product work you want to do next, and where.")}</div>` : ""}
       </div>
       <div class="photo">${media("jack-walker-headshot", "Jack Walker")}</div>
@@ -862,7 +862,7 @@ function viewAbout() {
           <span class="mail" id="mail">${EMAIL}</span>
           <button class="btn" type="button" id="copy">Copy email</button>
           <a href="${LINKEDIN}" target="_blank" rel="noopener" style="margin-top:8px">LinkedIn</a>
-          ${DRAFT ? todo("A PDF of your Product Designer resume, so I can link it here.") : ""}
+          ${DRAFT ? todo("A PDF of your UX Designer resume, so I can link it here.") : ""}
         </div>
       </section>
     </div>`;
