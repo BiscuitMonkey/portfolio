@@ -29,16 +29,18 @@
   --font: "Hanken Grotesk", "Helvetica Neue", Arial, system-ui, sans-serif;
   --text: 680px;
   --wide: 1120px;
+  --ascii-rgb: 23, 24, 27;
+  --ascii-invert: 1;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #121315; --ink: #ECEDEF; --muted: #A2A5AC; --line: #2A2C30; --wash: #1B1C1F; --link: #9DB0FF;
-    --todo-bg: #2A2414; --todo-ink: #F0D68A; --todo-line: #6B5A26; color-scheme: dark;
+    --todo-bg: #2A2414; --todo-ink: #F0D68A; --todo-line: #6B5A26; --ascii-rgb: 236, 237, 239; --ascii-invert: 0; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #121315; --ink: #ECEDEF; --muted: #A2A5AC; --line: #2A2C30; --wash: #1B1C1F; --link: #9DB0FF;
-  --todo-bg: #2A2414; --todo-ink: #F0D68A; --todo-line: #6B5A26; color-scheme: dark;
+  --todo-bg: #2A2414; --todo-ink: #F0D68A; --todo-line: #6B5A26; --ascii-rgb: 236, 237, 239; --ascii-invert: 0; color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -74,6 +76,15 @@ main { padding-block: 56px 96px; }
 .intro { display: grid; gap: 16px; padding-bottom: 56px; }
 .intro h1 { font-size: clamp(30px, 4vw, 44px); font-weight: 600; letter-spacing: -0.015em; max-width: 22ch; }
 .intro p { color: var(--muted); font-size: 19px; max-width: 56ch; }
+.intro.has-portrait { grid-template-columns: minmax(0, 1fr) 320px; align-items: center; column-gap: 64px; }
+.intro-text { display: grid; gap: 16px; }
+.portrait-wrap { display: grid; gap: 10px; justify-items: center; }
+.ascii-reveal { position: relative; width: 100%; max-width: 320px; background: var(--wash); border-radius: 10px; overflow: hidden; cursor: crosshair; }
+.ascii-reveal canvas { display: block; width: 100%; height: 100%; }
+.ascii-reveal canvas.reveal { position: absolute; inset: 0; pointer-events: none; }
+.whisper { font-size: 13px; color: var(--muted); }
+.m-touch { display: none; }
+@media (hover: none) { .m-hover { display: none; } .m-touch { display: inline; } }
 
 .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px 32px; }
 .card { display: grid; gap: 14px; color: inherit; text-decoration: none; }
@@ -178,6 +189,9 @@ footer a { color: var(--muted); }
   .about .photo { max-width: 220px; }
   .row { grid-template-columns: 1fr; }
   .figs.strip { --n: 3; }
+  .intro.has-portrait { grid-template-columns: 1fr; }
+  .portrait-wrap { justify-items: start; }
+  .ascii-reveal { max-width: 260px; }
 }
 @media (max-width: 560px) {
   body { font-size: 17px; }
@@ -351,6 +365,260 @@ const CV = {
   ]
 };
 
+/* ---------- ASCII portrait ----------
+   Jack's reveal interaction: the headshot renders as live ASCII, and moving
+   across it melts the real photo through (goo/metaball trail, ambient pools,
+   soft parallax). Adapted for this site: theme-aware characters, pauses when
+   offscreen, and tears down cleanly when the page changes. */
+const ASCII_CFG = {
+  cell: 6, charset: " .`':,;-~=+*#%@", contrast: 1.15,
+  lensRadius: 60, trailLinger: 2, taper: 1.5, goo: 12,
+  ambient: true, ambientStrength: .9, ambientBlobs: 3, ambientRadius: [50, 100],
+  parallax: true, parallaxTilt: 2, parallaxShift: 8, wobbleAmount: .05
+};
+class AsciiReveal {
+  constructor(el, src, opts) {
+    this.el = el; this.opts = opts; this.dead = false; this.visible = true;
+    this.reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    this.ascii = document.createElement("canvas"); this.actx = this.ascii.getContext("2d");
+    this.rev = document.createElement("canvas"); this.rev.className = "reveal"; this.rctx = this.rev.getContext("2d");
+    this.field = document.createElement("canvas"); this.fctx = this.field.getContext("2d", { willReadFrequently: true });
+    this.t1 = document.createElement("canvas"); this.t1ctx = this.t1.getContext("2d");
+    this.t2 = document.createElement("canvas"); this.t2ctx = this.t2.getContext("2d");
+    el.appendChild(this.ascii); el.appendChild(this.rev);
+    this.pointer = { x: 0, y: 0, inside: false }; this.cur = { x: 0, y: 0 };
+    this.hasCur = false; this.trail = []; this.blobs = [];
+    if (opts.ambient && !this.reduced) {
+      const rnd = () => Math.random() * Math.PI * 2;
+      for (let i = 0; i < opts.ambientBlobs; i++) this.blobs.push({
+        fx: .12 + Math.random() * .1, px: rnd(), fy: .12 + Math.random() * .1, py: rnd(),
+        fr: .1 + Math.random() * .08, pr: rnd(), fa1: .18 + Math.random() * .12, fa2: .28 + Math.random() * .15,
+        pa1: i === 0 ? Math.PI / 2 : rnd(), pa2: i === 0 ? Math.PI / 2 : rnd(), lastDisc: null });
+    }
+    this.par = { nx: 0, ny: 0, tx: 0, ty: 0 }; this.onWinMove = null;
+    if (opts.parallax && !this.reduced) {
+      this.onWinMove = e => { this.par.tx = (e.clientX / innerWidth) * 2 - 1; this.par.ty = (e.clientY / innerHeight) * 2 - 1; };
+      addEventListener("pointermove", this.onWinMove, { passive: true });
+    }
+    this.scheme = matchMedia("(prefers-color-scheme: dark)");
+    this.onScheme = () => { if (this.source) this.resize(); };
+    if (this.scheme.addEventListener) this.scheme.addEventListener("change", this.onScheme);
+    this.io = new IntersectionObserver(es => { this.visible = !!(es[0] && es[0].isIntersecting); if (this.visible && this.source) this.startLoop(); });
+    this.io.observe(el);
+    this.ro = new ResizeObserver(() => this.resize()); this.ro.observe(el);
+    this.bindEvents();
+    this.load(src);
+  }
+  destroy() {
+    this.dead = true; this.running = false;
+    this.ro.disconnect(); this.io.disconnect();
+    if (this.scheme.removeEventListener) this.scheme.removeEventListener("change", this.onScheme);
+    if (this.onWinMove) removeEventListener("pointermove", this.onWinMove);
+  }
+  theme() {
+    const cs = getComputedStyle(document.documentElement);
+    return { rgb: cs.getPropertyValue("--ascii-rgb").trim() || "23, 24, 27",
+      invert: cs.getPropertyValue("--ascii-invert").trim() !== "0" };
+  }
+  load(src) {
+    const img = new Image(); img.crossOrigin = "anonymous";
+    img.onload = () => { if (this.dead) return; this.source = img;
+      this.el.style.aspectRatio = img.naturalWidth + " / " + img.naturalHeight;
+      requestAnimationFrame(() => { this.resize(); this.startLoop(); }); };
+    img.onerror = () => { if (!this.dead) this.el.innerHTML = '<img src="' + src + '" alt="Jack Walker" style="width:100%;height:auto">'; };
+    img.src = src;
+  }
+  resize() {
+    if (!this.source || this.dead) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = this.el.clientWidth, h = this.el.clientHeight;
+    if (!w || !h) return;
+    this.w = w; this.h = h; this.dpr = dpr;
+    for (const c of [this.ascii, this.rev]) { c.width = w * dpr; c.height = h * dpr; }
+    this.rctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.fscale = .5;
+    this.field.width = Math.max(2, Math.ceil(w * this.fscale));
+    this.field.height = Math.max(2, Math.ceil(h * this.fscale));
+    const step = Math.sqrt(Math.max(2, this.opts.goo * this.fscale));
+    this.t1.width = Math.max(2, Math.ceil(this.field.width / step));
+    this.t1.height = Math.max(2, Math.ceil(this.field.height / step));
+    this.t2.width = Math.max(2, Math.ceil(this.t1.width / step));
+    this.t2.height = Math.max(2, Math.ceil(this.t1.height / step));
+    for (const c of [this.fctx, this.t1ctx, this.t2ctx, this.rctx]) {
+      c.imageSmoothingEnabled = true;
+      if ("imageSmoothingQuality" in c) c.imageSmoothingQuality = "high";
+    }
+    const iw = this.source.naturalWidth, ih = this.source.naturalHeight;
+    const s = Math.max(w / iw, h / ih);
+    this.fit = { dw: iw * s, dh: ih * s, dx: (w - iw * s) / 2, dy: (h - ih * s) / 2 };
+    this.renderAscii();
+  }
+  renderAscii() {
+    const w = this.w, h = this.h, dpr = this.dpr, ctx = this.actx;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const cell = this.opts.cell;
+    const cols = Math.max(1, Math.floor(w / cell)), rows = Math.max(1, Math.floor(h / cell));
+    const s = document.createElement("canvas");
+    s.width = cols; s.height = rows;
+    const sctx = s.getContext("2d", { willReadFrequently: true });
+    const iw = this.source.naturalWidth, ih = this.source.naturalHeight;
+    const sc = Math.max(cols / iw, rows / ih);
+    sctx.drawImage(this.source, (cols - iw * sc) / 2, (rows - ih * sc) / 2, iw * sc, ih * sc);
+    const data = sctx.getImageData(0, 0, cols, rows).data;
+    const chars = this.opts.charset, th = this.theme();
+    ctx.clearRect(0, 0, w, h);
+    ctx.font = cell + "px ui-monospace, Menlo, Consolas, monospace";
+    ctx.textBaseline = "top";
+    for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+      const i = (y * cols + x) * 4;
+      let lum = (.2126 * data[i] + .7152 * data[i + 1] + .0722 * data[i + 2]) / 255;
+      lum = Math.min(1, Math.max(0, (lum - .5) * this.opts.contrast + .5));
+      if (th.invert) lum = 1 - lum;
+      const ch = chars[Math.floor(lum * (chars.length - 1))];
+      if (ch === " ") continue;
+      ctx.fillStyle = "rgba(" + th.rgb + "," + (.42 + lum * .58).toFixed(2) + ")";
+      ctx.fillText(ch, x * cell, y * cell);
+    }
+  }
+  stamp(x, y, r, bornAt) {
+    const d = { x, y, r, born: bornAt, seed: Math.random() * Math.PI * 2 };
+    this.trail.push(d);
+    if (this.trail.length > 800) this.trail.shift();
+    return d;
+  }
+  blobPath(m, x, y, r, seed, t) {
+    const wob = this.opts.wobbleAmount, PTS = 22, vx = [], vy = [];
+    for (let i = 0; i < PTS; i++) {
+      const a = (i / PTS) * Math.PI * 2;
+      const k = 1 + wob * Math.sin(2 * a + seed + t * .3) + wob * .5 * Math.sin(3 * a - t * .22 + seed * 1.7);
+      vx.push(x + Math.cos(a) * r * k); vy.push(y + Math.sin(a) * r * k);
+    }
+    let mx = (vx[PTS - 1] + vx[0]) / 2, my = (vy[PTS - 1] + vy[0]) / 2;
+    m.moveTo(mx, my);
+    for (let i = 0; i < PTS; i++) {
+      const nx = vx[(i + 1) % PTS], ny = vy[(i + 1) % PTS];
+      mx = (vx[i] + nx) / 2; my = (vy[i] + ny) / 2;
+      m.quadraticCurveTo(vx[i], vy[i], mx, my);
+    }
+    m.closePath();
+  }
+  startLoop() {
+    if (this.running || this.dead) return;
+    this.running = true;
+    const linger = (this.reduced ? .15 : this.opts.trailLinger) * 1000;
+    const taper = this.opts.taper;
+    const tick = (now) => {
+      if (this.dead || !this.visible) { this.running = false; return; }
+      const t = now / 1000;
+      if (this.pointer.inside) {
+        if (!this.hasCur) { this.cur.x = this.pointer.x; this.cur.y = this.pointer.y; this.hasCur = true; this.brushGrow = 0; }
+        const px = this.cur.x, py = this.cur.y;
+        const ease = this.reduced ? 1 : .09;
+        this.cur.x += (this.pointer.x - this.cur.x) * ease;
+        this.cur.y += (this.pointer.y - this.cur.y) * ease;
+        this.brushGrow += (1 - this.brushGrow) * (this.reduced ? 1 : .12);
+        const wobble = this.reduced ? 1 : 1 + .06 * Math.sin(t * 1.1) + .04 * Math.sin(t * 1.9 + 1.4);
+        const r = this.opts.lensRadius * wobble * this.brushGrow;
+        const dist = Math.hypot(this.cur.x - px, this.cur.y - py);
+        const cd = this.cursorDisc, cdAlive = cd && this.trail.indexOf(cd) !== -1;
+        if (dist < 1.5 && cdAlive) { cd.born = now; cd.r = r; cd.x = this.cur.x; cd.y = this.cur.y; }
+        else {
+          const steps = Math.min(12, Math.max(1, Math.ceil(dist / (r * .3))));
+          for (let i = 1; i <= steps; i++) {
+            const k = i / steps;
+            this.cursorDisc = this.stamp(px + (this.cur.x - px) * k, py + (this.cur.y - py) * k, r, now);
+          }
+        }
+      } else this.hasCur = false;
+      this.trail = this.trail.filter(d => now - d.born < linger);
+      for (const b of this.blobs) {
+        const x = this.w * (.5 + .44 * Math.sin(t * b.fx + b.px));
+        const y = this.h * (.5 + .44 * Math.sin(t * b.fy + b.py));
+        const rMin = this.opts.ambientRadius[0], rMax = this.opts.ambientRadius[1];
+        const rBase = rMin + (rMax - rMin) * (.5 + .5 * Math.sin(t * b.fr + b.pr));
+        const v = (.5 + .5 * Math.sin(t * b.fa1 + b.pa1)) * (.5 + .5 * Math.sin(t * b.fa2 + b.pa2));
+        const grow = (v - .22) / .78;
+        if (grow <= 0) { b.lastDisc = null; continue; }
+        const rr = rBase * Math.min(1, grow * 1.4) * this.opts.ambientStrength;
+        if (rr < 2) { b.lastDisc = null; continue; }
+        const ld = b.lastDisc, alive = ld && this.trail.indexOf(ld) !== -1;
+        if (alive && Math.hypot(x - ld.x, y - ld.y) < 2.5) { ld.born = now; ld.x = x; ld.y = y; ld.r = rr; }
+        else b.lastDisc = this.stamp(x, y, rr, now);
+      }
+      const f = this.fctx, fs = this.fscale;
+      f.setTransform(fs, 0, 0, fs, 0, 0);
+      f.clearRect(0, 0, this.w, this.h);
+      f.fillStyle = "#fff"; f.globalAlpha = 1; f.beginPath();
+      const dying = [];
+      for (const d of this.trail) {
+        const age = (now - d.born) / linger;
+        const rr = d.r * (1 - Math.pow(age, taper));
+        if (rr < 1) continue;
+        if (age > .7) { dying.push([d, rr, age]); continue; }
+        this.blobPath(f, d.x, d.y, rr, d.seed, t);
+      }
+      f.fill();
+      for (const dd of dying) {
+        f.globalAlpha = 1 - (dd[2] - .7) / .3;
+        f.beginPath(); this.blobPath(f, dd[0].x, dd[0].y, dd[1], dd[0].seed, t); f.fill();
+      }
+      f.globalAlpha = 1;
+      const fw = this.field.width, fh = this.field.height, t1 = this.t1, t2 = this.t2;
+      this.t1ctx.clearRect(0, 0, t1.width, t1.height);
+      this.t1ctx.drawImage(this.field, 0, 0, t1.width, t1.height);
+      this.t2ctx.clearRect(0, 0, t2.width, t2.height);
+      this.t2ctx.drawImage(t1, 0, 0, t2.width, t2.height);
+      this.t1ctx.clearRect(0, 0, t1.width, t1.height);
+      this.t1ctx.drawImage(t2, 0, 0, t1.width, t1.height);
+      f.setTransform(1, 0, 0, 1, 0, 0);
+      f.clearRect(0, 0, fw, fh);
+      f.drawImage(t1, 0, 0, fw, fh);
+      const id = f.getImageData(0, 0, fw, fh), pix = id.data;
+      for (let i = 3; i < pix.length; i += 4) {
+        const a = pix[i];
+        pix[i] = a < 96 ? 0 : a > 168 ? 255 : (((a - 96) * 3.54) | 0);
+      }
+      f.putImageData(id, 0, 0);
+      const rc = this.rctx;
+      rc.clearRect(0, 0, this.w, this.h);
+      rc.globalCompositeOperation = "source-over";
+      rc.drawImage(this.source, this.fit.dx, this.fit.dy, this.fit.dw, this.fit.dh);
+      rc.globalCompositeOperation = "destination-in";
+      rc.setTransform(1, 0, 0, 1, 0, 0);
+      rc.drawImage(this.field, 0, 0, this.rev.width, this.rev.height);
+      rc.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+      rc.globalCompositeOperation = "source-over";
+      if (this.opts.parallax && !this.reduced) {
+        this.par.nx += (this.par.tx - this.par.nx) * .05;
+        this.par.ny += (this.par.ty - this.par.ny) * .05;
+        const nx = this.par.nx, ny = this.par.ny;
+        const tilt = this.opts.parallaxTilt, shift = this.opts.parallaxShift;
+        this.el.style.transform = "perspective(900px) rotateX(" + (-ny * tilt).toFixed(2) + "deg) rotateY(" + (nx * tilt).toFixed(2) + "deg)";
+        this.ascii.style.transform = "translate(" + (-nx * shift * .45).toFixed(1) + "px," + (-ny * shift * .45).toFixed(1) + "px) scale(1.05)";
+        this.rev.style.transform = "translate(" + (-nx * shift).toFixed(1) + "px," + (-ny * shift).toFixed(1) + "px) scale(1.05)";
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+  bindEvents() {
+    const el = this.el;
+    const rel = e => { const r = el.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+    el.addEventListener("pointerenter", e => { if (e.pointerType === "touch") return; const p = rel(e); this.pointer.x = p.x; this.pointer.y = p.y; this.pointer.inside = true; });
+    el.addEventListener("pointermove", e => { if (e.pointerType === "touch") return; const p = rel(e); this.pointer.x = p.x; this.pointer.y = p.y; });
+    el.addEventListener("pointerleave", e => { if (e.pointerType === "touch") return; this.pointer.inside = false; });
+    el.addEventListener("touchend", e => {
+      e.preventDefault();
+      if (!this.source) return;
+      const touch = e.changedTouches[0]; if (!touch) return;
+      const r = el.getBoundingClientRect();
+      this.stamp(touch.clientX - r.left, touch.clientY - r.top, this.opts.lensRadius * 1.6, performance.now());
+      this.startLoop();
+    }, { passive: false });
+  }
+}
+let portraitWidget = null;
+
 /* ---------- Rendering ---------- */
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -389,9 +657,15 @@ function card(p) {
 }
 
 function viewHome() {
-  return `<section class="intro">
-      <h1>Jack Walker designs mobile and web products.</h1>
-      <p>I'm a product designer finishing my BFA in UX Design at SCAD in May 2027. Most recently I redesigned title production software as a UX/UI design intern at Stewart Title.</p>
+  return `<section class="intro has-portrait">
+      <div class="intro-text">
+        <h1>Jack Walker designs mobile and web products.</h1>
+        <p>I'm a product designer finishing my BFA in UX Design at SCAD in May 2027. Most recently I redesigned title production software as a UX/UI design intern at Stewart Title.</p>
+      </div>
+      <div class="portrait-wrap">
+        <figure class="ascii-reveal" id="portrait" aria-label="Portrait of Jack Walker, revealed as you move across it"></figure>
+        <p class="whisper"><span class="m-hover">Run your cursor across it</span><span class="m-touch">Tap it</span></p>
+      </div>
     </section>
     <div class="cards">${FEATURED.map(card).join("")}</div>
     <section class="more"><h2>More work</h2><div class="cards">${MORE.map(card).join("")}
@@ -458,10 +732,13 @@ function render() {
   else if (id === "other-work") { html = viewOther(); nav = "other"; }
   else if (id === "about") { html = viewAbout(); nav = "about"; }
   else html = viewHome();
+  if (portraitWidget) { portraitWidget.destroy(); portraitWidget = null; }
   $("#app").innerHTML = html;
   document.querySelectorAll("[data-nav]").forEach(a => { if (a.dataset.nav === nav) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
   document.title = p ? `${p.title} · Jack Walker` : "Jack Walker Portfolio";
   window.scrollTo(0, 0);
+  const pel = document.getElementById("portrait");
+  if (pel) portraitWidget = new AsciiReveal(pel, ASSETS["jack-walker-headshot"], ASCII_CFG);
 }
 
 document.body.classList.toggle("draft-off", !DRAFT);
