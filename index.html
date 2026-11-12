@@ -115,13 +115,21 @@ main { padding-block: 56px 96px; }
 .decision { display: grid; gap: 14px; padding-top: 8px; }
 .decision + .decision { margin-top: 24px; }
 
-.figs { display: grid; gap: 16px; grid-template-columns: repeat(var(--n, 2), minmax(0, 1fr)); margin-top: 8px; }
+.figs { display: grid; gap: 16px; grid-template-columns: repeat(var(--n, 2), minmax(0, 1fr)); margin-top: 8px; max-width: 920px; }
+.figs.wide { max-width: none; }
+.figs.strip { --n: 6; gap: 10px; max-width: none; }
+.strip figcaption { font-size: 13px; }
 figure { margin: 0; display: grid; gap: 8px; min-width: 0; align-content: start; }
 figure .img { border-radius: 8px; overflow: hidden; background: var(--wash); }
 figure .img.fit img, figure .img.fit video { width: 100%; height: auto; }
 figcaption { font-size: 15px; color: var(--muted); }
-.phones { --n: 3; max-width: 820px; }
-.phones.two { --n: 2; max-width: 560px; }
+figure .img.fit img { cursor: zoom-in; }
+#lb { border: 0; padding: 0; background: transparent; max-width: 96vw; max-height: 94vh; }
+#lb::backdrop { background: rgba(12, 13, 14, .85); }
+#lb img { max-width: 94vw; max-height: 86vh; width: auto; height: auto; margin-inline: auto; border-radius: 6px; cursor: zoom-out; }
+#lb p { color: #E8E9EB; text-align: center; font-size: 15px; margin: 10px 0 0; }
+.phones { --n: 3; max-width: 700px; }
+.phones.two { --n: 2; max-width: 480px; }
 
 .nums { display: flex; flex-wrap: wrap; gap: 16px 40px; }
 .nums b { display: block; font-size: 34px; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; }
@@ -169,12 +177,14 @@ footer a { color: var(--muted); }
   .about { grid-template-columns: 1fr; gap: 32px; }
   .about .photo { max-width: 220px; }
   .row { grid-template-columns: 1fr; }
+  .figs.strip { --n: 3; }
 }
 @media (max-width: 560px) {
   body { font-size: 17px; }
   main { padding-block: 36px 72px; }
   .top nav { gap: 16px; }
   .figs { --n: 1 !important; }
+  .figs.strip { --n: 3 !important; }
   .phones, .phones.two { --n: 2 !important; }
   .cs-body { gap: 56px; margin-top: 56px; }
 }
@@ -186,6 +196,7 @@ footer a { color: var(--muted); }
   <nav aria-label="Main"><a href="#" data-nav="work">Work</a><a href="#other-work" data-nav="other">Other work</a><a href="#about" data-nav="about">About</a></nav>
 </div></header>
 <main id="app" class="wrap"></main>
+<dialog id="lb" aria-label="Image preview"><img alt=""><p></p></dialog>
 <footer><div class="wrap">
   <span>Jack Walker · Product designer · BFA UX Design, SCAD, May 2027</span>
   <span><a href="https://www.linkedin.com/in/jack-walker-b20035321/" target="_blank" rel="noopener">LinkedIn</a> · walkerajack@gmail.com</span>
@@ -258,24 +269,26 @@ const FEATURED = [
     facts: { Role: "UX/UI design lead", Team: "Team project", Timeline: "Jan to Mar 2025", Tools: "Figma, Illustrator" },
     sections: [
       { h: "Overview", blocks: [
-        { p: "Over ten weeks, our team redesigned the Google Nest Thermostat's mobile app and its hardware interface. I led the UX/UI design." } ] },
-      { h: "Problem", blocks: [
-        { p: "Our brief was to make the 3rd-generation Nest Thermostat look and feel greener and more affordable." },
-        { todo: "What felt expensive or wasteful about the original? One or two sentences." } ] },
-      { h: "Final design", blocks: [
-        { figs: [["nest-eco", "Eco mode"], ["nest-cool", "Cooling"], ["nest-heat", "Heating"]], kind: "phones" },
-        { figs: [["nest-home", "Home"], ["nest-schedule", "Schedule"]], kind: "phones two" } ] },
-      { h: "Design decisions", blocks: [
-        { todo: "Two or three decisions, like the color for each mode or how the schedule works. Say what you changed and why." } ] },
+        { p: "Over ten weeks, our team redesigned the Google Nest Thermostat's mobile app and its on-device screen. I led the UX/UI design. The brief: make the 3rd-generation Nest look and feel greener and more affordable." },
+        { p: "Three ideas carry the system. Every mode has its own color. The interface always says what it's doing and for how long. And saving energy is framed in dollars, not just degrees." } ] },
+      { h: "The redesign", blocks: [
+        { figs: [["nest-eco", "Eco Mode — the resting state, in green"], ["nest-cool", "Cooling shows the target and the time to get there: 70 → 68, 15 minutes left"], ["nest-heat", "Heating gets the same treatment in orange"]], kind: "phones" } ] },
+      { h: "Key decisions", blocks: [
+        { decision: { h: "Savings in dollars, not just degrees", p: "The home screen pairs the set temperature with an Eco Suggestion and a daily tally of hours run, kWh used and money saved. 'Greener and more affordable' becomes something you can read every morning instead of a slogan.",
+          kind: "phones two", figs: [["nest-home", "Home: set temperature, Eco Suggestion, and daily insights"]] } },
+        { decision: { h: "One color per mode, on the wall and in your hand", p: "Eco is green, cooling is blue, heating is orange — on the thermostat dial, in the app's progress bars, in every status pill. You can read the system's state from across the room, on either surface." } },
+        { decision: { h: "A schedule that reads like a calendar", p: "Scheduling borrows the shape of a calendar app — Sleep and Work blocks on a week grid — so a first schedule takes seconds to understand.",
+          kind: "phones two", figs: [["nest-schedule", "The week view, with Sleep and Work blocks"]] } },
+        { todo: "If one of these decisions misses the real story, swap it — each needs just the change, the reason, and one image." } ] },
+      { h: "The system", blocks: [
+        { p: "A six-page style guide kept the two surfaces consistent: Forest Green with deep blue and fiery orange as mode colors, a shared grayscale, and one typeface, Marlett, scaled separately for phone and thermostat. Click any page to read it." },
+        { figs: [["nest-sg1", "Colors & type"], ["nest-sg2", "Page 2"], ["nest-sg3", "Page 3"], ["nest-sg4", "Page 4"], ["nest-sg5", "Page 5"], ["nest-sg6", "Page 6"]], kind: "strip" },
+        { figs: [["nest-poster", "Project poster"], ["nest-summary", "Executive summary"]], kind: "phones two" } ] },
       { h: "Testing", blocks: [
         { p: "We wireframed, prototyped and user tested both the device and the phone screens in Figma." },
         { todo: "One finding from testing and what it changed." } ] },
-      { h: "Style guide", blocks: [
-        { figs: [["nest-sg1", "Page 1"], ["nest-sg2", "Page 2"], ["nest-sg3", "Page 3"]], n: 3 },
-        { figs: [["nest-sg4", "Page 4"], ["nest-sg5", "Page 5"], ["nest-sg6", "Page 6"]], n: 3 } ] },
-      { h: "Lookbook", blocks: [
-        { figs: [["nest-lookbook", "Lookbook"]], n: 1 },
-        { figs: [["nest-poster", "Poster"], ["nest-summary", "Executive summary"]] } ] }
+      { h: "Reflection", blocks: [
+        { todo: "A short outcome: the feedback the project got, and what you'd push further with more time." } ] }
     ]}
 ];
 
@@ -363,7 +376,7 @@ function block(b) {
   if (b.todo) return `<div class="col">${todo(b.todo)}</div>`;
   if (b.figs) return figs(b.figs, b.n, b.kind);
   if (b.nums) return `<div class="nums">${b.nums.map(([v, l]) => `<div><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("")}</div>`;
-  if (b.decision) { const d = b.decision; return `<div class="decision"><div class="col" style="display:grid;gap:12px"><h3>${esc(d.h)}</h3>${d.p ? `<p>${esc(d.p)}</p>` : ""}${d.todo ? todo(d.todo) : ""}</div>${d.figs ? figs(d.figs) : ""}</div>`; }
+  if (b.decision) { const d = b.decision; return `<div class="decision"><div class="col" style="display:grid;gap:12px"><h3>${esc(d.h)}</h3>${d.p ? `<p>${esc(d.p)}</p>` : ""}${d.todo ? todo(d.todo) : ""}</div>${d.figs ? figs(d.figs, d.n, d.kind) : ""}</div>`; }
   return "";
 }
 function card(p) {
@@ -453,6 +466,9 @@ function render() {
 
 document.body.classList.toggle("draft-off", !DRAFT);
 document.addEventListener("click", e => {
+  const zi = e.target.closest("figure .img.fit img");
+  if (zi) { const lb = $("#lb"); const li = lb.querySelector("img"); li.src = zi.src; li.alt = zi.alt || ""; lb.querySelector("p").textContent = zi.closest("figure")?.querySelector("figcaption")?.textContent || ""; lb.showModal(); return; }
+  if (e.target.closest("#lb")) { $("#lb").close(); return; }
   const j = e.target.closest("[data-jump]");
   if (j) { e.preventDefault(); document.getElementById("o-" + j.dataset.jump)?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }
   if (e.target.id === "copy") {
