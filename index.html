@@ -78,6 +78,15 @@ main { padding-block: 56px 96px; }
 .intro p { color: var(--muted); font-size: 19px; max-width: 56ch; }
 .intro.has-portrait { grid-template-columns: minmax(0, 1fr) 320px; align-items: center; column-gap: 64px; }
 .intro-text { display: grid; gap: 16px; }
+.qlinks { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.qlink { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--wash); color: var(--ink); text-decoration: none; font-size: 15px; transition: border-color .2s; }
+.qlink:hover { border-color: var(--ink); }
+.qlink svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.qsplit a { color: inherit; text-decoration: none; }
+.qsplit a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.qsplit i { font-style: normal; color: var(--muted); margin-inline: 2px; }
+.featured { display: grid; gap: 28px; }
+.featured > h2 { font-size: 20px; }
 .portrait-wrap { display: grid; gap: 10px; justify-items: center; }
 .ascii-reveal { position: relative; width: 100%; max-width: 320px; background: var(--wash); border-radius: 10px; overflow: hidden; cursor: crosshair; }
 .ascii-reveal canvas { display: block; width: 100%; height: 100%; }
@@ -240,6 +249,9 @@ const DRAFT = true;
 const ASSETS = {"cover-quarters": "assets/cover-quarters.webp", "cover-stewart-title": "assets/cover-stewart-title.png", "cover-amazon-music": "assets/cover-amazon-music.webp", "cover-savannah-parking": "assets/cover-savannah-parking.webp", "cover-national-park-service": "assets/cover-national-park-service.webp", "cover-nest-thermostat": "assets/cover-nest-thermostat.webp", "nps-topo": "assets/nps-topo.webp", "nps-real": "assets/nps-real.webp", "nps-nat": "assets/nps-nat.webp", "nps-con": "assets/nps-con.webp", "nps-color": "assets/nps-color.webp", "nps-type": "assets/nps-type.webp", "nps-layout": "assets/nps-layout.webp", "nps-mirage": "assets/nps-mirage.webp", "nps-sunday": "assets/nps-sunday.png", "nps-hikeon": "assets/nps-hikeon.webp", "nps-palette": "assets/nps-palette.webp", "nps-typefaces": "assets/nps-typefaces.webp", "nps-shapes": "assets/nps-shapes.webp", "nps-illus": "assets/nps-illus.webp", "nps-components": "assets/nps-components.webp", "nps-flow": "assets/nps-flow.webp", "nest-lookbook": "assets/nest-lookbook.webp", "nest-poster": "assets/nest-poster.webp", "nest-summary": "assets/nest-summary.webp", "nest-sg1": "assets/nest-sg1.png", "nest-sg2": "assets/nest-sg2.png", "nest-sg3": "assets/nest-sg3.png", "nest-sg4": "assets/nest-sg4.png", "nest-sg5": "assets/nest-sg5.png", "nest-sg6": "assets/nest-sg6.png", "nest-eco": "assets/nest-eco.png", "nest-cool": "assets/nest-cool.webp", "nest-heat": "assets/nest-heat.webp", "nest-home": "assets/nest-home.png", "nest-schedule": "assets/nest-schedule.png", "fr-hero": "assets/fr-hero.webp", "fr-obs1": "assets/fr-obs1.webp", "fr-obs2": "assets/fr-obs2.webp", "fr-stake": "assets/fr-stake.png", "fr-screener": "assets/fr-screener.png", "fr-questions": "assets/fr-questions.png", "fr-insights": "assets/fr-insights.png", "fr-workshop": "assets/fr-workshop.webp", "fr-kit": "assets/fr-kit.webp", "fr-data": "assets/fr-data.webp", "fr-aff1": "assets/fr-aff1.webp", "fr-aff2": "assets/fr-aff2.webp", "fr-front": "assets/fr-front.webp", "fr-back": "assets/fr-back.webp", "fr-p12": "assets/fr-p12.webp", "fr-p34": "assets/fr-p34.webp", "fr-p56": "assets/fr-p56.webp", "fr-mock": "assets/fr-mock.webp", "gd-chloris": "assets/gd-chloris.webp", "gd-film": "assets/gd-film.png", "gd-type": "assets/gd-type.webp", "pw-back": "assets/pw-back.webp", "pw-front": "assets/pw-front.webp", "pw-sticker": "assets/pw-sticker.webp", "pw-sticker-ai": "assets/pw-sticker-ai.webp", "pw-coaster": "assets/pw-coaster.webp", "pw-coaster-ai": "assets/pw-coaster-ai.webp", "id-model": "assets/id-model.webp", "id-proto": "assets/id-proto.webp", "nps-landing": "assets/nps-landing.mp4", "nps-alaska": "assets/nps-alaska.mp4", "nps-denali": "assets/nps-denali.mp4", "jack-walker-headshot": "assets/jack-walker-headshot.webp"};
 const EMAIL = "walkerajack@gmail.com";
 const LINKEDIN = "https://www.linkedin.com/in/jack-walker-b20035321/";
+const INSTAGRAM = "https://www.instagram.com/trailwlk.r/";
+const RESUME_VIEW = "https://docs.google.com/document/d/1W2idFMJRs5636LlhtmxSSqJZcpYce-FCKtDAANgGB-8/preview";
+const RESUME_PDF = "https://docs.google.com/document/d/1W2idFMJRs5636LlhtmxSSqJZcpYce-FCKtDAANgGB-8/export?format=pdf";
 
 /* ---------- Content ----------
    Block types: p, list, todo, figs [key, caption][] with n (columns) and kind ("phones"),
@@ -779,12 +791,18 @@ function viewHome() {
       <div class="intro-text">
         <h1>Jack Walker designs mobile and web products.</h1>
         <p>I'm a product designer finishing my BFA in UX Design at SCAD in May 2027. Most recently I redesigned title production software as a UX/UI design intern at Stewart Title.</p>
+        <div class="qlinks">
+          <a class="qlink" href="mailto:${EMAIL}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Email</a>
+          <a class="qlink" href="${LINKEDIN}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a3.5 3.5 0 0 0 5 0l4-4a3.5 3.5 0 0 0-5-5l-2 2"/><path d="M14 10a3.5 3.5 0 0 0-5 0l-4 4a3.5 3.5 0 0 0 5 5l2-2"/></svg>LinkedIn</a>
+          <a class="qlink" href="${INSTAGRAM}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="12" cy="12" r="3.8"/><circle cx="17" cy="7" r="1" fill="currentColor" stroke="none"/></svg>Instagram</a>
+          <span class="qlink qsplit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6"/></svg><a href="${RESUME_VIEW}" target="_blank" rel="noopener">Résumé</a><i>·</i><a href="${RESUME_PDF}" target="_blank" rel="noopener">PDF</a></span>
+        </div>
       </div>
       <div class="portrait-wrap">
         <figure class="ascii-reveal" id="portrait" aria-label="Portrait of Jack Walker, revealed as you move across it"></figure>
       </div>
     </section>
-    <div class="cards">${FEATURED.map(card).join("")}</div>
+    <section class="featured"><h2>Selected work</h2><div class="cards">${FEATURED.map(card).join("")}</div></section>
     <section class="more"><h2>More work</h2><div class="cards">${MORE.map(card).join("")}
       <a class="card" href="#other-work"><div class="shot">${media("gd-type", "")}</div><h2>Other work</h2><p>Graphic design, research, print and industrial design.</p><span class="meta">2023 to 2026</span></a>
     </div></section>`;
