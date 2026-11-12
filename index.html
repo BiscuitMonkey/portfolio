@@ -22,7 +22,7 @@
   --muted: #5E6168;
   --line: #E4E5E8;
   --wash: #F4F5F7;
-  --link: #2343B8;
+  --link: #15803D;
   --todo-bg: #FFF7E0;
   --todo-ink: #6B4E00;
   --todo-line: #E8C766;
@@ -34,12 +34,12 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #121315; --ink: #ECEDEF; --muted: #A2A5AC; --line: #2A2C30; --wash: #1B1C1F; --link: #9DB0FF;
+    --bg: #121315; --ink: #ECEDEF; --muted: #A2A5AC; --line: #2A2C30; --wash: #1B1C1F; --link: #86EFAC;
     --todo-bg: #2A2414; --todo-ink: #F0D68A; --todo-line: #6B5A26; --ascii-rgb: 236, 237, 239; --ascii-invert: 0; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #121315; --ink: #ECEDEF; --muted: #A2A5AC; --line: #2A2C30; --wash: #1B1C1F; --link: #9DB0FF;
+  --bg: #121315; --ink: #ECEDEF; --muted: #A2A5AC; --line: #2A2C30; --wash: #1B1C1F; --link: #86EFAC;
   --todo-bg: #2A2414; --todo-ink: #F0D68A; --todo-line: #6B5A26; --ascii-rgb: 236, 237, 239; --ascii-invert: 0; color-scheme: dark;
 }
 
@@ -69,6 +69,9 @@ img, video { display: block; max-width: 100%; }
 .top nav { display: flex; gap: 24px; }
 .top nav a { color: var(--muted); text-decoration: none; font-size: 16px; font-weight: 500; }
 .top nav a:hover, .top nav a[aria-current="page"] { color: var(--ink); }
+.top nav button { background: none; border: 0; padding: 4px; margin-left: 4px; color: var(--muted); display: grid; place-items: center; }
+.top nav button:hover { color: var(--ink); }
+.top nav button svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 
 main { padding-block: 56px 96px; }
 
@@ -233,7 +236,7 @@ footer a { color: var(--muted); }
 
 <header class="top"><div class="wrap">
   <a class="name" href="#">Jack Walker</a>
-  <nav aria-label="Main"><a href="#" data-nav="work">Work</a><a href="#other-work" data-nav="other">Other work</a><a href="#about" data-nav="about">About</a></nav>
+  <nav aria-label="Main"><a href="#" data-nav="work">Home</a><a href="#other-work" data-nav="other">Other work</a><a href="#about" data-nav="about">About</a><button id="mode" type="button" aria-label="Switch color theme"></button></nav>
 </div></header>
 <main id="app" class="wrap"></main>
 <dialog id="lb" aria-label="Image preview"><img alt=""><p></p></dialog>
@@ -928,6 +931,32 @@ document.addEventListener("click", e => {
   })();
   const lb = $("#lb");
   if (lb) lb.addEventListener("close", () => document.body.classList.remove("lb-open"));
+})();
+/* Light/dark toggle in the nav. Follows the system until the visitor chooses. */
+(function () {
+  const btn = document.getElementById("mode");
+  if (!btn) return;
+  const mq = matchMedia("(prefers-color-scheme: dark)");
+  let stored = null;
+  try { stored = localStorage.getItem("theme"); } catch (e) {}
+  if (stored === "dark" || stored === "light") document.documentElement.dataset.theme = stored;
+  const effective = () => document.documentElement.dataset.theme || (mq.matches ? "dark" : "light");
+  const icon = () => {
+    const dark = effective() === "dark";
+    btn.innerHTML = dark
+      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5 5l2.1 2.1M16.9 16.9L19 19M19 5l-2.1 2.1M7.1 16.9L5 19"/></svg>'
+      : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>';
+    btn.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+  };
+  icon();
+  if (mq.addEventListener) mq.addEventListener("change", icon);
+  btn.addEventListener("click", () => {
+    const next = effective() === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem("theme", next); } catch (e) {}
+    icon();
+    if (typeof portraitWidget !== "undefined" && portraitWidget && portraitWidget.source) portraitWidget.resize();
+  });
 })();
 addEventListener("hashchange", render);
 render();
