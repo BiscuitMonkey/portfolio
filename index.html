@@ -126,9 +126,9 @@ main { padding-block: 56px 96px; }
 .decision { display: grid; gap: 14px; padding-top: 8px; }
 .decision + .decision { margin-top: 24px; }
 
-.figs { display: grid; gap: 16px; grid-template-columns: repeat(var(--n, 2), minmax(0, 1fr)); margin-top: 8px; max-width: 920px; }
-.figs.wide { max-width: none; }
-.figs.strip { --n: 6; gap: 10px; max-width: none; }
+.figs { display: grid; gap: 16px; grid-template-columns: repeat(var(--n, 2), minmax(0, 1fr)); margin-top: 8px; }
+.figs.one { max-width: 820px; margin-inline: auto; width: 100%; }
+.figs.strip { --n: 6; gap: 12px; }
 .strip figcaption { font-size: 13px; }
 figure { margin: 0; display: grid; gap: 8px; min-width: 0; align-content: start; }
 figure .img { border-radius: 8px; overflow: hidden; background: var(--wash); }
@@ -139,9 +139,9 @@ figure .img.fit img { cursor: zoom-in; }
 #lb::backdrop { background: rgba(12, 13, 14, .85); }
 #lb img { max-width: 94vw; max-height: 86vh; width: auto; height: auto; margin-inline: auto; border-radius: 6px; cursor: zoom-out; }
 #lb p { color: #E8E9EB; text-align: center; font-size: 15px; margin: 10px 0 0; }
-.phones { --n: 3; max-width: 700px; }
-.phones.two { --n: 2; max-width: 480px; }
-.dials { --n: 3; max-width: 540px; }
+.phones { --n: 3; max-width: 760px; margin-inline: auto; width: 100%; }
+.phones.two { --n: 2; max-width: 520px; margin-inline: auto; width: 100%; }
+.dials { --n: 3; max-width: 660px; margin-inline: auto; width: 100%; }
 .bare .img { background: transparent; border-radius: 0; }
 
 .nums { display: flex; flex-wrap: wrap; gap: 16px 40px; }
@@ -726,8 +726,10 @@ function media(key, alt, eager) {
   return `<img src="${src}" alt="${esc(alt)}"${eager ? "" : ' loading="lazy"'}>`;
 }
 function figs(list, n, kind) {
-  const cols = n || (list.length >= 3 ? 3 : list.length);
-  return `<div class="figs ${kind || ""}" style="--n:${kind ? "" : cols}">${list.map(([k, c]) =>
+  const cols = n || (list.length === 4 ? 2 : Math.min(3, list.length));
+  const cls = "figs" + (kind ? " " + kind : "") + (!kind && cols === 1 ? " one" : "");
+  const style = kind ? "" : ' style="--n:' + cols + '"';
+  return `<div class="${cls}"${style}>${list.map(([k, c]) =>
     `<figure><div class="img fit">${media(k, c)}</div><figcaption>${esc(c)}</figcaption></figure>`).join("")}</div>`;
 }
 const todo = t => `<p class="todo"><b>To add:</b> ${esc(t)}</p>`;
