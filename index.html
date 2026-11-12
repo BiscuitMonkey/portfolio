@@ -31,16 +31,18 @@
   --wide: 1120px;
   --ascii-rgb: 23, 24, 27;
   --ascii-invert: 1;
+  --cur-fill: #161616;
+  --cur-edge: rgba(255, 255, 255, .9);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #121212; --ink: #ECECEC; --muted: #A3A3A3; --line: #2B2B2B; --wash: #1B1B1B; --link: #35C280;
-    --todo-bg: #2A2414; --todo-ink: #F0D68A; --todo-line: #6B5A26; --ascii-rgb: 236, 237, 239; --ascii-invert: 0; color-scheme: dark;
+    --todo-bg: #2A2414; --todo-ink: #F0D68A; --todo-line: #6B5A26; --ascii-rgb: 236, 237, 239; --ascii-invert: 0; --cur-fill: #FFFFFF; --cur-edge: rgba(10, 11, 12, .7); color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #121212; --ink: #ECECEC; --muted: #A3A3A3; --line: #2B2B2B; --wash: #1B1B1B; --link: #35C280;
-  --todo-bg: #2A2414; --todo-ink: #F0D68A; --todo-line: #6B5A26; --ascii-rgb: 236, 237, 239; --ascii-invert: 0; color-scheme: dark;
+  --todo-bg: #2A2414; --todo-ink: #F0D68A; --todo-line: #6B5A26; --ascii-rgb: 236, 237, 239; --ascii-invert: 0; --cur-fill: #FFFFFF; --cur-edge: rgba(10, 11, 12, .7); color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -99,8 +101,8 @@ main { padding-block: 56px 96px; }
 #cur { display: none; }
 .has-cursor #cur { display: block; position: fixed; inset: 0; z-index: 99; pointer-events: none; }
 .has-cursor * { cursor: none !important; }
-#cur-dot { position: fixed; left: -60px; top: -60px; width: 7px; height: 7px; border-radius: 50%; background: #FFF; box-shadow: 0 0 0 1.25px rgba(10, 11, 12, .85); transform: translate(-50%, -50%); transition: width .15s, height .15s, opacity .2s; }
-#cur-ring { position: fixed; left: -60px; top: -60px; width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid #FFF; box-shadow: 0 0 0 1.25px rgba(10, 11, 12, .6), inset 0 0 0 1.25px rgba(10, 11, 12, .6); transform: translate(-50%, -50%) scale(var(--cs, 1)); display: grid; place-items: center; transition: width .25s, height .25s, background-color .25s, transform .15s, opacity .2s; }
+#cur-dot { position: fixed; left: -60px; top: -60px; width: 7px; height: 7px; border-radius: 50%; background: var(--cur-fill); box-shadow: 0 0 0 1.25px var(--cur-edge); transform: translate(-50%, -50%); transition: width .15s, height .15s, opacity .2s; }
+#cur-ring { position: fixed; left: -60px; top: -60px; width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid var(--cur-fill); box-shadow: 0 0 0 1.25px var(--cur-edge), inset 0 0 0 1.25px var(--cur-edge); transform: translate(-50%, -50%) scale(var(--cs, 1)); display: grid; place-items: center; transition: width .25s, height .25s, background-color .25s, transform .15s, opacity .2s; }
 #cur-glyph { font-size: 15px; line-height: 1; color: #FFF; opacity: 0; transition: opacity .15s; }
 #cur.off #cur-dot, #cur.off #cur-ring { opacity: 0; }
 #cur.link #cur-ring { width: 20px; height: 20px; }
