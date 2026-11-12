@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Jack Walker — UX/UI and graphic designer. BFA UX Design, Savannah College of Art and Design.">
+<style>body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+<title>Jack Walker Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Funnel+Sans:ital,wght@0,300..800;1,300..800&family=Martian+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: the site is a frame for the work. Home = seven full-height project columns (from Jack's sketch);
+   hovering one opens it wide. Project pages: a left rail of section names, the work at full width on the right. */
+:root {
+  --bg: #F6F6F4;
+  --surface: #FFFFFF;
+  --ink: #141518;
+  --muted: #6B6D73;
+  --line: #DDDDD9;
+  --accent: #2F49F5;
+  --tone-mix: 84%;
+  --display: "Funnel Display", "Helvetica Neue", Arial, sans-serif;
+  --sans: "Funnel Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "Martian Mono", ui-monospace, Menlo, monospace;
+  --ease: cubic-bezier(.22, .7, .12, 1);
+  --gut: clamp(16px, 2vw, 28px);
+  --barh: 56px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1012; --surface: #17181B; --ink: #ECECE9; --muted: #9A9CA2; --line: #26282C;
+    --accent: #8E9BFF; --tone-mix: 80%; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1012; --surface: #17181B; --ink: #ECECE9; --muted: #9A9CA2; --line: #26282C;
+  --accent: #8E9BFF; --tone-mix: 80%; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.55; padding-inline: var(--gut); }
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+::selection { background: var(--accent); color: var(--bg); }
+h1, h2, h3, h4 { margin: 0; font-family: var(--display); font-weight: 500; line-height: 1.05; text-wrap: balance; }
+p { margin: 0; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
+.tone { background: color-mix(in oklab, var(--bg) var(--tone-mix), var(--hue, #888)); }
+
+/* Bar */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; height: var(--barh); display: flex; align-items: center; justify-content: space-between; gap: 16px; background: var(--bg); border-bottom: 1px solid var(--line); }
+.bar .me { font-family: var(--display); font-weight: 600; font-size: 17px; text-decoration: none; letter-spacing: -0.01em; white-space: nowrap; }
+.bar nav { display: flex; gap: 2px; }
+.bar nav a { text-decoration: none; font-size: 14.5px; color: var(--muted); padding: 6px 12px; border-radius: 999px; transition: color .2s, background .2s; white-space: nowrap; }
+.bar nav a:hover { color: var(--ink); background: color-mix(in srgb, var(--line) 70%, transparent); }
+.bar nav a[aria-current="page"] { color: var(--ink); background: var(--line); }
+
+/* Home: columns */
+.cols { display: flex; height: calc(100dvh - var(--barh) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - var(--gut) - 24px); min-height: 460px; border-inline: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.col { --g: 1; flex: var(--g) 1 0; min-width: 0; position: relative; overflow: hidden; text-decoration: none; border-left: 1px solid var(--line); transition: flex-grow .7s var(--ease); isolation: isolate; }
+.col:first-child { border-left: 0; }
+.cols.has-active .col { --g: .62; }
+.cols.has-active .col.active { --g: 3.6; }
+.col .bg { position: absolute; inset: 0; z-index: -1; }
+.col .bg img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(.95); opacity: .5; transition: filter .6s var(--ease), opacity .6s var(--ease), transform 1.2s var(--ease); transform: scale(1.04); }
+.col.active .bg img { filter: none; opacity: 1; transform: none; }
+.col .n { position: absolute; top: 16px; left: 16px; font-family: var(--mono); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.col .yr { position: absolute; top: 34px; left: 16px; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.col .vt { position: absolute; left: 12px; bottom: 16px; writing-mode: vertical-rl; transform: rotate(180deg); font-family: var(--display); font-size: clamp(18px, 1.7vw, 27px); letter-spacing: -0.015em; font-weight: 450; white-space: nowrap; max-height: calc(100% - 90px); overflow: hidden; text-overflow: ellipsis; transition: opacity .35s var(--ease); }
+.col.active .vt { opacity: 0; }
+.cols.has-active .col:not(.active) .vt { opacity: .55; }
+.col .reveal { position: absolute; left: 0; bottom: 0; width: max(380px, 40vw); padding: 0 28px 26px; display: grid; gap: 12px; opacity: 0; transform: translateY(10px); transition: opacity .3s var(--ease), transform .5s var(--ease); pointer-events: none; }
+.col.active .reveal { opacity: 1; transform: none; transition-delay: .22s; }
+.col .reveal h2 { font-size: clamp(30px, 3.2vw, 50px); letter-spacing: -0.03em; }
+.col .reveal p { max-width: 42ch; color: color-mix(in srgb, var(--ink) 82%, var(--muted)); }
+.col .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.col .tags span, .chip { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent); border-radius: 999px; padding: 3px 9px; color: var(--ink); }
+.col .go { display: inline-flex; gap: 8px; align-items: center; font-weight: 600; font-size: 15px; margin-top: 4px; }
+.col .go svg { width: 16px; height: 16px; transition: transform .4s var(--ease); }
+.col.active .go svg { transform: translateX(4px); }
+.col.has-img.active .reveal, .col.has-img.active .reveal .mono, .col.has-img.active .tags span { color: #fff; }
+.col.has-img.active .reveal p { color: rgba(255,255,255,.85); }
+.col.has-img.active .tags span { border-color: rgba(255,255,255,.4); }
+.col.has-img .reveal::before { content: ""; position: absolute; inset: -80px 0 0; background: linear-gradient(transparent, rgba(0,0,0,.6)); z-index: -1; }
+.home-foot { display: flex; justify-content: space-between; gap: 16px; align-items: center; padding-block: 12px var(--gut); }
+
+/* Pages */
+.page { padding-block: clamp(36px, 6vw, 72px) 96px; max-width: 1360px; margin-inline: auto; }
+.p-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: clamp(28px, 4vw, 48px); }
+.back { text-decoration: none; display: inline-flex; gap: 8px; align-items: center; color: var(--muted); font-size: 14.5px; }
+.back:hover { color: var(--ink); }
+.mini { display: flex; gap: 4px; flex-wrap: wrap; }
+.mini a { width: 30px; height: 30px; display: grid; place-items: center; text-decoration: none; font-family: var(--mono); font-size: 10.5px; color: var(--muted); border-radius: 4px; border: 1px solid var(--line); transition: all .2s; }
+.mini a:hover { color: var(--ink); border-color: var(--ink); }
+.mini a[aria-current="page"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.p-title { font-size: clamp(42px, 7vw, 104px); letter-spacing: -0.045em; line-height: .95; font-weight: 450; }
+.p-intro { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 64px); margin-top: clamp(22px, 3vw, 36px); align-items: start; }
+.lede { font-size: clamp(19px, 1.8vw, 23px); line-height: 1.45; font-weight: 350; max-width: 46ch; }
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; margin: 0; }
+.facts dd { margin: 4px 0 0; font-weight: 500; }
+.p-cover { margin-top: clamp(32px, 4vw, 56px); aspect-ratio: 16 / 8; border-radius: 6px; overflow: hidden; display: grid; place-items: center; max-width: 100%; }
+.p-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.secs { margin-top: clamp(40px, 6vw, 88px); display: grid; gap: clamp(48px, 6vw, 88px); }
+.sec { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 24px clamp(24px, 4vw, 64px); }
+.sec > .rail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + var(--barh) + 20px); align-self: start; display: grid; gap: 6px; }
+.sec > .rail h2 { font-family: var(--sans); font-size: 15px; font-weight: 600; letter-spacing: 0; }
+.sec > .main { display: grid; gap: 22px; min-width: 0; }
+.sec .main > p, .sec .main > ul { max-width: 64ch; }
+.sec ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.figs { display: grid; gap: 12px; grid-template-columns: repeat(var(--n, 2), minmax(0, 1fr)); }
+figure { margin: 0; display: grid; gap: 8px; min-width: 0; }
+.ph { aspect-ratio: var(--r, 4 / 3); max-width: 100%; border-radius: 4px; overflow: hidden; display: grid; place-items: center; }
+.ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+figcaption { font-size: 13.5px; color: var(--muted); }
+.nums { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.nums div { border: 1px solid var(--line); border-radius: 6px; padding: 14px; background: var(--surface); }
+.nums b { display: block; font-family: var(--display); font-weight: 500; font-size: 32px; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.nums span { font-size: 13px; color: var(--muted); }
+.note { color: var(--muted); display: flex; gap: 10px; align-items: center; }
+.note::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex: none; }
+.p-next { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 16px; margin-top: clamp(64px, 8vw, 120px); padding: clamp(22px, 3vw, 36px); border-radius: 6px; text-decoration: none; transition: transform .5s var(--ease); }
+.p-next:hover { transform: translateY(-3px); }
+.p-next b { display: block; font-family: var(--display); font-weight: 450; font-size: clamp(30px, 4.6vw, 64px); letter-spacing: -0.035em; line-height: 1; margin-top: 10px; }
+.p-next svg { width: clamp(28px, 3vw, 40px); height: clamp(28px, 3vw, 40px); }
+
+/* Résumé */
+.r-head { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 64px); align-items: end; }
+.r-head .lede { max-width: 38ch; }
+.stats { display: flex; gap: clamp(20px, 3vw, 40px); flex-wrap: wrap; justify-content: flex-end; }
+.stats b { display: block; font-family: var(--display); font-weight: 450; font-size: clamp(34px, 4vw, 52px); line-height: 1; letter-spacing: -0.035em; }
+.r-side { display: grid; gap: 24px; justify-items: end; }
+.portrait { width: clamp(160px, 20vw, 240px); aspect-ratio: 1; border-radius: 6px; overflow: hidden; }
+.portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 24px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-size: 14.5px; font-weight: 500; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; transition: border-color .2s; }
+.btn:hover { border-color: var(--ink); }
+.btn.solid { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.tabs { display: flex; gap: 2px; flex-wrap: wrap; border-bottom: 1px solid var(--line); margin-top: clamp(40px, 5vw, 64px); }
+.tab { background: none; border: 0; padding: 12px 14px 10px; font-size: 15px; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; }
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+.role { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 6px clamp(24px, 4vw, 64px); padding-block: 26px; border-bottom: 1px solid var(--line); }
+.role .when { font-family: var(--mono); font-size: 11.5px; color: var(--muted); padding-top: 6px; }
+.role h3 { font-size: clamp(20px, 2vw, 25px); letter-spacing: -0.02em; }
+.role .org { color: var(--muted); margin-top: 2px; }
+.role ul { margin: 12px 0 0; padding-left: 18px; display: grid; gap: 6px; max-width: 66ch; }
+.role p.t { margin-top: 10px; max-width: 66ch; }
+details.earlier { padding-block: 18px; border-bottom: 1px solid var(--line); }
+details.earlier summary { cursor: pointer; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Contact */
+.c-mail { display: inline-block; margin-top: 20px; font-family: var(--display); font-weight: 400; font-size: clamp(32px, 7vw, 104px); letter-spacing: -0.045em; line-height: 1; overflow-wrap: anywhere; user-select: all; }
+.c-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: clamp(48px, 6vw, 80px); padding-top: 24px; border-top: 1px solid var(--line); }
+.c-grid div { display: grid; gap: 4px; align-content: start; min-width: 0; overflow-wrap: anywhere; }
+.c-grid a { text-decoration: none; }
+.c-grid a:hover { text-decoration: underline; }
+
+/* Visual work */
+.v-index { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: clamp(32px, 4vw, 48px); }
+.v-card { all: unset; box-sizing: border-box; cursor: pointer; border-radius: 6px; padding: 18px; aspect-ratio: 4 / 3; max-width: 100%; display: flex; flex-direction: column; justify-content: space-between; transition: transform .5s var(--ease); }
+.v-card:hover { transform: translateY(-3px); }
+.v-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.v-card b { font-family: var(--display); font-weight: 500; font-size: clamp(20px, 2vw, 28px); letter-spacing: -0.02em; line-height: 1; }
+.v-piece { margin-top: clamp(64px, 8vw, 120px); padding-top: 28px; border-top: 1px solid var(--line); scroll-margin-top: calc(var(--barh) + 16px); }
+.v-piece > h2 { font-size: clamp(34px, 5vw, 64px); letter-spacing: -0.04em; font-weight: 450; }
+
+/* View transitions */
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .35s; }
+::view-transition-group(cover) { animation-duration: .6s; animation-timing-function: cubic-bezier(.22,.7,.12,1); }
+
+@media (max-width: 900px) {
+  .p-intro, .r-head { grid-template-columns: 1fr; }
+  .stats { justify-content: flex-start; }
+  .r-side { justify-items: start; }
+  .sec, .role { grid-template-columns: 1fr; }
+  .sec > .rail { position: static; }
+  .v-index { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .c-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px), (hover: none) {
+  .cols { flex-direction: column; height: auto; min-height: 0; border-inline: 0; }
+  .col { flex: none; min-height: 112px; border-left: 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 4px 12px; align-items: end; padding: 16px; }
+  .col:first-child { border-top: 0; }
+  .col .n, .col .yr { position: static; }
+  .col .n { grid-row: 1; grid-column: 1; align-self: start; }
+  .col .yr { grid-row: 1; grid-column: 3; align-self: start; }
+  .col .vt { position: static; writing-mode: horizontal-tb; transform: none; grid-column: 1 / -1; font-size: 26px; max-height: none; white-space: normal; opacity: 1 !important; }
+  .col .reveal { display: none; }
+  .col .bg img { opacity: .9; filter: none; transform: none; }
+  .col .bg::after { content: ""; position: absolute; inset: 0; background: color-mix(in srgb, var(--bg) 62%, transparent); }
+  .home-foot { padding-block: 20px 28px; }
+}
+@media (max-width: 560px) {
+  .bar nav a { padding: 6px 7px; font-size: 13.5px; }
+  .bar .me { font-size: 15.5px; }
+  .figs { grid-template-columns: 1fr; }
+  .nums { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .mini a { width: 26px; height: 26px; }
+  .p-next { grid-template-columns: 1fr; }
+  .home-foot { flex-direction: column; align-items: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+
+<header class="bar">
+  <a class="me" href="#">Jack Walker</a>
+  <nav aria-label="Main" id="nav">
+    <a href="#visual">Visual work</a>
+    <a href="#resume">Résumé</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+<main id="app"></main>
+
+<script>
+/* ================= Content ================= */
+const LINKS = {
+  resume: "https://docs.google.com/document/d/1W2idFMJRs5636LlhtmxSSqJZcpYce-FCKtDAANgGB-8/preview",
+  pdf: "https://docs.google.com/document/d/1W2idFMJRs5636LlhtmxSSqJZcpYce-FCKtDAANgGB-8/export?format=pdf",
+  linkedin: "https://www.linkedin.com/in/jack-walker-b20035321/",
+  art: "https://www.instagram.com/trailwlk.r/",
+  personal: "https://www.instagram.com/walkerajack/",
+  email: "walkerajack@gmail.com"
+};
+const HEADSHOT = "assets/jack-walker-headshot.png";
+/* Drop real images in here: "cover-<project id>" for column + page covers, or any figure key below.
+   Any key left out keeps its generated placeholder. */
+const IMAGES = {};
+
+const WORK = [
+  { id: "stewart-title", title: "Stewart Title", sub: "Connect Close", kind: "Internship · Web app redesign", year: 2026, hue: "#6E8CC8",
+    tags: ["Research", "Redesign", "Prototype"],
+    lede: "A redesign of Connect Close, Stewart Title's title production software, built with the people who use it every day.",
+    facts: { Role: "UX/UI Design Intern", Team: "Cross-functional", Timeline: "Jun – Aug 2026", Tools: "Figma" },
+    body: [
+      { h: "What I did" },
+      { list: ["Partnered with developers, product managers, engineers and designers to lead the redesign of Connect Close", "Conducted primary and secondary research on title software and its end users", "Prepared my designs for real-world implementation in Q4 2026"] },
+      { figs: [["stewart-1", "Connect Close redesign"], ["stewart-2", "Key screens"]] },
+      { note: "Full case study coming soon." }
+    ]},
+  { id: "amazon-music", title: "Amazon Music", sub: "× SCADpro", kind: "Client project · Ecosystem", year: 2026, hue: "#3AA39B",
+    tags: ["Research", "Data", "Prototype"],
+    lede: "Rethinking how young adults discover, experience and engage with Amazon Music across everything Amazon makes.",
+    facts: { Team: "SCADpro × Amazon", Timeline: "Mar – Jun 2026", Tools: "Figma" },
+    body: [
+      { h: "What I did" },
+      { list: ["Transformed how customers discover, experience and engage with Amazon Music across Amazon", "Created touchpoints connecting Amazon Music with Prime Video, Retail, Audible, Kindle and Alexa+ for a unified entertainment experience that reaches young adults beyond current listeners"] },
+      { figs: [["amazon-1", "Concept overview"], ["amazon-2", "Cross-platform touchpoints"]] },
+      { note: "Full case study coming soon." }
+    ]},
+  { id: "savannah-parking", title: "Savannah Parking", kind: "Civic app redesign", year: 2026, hue: "#C79A45",
+    tags: ["Research", "Redesign", "Prototype"],
+    lede: "A redesign of how people find and pay for parking in downtown Savannah.",
+    facts: { Timeline: "2026", Tools: "Figma, Illustrator" },
+    body: [
+      { figs: [["parking-1", "Project overview"]], n: 1, r: "16 / 9" },
+      { note: "Case study in progress." }
+    ]},
+  { id: "national-park-service", title: "National Park Service", kind: "Website redesign", year: 2025, hue: "#6F9358",
+    tags: ["Research", "Redesign", "Prototype"],
+    lede: "A redesign of the National Park Service website, built on extensive research into web design, user flow and interactivity.",
+    facts: { Timeline: "2025", Platform: "Web", Tools: "Figma" },
+    body: [
+      { h: "Mood boards" },
+      { p: "I based the redesign on four key works and built a mood board around each one." },
+      { figs: [["nps-topo", "Topographic"], ["nps-real", "Graphic realism"], ["nps-nat", "Naturalistic"], ["nps-con", "Contrasting"]] },
+      { p: "I then created color, type and layout mood boards." },
+      { figs: [["nps-color", "Color. I wanted imagery to carry more of the design than color."], ["nps-type", "Type"]] },
+      { figs: [["nps-layout", "Layout"]], n: 1, r: "16 / 9" },
+      { h: "Case studies" },
+      { p: "Next I studied sites that use the design elements I wanted to bring in. Three of them are shown here." },
+      { figs: [["nps-mirage", "Mirage"], ["nps-sunday", "Sun Day"], ["nps-hikeon", "HikeOn"]], n: 3, r: "3 / 4" },
+      { h: "Design system" },
+      { p: "With the research done, I defined my type, color, shape and illustration palettes." },
+      { figs: [["nps-palette", "Color palette"], ["nps-typefaces", "Typefaces"], ["nps-shapes", "Shape palette"], ["nps-illus", "Illustration palette: topographic background elements"]] },
+      { h: "Final design" },
+      { figs: [["nps-landing", "Landing page"]], n: 1, r: "16 / 9" },
+      { figs: [["nps-alaska", "'Alaska' page"], ["nps-denali", "'Denali National Park' page"]], r: "16 / 10" },
+      { figs: [["nps-components", "Components used"], ["nps-flow", "User flow"]] }
+    ]},
+  { id: "nest-thermostat", title: "Nest Thermostat", kind: "Product & app redesign", year: 2025, hue: "#C2775B",
+    tags: ["Redesign", "Prototype", "Team"],
+    lede: "Over ten weeks, our team redesigned the Google Nest Thermostat's mobile app and hardware UI to feel greener and more affordable.",
+    facts: { Role: "UX/UI design lead", Team: "Team project", Timeline: "Jan – Mar 2025", Tools: "Figma, Illustrator" },
+    body: [
+      { h: "What I did" },
+      { list: ["Redesigned Google's 3rd-gen Nest Thermostat with a green, affordable look and feel", "Used Figma to prototype, wireframe, user test and design the device and phone software", "Led UX/UI design and development alongside my teammates"] },
+      { h: "Lookbook" },
+      { figs: [["nest-lookbook", "Lookbook"]], n: 1, r: "16 / 9" },
+      { figs: [["nest-poster", "Poster"], ["nest-summary", "Executive summary"]] },
+      { h: "Style guide" },
+      { figs: [["nest-sg1", "Page 1"], ["nest-sg2", "Page 2"], ["nest-sg3", "Page 3"], ["nest-sg4", "Page 4"], ["nest-sg5", "Page 5"], ["nest-sg6", "Page 6"]], n: 3, r: "8.5 / 11" },
+      { h: "Final designs" },
+      { figs: [["nest-eco", "Eco"], ["nest-cool", "Cooling"], ["nest-heat", "Heating"]], n: 3, r: "9 / 16" },
+      { figs: [["nest-home", "Home"], ["nest-schedule", "Schedule"]], r: "9 / 16" }
+    ]},
+  { id: "fridge-research", title: "The Ideal Fridge", kind: "Research study", year: 2025, hue: "#8A7DB8",
+    tags: ["Research", "Data", "Workshop"],
+    lede: "A large research study into the user experience and design principles of an everyday appliance: the refrigerator.",
+    facts: { Method: "Mixed methods", Output: "Printed magazine", Tools: "Figma" },
+    body: [
+      { figs: [["fr-hero", "Final product: magazine prints showing the ideal fridge experience"]], n: 1, r: "16 / 9" },
+      { steps: [
+        { h: "Secondary research", p: "Before running our own research, we gathered as much existing data as we could. To improve a product, we had to understand it first." },
+        { h: "Observation", p: "Each of us observed participants using their fridge in a 60-minute window around dinner, the time we found it was used most. We noted opportunities across models, features that worked well, and other insights.", figs: [["fr-obs1", "Observation"], ["fr-obs2", "Observation"]] },
+        { h: "Screener and interviews", p: "We built a screener to recruit interview candidates across a wide range of demographics.", figs: [["fr-stake", "Stakeholder map"], ["fr-screener", "Screener outcomes"], ["fr-questions", "Introductory questions"], ["fr-insights", "Insights from each interview"]] },
+        { h: "Sensory cue workshop", p: "A four-part workshop to learn what draws people to a fridge: the ideal interior, how people organize, how a fridge should feel physically, and how it should feel emotionally.", figs: [["fr-workshop", "Participants in the workshop"], ["fr-kit", "Stimulus kit"], ["fr-data", "Data collected"]] },
+        { h: "Affinitization", p: "We grouped what we found into patterns, then into overarching ideas.", nums: [["1000+", "Unique insights"], ["114", "Tertiary data points"], ["29", "Secondary data points"], ["10", "Ultimate insights"]], figs: [["fr-aff1", "Affinity mapping"], ["fr-aff2", "Affinity mapping"]] },
+        { h: "Final product", p: "We organized our ten insights about what makes a fridge successful into a printed magazine.", figs: [["fr-front", "Front cover, designed by me"], ["fr-back", "Back cover, designed by me"], ["fr-p12", "Pages 1–2"], ["fr-p34", "Pages 3–4"], ["fr-p56", "Pages 5–6"], ["fr-mock", "Printed mockups"]] }
+      ]}
+    ]},
+  { id: "highway-gothic", title: "Highway Gothic", kind: "Typographic web study", year: 2024, hue: "#56616E",
+    tags: ["Type", "Web", "Prototype"],
+    lede: "A typographic study of Highway Gothic, the typeface on road signs across the United States. My first web prototype, and my first project in Adobe XD.",
+    facts: { Timeline: "2024", Platform: "Web", Tools: "Adobe XD" },
+    body: [
+      { h: "Print pieces" },
+      { p: "The project started with a poster and a magazine editorial." },
+      { figs: [["hg-poster", "Poster"], ["hg-editorial", "Editorial"]], r: "3 / 4" },
+      { h: "Webpage" },
+      { figs: [["hg-pages", "Pages overview"]], n: 1, r: "16 / 9" },
+      { figs: [["hg-video", "Page interactions"]], n: 1, r: "16 / 9" }
+    ]}
+];
+
+const VISUAL = [
+  { id: "graphic-design", title: "Graphic Design", kind: "Posters & illustration", hue: "#B86B86", facts: { Tools: "Illustrator, Photoshop" },
+    lede: "Graphic design work I've made professionally and personally.",
+    body: [
+      { h: "Personal collection" }, { p: "Work that's personal to me, including “Chloris' Madonna,” a 2025 digital illustration." },
+      { figs: [["gd-chloris", "“Chloris' Madonna,” 2025"]], n: 1, r: "4 / 5" },
+      { h: "Student film posters" }, { p: "Posters for fellow SCAD student films, including “Max Needs to Pay Rent.”" },
+      { figs: [["gd-film", "“Max Needs to Pay Rent”"]], n: 1, r: "2 / 3" },
+      { h: "Typography studies" }, { p: "Work focused on type, including an editorial on the Highway Gothic typeface." },
+      { figs: [["gd-type", "Highway Gothic editorial"]], n: 1, r: "16 / 10" }
+    ]},
+  { id: "print-work", title: "Print Work", kind: "Apparel & objects", hue: "#5E87B0", facts: { Tools: "Illustrator", Process: "Sublimation printing" },
+    lede: "Designs I turned into physical pieces.",
+    body: [
+      { h: "BMW crewneck" }, { p: "Designed in Adobe Illustrator and produced with sublimation printing." },
+      { figs: [["pw-back", "Back"], ["pw-front", "Front"]] },
+      { h: "'Save the Trees' sticker" }, { p: "Made for a Design for Good campaign about deforestation in the Amazon rainforest and around the world." },
+      { figs: [["pw-sticker", "Sticker"], ["pw-sticker-ai", "Illustrator file"]] },
+      { h: "'Born To Lead' coaster" }, { p: "Designed and batch-produced for teachers and principals in the LISD school district in Texas, presented alongside a talk on how the graphic design program shaped my future." },
+      { figs: [["pw-coaster", "Coaster"], ["pw-coaster-ai", "Illustrator file"]] }
+    ]},
+  { id: "industrial-design", title: "Industrial Design", kind: "3D modeling & fabrication", hue: "#9C7A55", facts: { Tools: "Rhino 7 & 8, Keyshot", Also: "3D printing, woodwork" },
+    lede: "3D modeling, 3D printing and woodwork.",
+    body: [
+      { h: "3D modeling" }, { figs: [["id-model", "Modeled in Rhino 7 and 8"]], n: 1, r: "16 / 9" },
+      { h: "Rapid prototyping" }, { p: "My process with tools and materials in the workshop." },
+      { figs: [["id-proto", "Workshop prototyping"]], n: 1, r: "16 / 9" }
+    ]},
+  { id: "motion-media", title: "Motion Media", kind: "Motion & logo animation", hue: "#5A9C7E", facts: { Tools: "After Effects, Figma" },
+    lede: "Motion graphics and animated logo work.",
+    body: [{ figs: [["mm-1", "Motion piece"]], n: 1, r: "16 / 9" }, { note: "Work coming soon." }]}
+];
+
+const RESUME = {
+  experience: [
+    { when: "Jun – Aug 2026", title: "UX/UI Design Intern", org: "Stewart Title", bullets: ["Partnered with developers, product managers, engineers and designers to lead a redesign of Connect Close, Stewart Title's title production software", "Conducted primary and secondary research on title software and its end users", "Prepared designs for real-world implementation in Q4 2026"] },
+    { when: "Mar – Jun 2026", title: "SCADpro × Amazon Music", org: "Client project", bullets: ["Reimagined how customers discover, experience and engage with Amazon Music across Amazon", "Designed touchpoints linking Amazon Music with Prime Video, Retail, Audible, Kindle and Alexa+ for a unified experience aimed at young adults"] },
+    { when: "Jan – Mar 2025", title: "Nest Thermostat Redesign", org: "Team project", bullets: ["Redesigned Google's 3rd-gen Nest Thermostat with a greener, more affordable look and feel", "Prototyped, wireframed, user-tested and designed the device and phone software in Figma", "Led UX/UI design and development alongside teammates"] },
+    { when: "Jun – Aug 2024", title: "Design Intern", org: "Switch Design Studio & Autside · Dallas, TX", bullets: ["Designed mockups and renders for the Autside digital storefront", "Built web pages and interactive experiences for the Autside website", "Helped launch the Autside 100 campaign and build out the business-to-business program", "Supported Shopify storefront creation and improvements"] }
+  ],
+  earlier: [
+    { when: "Feb 2023", title: "Principal U Presenter", org: "TECC East, Hebron High School", text: "Spoke to LISD principals about the TECC Graphic Design program and its impact on my future." },
+    { when: "Oct – Dec 2021", title: "Student Design Haus Campaign", org: "TECC East, Hebron High School", text: "Created the logo, Twitter profile, color scheme and style guide for our student design company." }
+  ],
+  education: [
+    { when: "Sep 2023 – present", title: "Savannah College of Art & Design", org: "BFA, UX Design · Savannah, GA", text: "GPA 3.81 · Dean's Honor List" },
+    { when: "Aug 2019 – May 2023", title: "Hebron High School", org: "Carrollton, TX", text: "GPA 4.18 (weighted)" }
+  ],
+  leadership: [
+    { when: "Aug 2019 – May 2023", title: "Young Men's Service League", org: "Castle Hills, TX", bullets: ["Communications Committee (2022–2023)", "Meetings Committee Leader (2019–2022)"] },
+    { when: "Aug 2019 – May 2023", title: "Volunteer", org: "North Texas", text: "85 service hours with Feed My Starving Children, CCA Food Pantry, Hope Supply and Honor Flight." }
+  ],
+  skills: [
+    ["Design & Prototyping", ["Figma", "Adobe XD", "Illustrator", "Photoshop", "InDesign", "Lightroom"]],
+    ["Motion, 3D & Code", ["After Effects", "Rhino", "Keyshot", "HTML", "CSS"]],
+    ["Research & Process", ["User research", "Data collection", "Prototyping", "Redesign"]],
+    ["Certifications", ["Adobe Certified Professional, Creative Cloud", "Adobe Illustrator", "Microsoft Office Specialist: Word, Excel, PowerPoint"]]
+  ]
+};
+
+/* ================= Helpers ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const pad = n => String(n).padStart(2, "0");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+const app = $("#app");
+
+/* Generated placeholder art: deterministic per image key, tinted with the project hue,
+   labeled with the key so each slot says exactly which file replaces it. */
+function phSrc(key, hue = "#8A8A86") {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < key.length; i++) { h ^= key.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  const r1 = h % 100, r2 = (h >>> 7) % 100, v = h % 4;
+  let art = "";
+  if (v === 0) {
+    art = `<circle cx="${200 + r1 * 6}" cy="${150 + r2 * 4}" r="300" fill="${hue}" opacity=".3"/><circle cx="${900 - r2 * 3}" cy="${700 - r1 * 2}" r="380" fill="${hue}" opacity=".18"/>`;
+  } else if (v === 1) {
+    let s = "";
+    for (let i = 0; i < 7; i++) s += `<rect x="${-300 + i * 260}" y="-300" width="${90 + r1}" height="1500" fill="${hue}" opacity="${(0.12 + (i % 3) * 0.08).toFixed(2)}"/>`;
+    art = `<g transform="rotate(${18 + r2 % 30} 600 450)">${s}</g>`;
+  } else if (v === 2) {
+    let s = "";
+    for (let i = 1; i <= 6; i++) s += `<circle cx="${300 + r1 * 6}" cy="${280 + r2 * 4}" r="${i * 95}" fill="none" stroke="${hue}" stroke-width="22" opacity="${(0.3 - i * 0.035).toFixed(3)}"/>`;
+    art = s;
+  } else {
+    let s = "";
+    for (let gx = 0; gx < 6; gx++) for (let gy = 0; gy < 5; gy++) if ((gx * 5 + gy + r1) % 3) s += `<rect x="${60 + gx * 190}" y="${50 + gy * 175}" width="130" height="118" rx="10" fill="${hue}" opacity="${(gx + gy) % 2 ? ".22" : ".12"}"/>`;
+    art = s;
+  }
+  const label = key.toUpperCase() + " · PLACEHOLDER";
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900"><rect width="1200" height="900" fill="#ECEBE7"/><rect width="1200" height="900" fill="${hue}" opacity=".14"/>${art}<rect x="34" y="822" width="${label.length * 17 + 44}" height="50" rx="8" fill="#141518" opacity=".55"/><text x="56" y="855" font-family="Menlo,Consolas,monospace" font-size="26" letter-spacing="2" fill="#FFFFFF">${label}</text></svg>`;
+  return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+}
+function img(key, alt, hue) { return `<img src="${IMAGES[key] || phSrc(key, hue)}" alt="${esc(alt || "")}" loading="lazy">`; }
+function slot(key, cap, r, hue) {
+  return `<figure><div class="ph tone" style="--hue:${hue};--r:${r || "4 / 3"}">${img(key, cap, hue)}</div><figcaption>${esc(cap)}</figcaption></figure>`;
+}
+function figs(list, n, r, hue) { const cols = n || (list.length === 4 ? 2 : Math.min(3, list.length)); return `<div class="figs" style="--n:${cols}">${list.map(([k, c]) => slot(k, c, r, hue)).join("")}</div>`; }
+
+/* Turn a flat list of blocks into rail sections */
+function sections(body) {
+  const out = []; let cur = null;
+  const push = () => { if (cur && cur.items.length) out.push(cur); };
+  body.forEach(b => {
+    if (b.h) { push(); cur = { title: b.h, items: [] }; return; }
+    if (b.steps) { push(); cur = null; b.steps.forEach((s, i) => out.push({ label: "Step " + pad(i + 1), title: s.h, items: [{ p: s.p }, ...(s.nums ? [{ nums: s.nums }] : []), ...(s.figs ? [{ figs: s.figs }] : [])] })); return; }
+    if (!cur) cur = { title: "Overview", items: [] };
+    cur.items.push(b);
+  });
+  push(); return out;
+}
+function renderItem(b, hue) {
+  if (b.p) return `<p>${esc(b.p)}</p>`;
+  if (b.list) return `<ul>${b.list.map(i => `<li>${esc(i)}</li>`).join("")}</ul>`;
+  if (b.figs) return figs(b.figs, b.n, b.r, hue);
+  if (b.nums) return `<div class="nums">${b.nums.map(([v, l]) => `<div><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("")}</div>`;
+  if (b.note) return `<p class="note">${esc(b.note)}</p>`;
+  return "";
+}
+function renderSecs(body, hue) {
+  return `<div class="secs">${sections(body).map(s => `<section class="sec"><div class="rail">${s.label ? `<span class="mono">${s.label}</span>` : ""}<h2>${esc(s.title)}</h2></div><div class="main">${s.items.map(b => renderItem(b, hue)).join("")}</div></section>`).join("")}</div>`;
+}
+function factsDl(f) { return `<dl class="facts">${Object.entries(f).map(([k, v]) => `<div><dt class="mono">${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>`; }
+
+/* ================= Views ================= */
+function viewHome() {
+  return `<div class="cols" id="cols">${WORK.map((p, i) => `
+    <a class="col tone has-img" href="#${p.id}" data-id="${p.id}" style="--hue:${p.hue}" aria-label="${esc(p.title)}, ${p.year}, ${esc(p.kind)}">
+      <span class="bg">${img("cover-" + p.id, "", p.hue)}</span>
+      <span class="n">${pad(i + 1)}</span><span class="yr">${p.year}</span>
+      <span class="vt">${esc(p.title)}</span>
+      <span class="reveal">
+        <span class="mono">${esc(p.kind)}</span>
+        <h2>${esc(p.title)}${p.sub ? ` <span style="color:var(--muted)">${esc(p.sub)}</span>` : ""}</h2>
+        <p>${esc(p.lede)}</p>
+        <span class="tags">${p.tags.map(t => `<span>${esc(t)}</span>`).join("")}</span>
+        <span class="go">View project ${ARROW}</span>
+      </span>
+    </a>`).join("")}</div>
+    <div class="home-foot"><span class="mono">UX/UI &amp; graphic designer · BFA UX Design, SCAD</span><span class="mono">${WORK.length} projects · 2024–2026</span></div>`;
+}
+
+function viewProject(p) {
+  const i = WORK.indexOf(p), next = WORK[(i + 1) % WORK.length];
+  return `<article class="page">
+    <div class="p-top">
+      <a class="back" href="#">&larr; All work</a>
+      <nav class="mini" aria-label="Projects">${WORK.map((w, k) => `<a href="#${w.id}" title="${esc(w.title)}"${w === p ? ' aria-current="page"' : ""}>${pad(k + 1)}</a>`).join("")}</nav>
+    </div>
+    <span class="mono">${pad(i + 1)} · ${p.year} · ${esc(p.kind)}</span>
+    <h1 class="p-title" style="margin-top:12px">${esc(p.title)}${p.sub ? `<br><span style="color:var(--muted)">${esc(p.sub)}</span>` : ""}</h1>
+    <div class="p-intro"><p class="lede">${esc(p.lede)}</p>${factsDl(p.facts)}</div>
+    <div class="p-cover tone" id="p-cover" style="--hue:${p.hue}">${img("cover-" + p.id, p.title, p.hue)}</div>
+    ${renderSecs(p.body, p.hue)}
+    <a class="p-next tone" href="#${next.id}" style="--hue:${next.hue}"><div><span class="mono">Next project · ${pad(WORK.indexOf(next) + 1)}</span><b>${esc(next.title)}</b></div>${ARROW}</a>
+  </article>`;
+}
+
+function viewVisual() {
+  return `<div class="page">
+    <span class="mono">Beyond UX</span>
+    <h1 class="p-title" style="margin-top:12px">Visual work</h1>
+    <div class="p-intro"><p class="lede">Graphic design, print, industrial design and motion.</p></div>
+    <div class="v-index">${VISUAL.map(v => `<button class="v-card tone" type="button" data-jump="${v.id}" style="--hue:${v.hue}"><span class="mono">${esc(v.kind)}</span><b>${esc(v.title)}</b></button>`).join("")}</div>
+    ${VISUAL.map(v => `<section class="v-piece" id="v-${v.id}">
+      <span class="mono">${esc(v.kind)}</span>
+      <h2 style="margin-top:10px">${esc(v.title)}</h2>
+      <div class="p-intro"><p class="lede">${esc(v.lede)}</p>${factsDl(v.facts)}</div>
+      ${renderSecs(v.body, v.hue)}
+    </section>`).join("")}
+  </div>`;
+}
+
+function role(r) {
+  const body = r.bullets ? `<ul>${r.bullets.map(b => `<li>${esc(b)}</li>`).join("")}</ul>` : (r.text ? `<p class="t">${esc(r.text)}</p>` : "");
+  return `<div class="role"><div class="when">${esc(r.when)}</div><div><h3>${esc(r.title)}</h3><div class="org">${esc(r.org)}</div>${body}</div></div>`;
+}
+function viewResume() {
+  const T = [["exp", "Experience"], ["edu", "Education"], ["lead", "Leadership & Service"], ["skill", "Skills & Toolkit"]];
+  return `<div class="page">
+    <span class="mono">Résumé</span>
+    <div class="r-head" style="margin-top:12px">
+      <div>
+        <h1 class="p-title">UX/UI &amp; graphic designer</h1>
+        <p class="lede" style="margin-top:22px">From Dallas, Texas, studying for a BFA in UX Design at the Savannah College of Art &amp; Design. Most recently a UX/UI design intern at Stewart Title. I design new solutions in ways users can anticipate.</p>
+        <div class="btns"><a class="btn solid" href="${LINKS.resume}" target="_blank" rel="noopener">View résumé</a><a class="btn" href="${LINKS.pdf}" target="_blank" rel="noopener">Download PDF</a></div>
+      </div>
+      <div class="r-side">
+        <div class="portrait tone" style="--hue:#6E8CC8"><img src="${HEADSHOT}" alt="Jack Walker" loading="lazy"></div>
+        <div class="stats">
+          <div><b>8+</b><span class="mono">Years graphic design</span></div>
+          <div><b>4+</b><span class="mono">Years UX/UI</span></div>
+          <div><b>80+</b><span class="mono">Projects &amp; pieces</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Résumé sections">${T.map(([k, l], i) => `<button class="tab" role="tab" id="t-${k}" aria-controls="p-${k}" aria-selected="${i === 0}"${i ? ' tabindex="-1"' : ""}>${l}</button>`).join("")}</div>
+    <div role="tabpanel" id="p-exp" aria-labelledby="t-exp">${RESUME.experience.map(role).join("")}<details class="earlier"><summary>Earlier work, high school</summary>${RESUME.earlier.map(role).join("")}</details></div>
+    <div role="tabpanel" id="p-edu" aria-labelledby="t-edu" hidden>${RESUME.education.map(role).join("")}</div>
+    <div role="tabpanel" id="p-lead" aria-labelledby="t-lead" hidden>${RESUME.leadership.map(role).join("")}</div>
+    <div role="tabpanel" id="p-skill" aria-labelledby="t-skill" hidden>${RESUME.skills.map(([h, items]) => `<div class="role"><div class="when">${esc(h)}</div><div class="chips">${items.map(i => `<span class="chip">${esc(i)}</span>`).join("")}</div></div>`).join("")}</div>
+  </div>`;
+}
+function viewContact() {
+  return `<div class="page">
+    <span class="mono">Contact</span>
+    <p class="lede" style="margin-top:14px">Have a role, a project or a question? I'd love to hear from you.</p>
+    <span class="c-mail" id="email">${LINKS.email}</span>
+    <div class="btns"><button class="btn solid" type="button" id="copy">Copy email</button><a class="btn" href="mailto:${LINKS.email}">Open mail app</a></div>
+    <div class="c-grid">
+      <div><span class="mono">Elsewhere</span><a href="${LINKS.linkedin}" target="_blank" rel="noopener">LinkedIn</a><a href="${LINKS.art}" target="_blank" rel="noopener">Art Instagram</a><a href="${LINKS.personal}" target="_blank" rel="noopener">Personal Instagram</a></div>
+      <div><span class="mono">Direct</span><span>walkerajack@gmail.com</span><span>jwalke47@student.scad.edu</span><span>(214) 972-7225</span></div>
+      <div><span class="mono">Based in</span><span>Savannah, GA</span><span>Dallas, TX</span><span class="mono" style="margin-top:10px">Updated November 2026</span></div>
+    </div>
+  </div>`;
+}
+
+/* ================= Behavior ================= */
+function bindHome() {
+  const cols = $("#cols"); if (!cols) return;
+  const all = [...cols.querySelectorAll(".col")];
+  const wide = () => matchMedia("(min-width: 721px) and (hover: hover)").matches;
+  const set = el => { if (!wide()) return; all.forEach(c => c.classList.toggle("active", c === el)); cols.classList.toggle("has-active", !!el); };
+  all.forEach(c => {
+    c.addEventListener("pointerenter", () => set(c));
+    c.addEventListener("focus", () => set(c));
+    c.addEventListener("click", () => { all.forEach(x => (x.querySelector(".bg").style.viewTransitionName = "")); c.querySelector(".bg").style.viewTransitionName = "cover"; });
+  });
+  cols.addEventListener("pointerleave", () => set(null));
+  cols.addEventListener("focusout", e => { if (!cols.contains(e.relatedTarget)) set(null); });
+}
+function bindResume() {
+  const tabs = [...app.querySelectorAll('[role="tab"]')]; if (!tabs.length) return;
+  const select = t => tabs.forEach(x => { const on = x === t; x.setAttribute("aria-selected", on); x.tabIndex = on ? 0 : -1; $("#" + x.getAttribute("aria-controls")).hidden = !on; });
+  tabs.forEach((t, i) => { t.addEventListener("click", () => select(t)); t.addEventListener("keydown", e => {
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return; const n = tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length]; select(n); n.focus(); e.preventDefault(); }); });
+}
+function bindContact() {
+  const b = $("#copy"); if (!b) return;
+  b.addEventListener("click", () => {
+    const done = m => { b.textContent = m; setTimeout(() => (b.textContent = "Copy email"), 1800); };
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents($("#email")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); done("Selected"); };
+    try { navigator.clipboard.writeText(LINKS.email).then(() => done("Copied"), fallback); } catch (e) { fallback(); }
+  });
+}
+function bindVisual() {
+  app.querySelectorAll("[data-jump]").forEach(b => b.addEventListener("click", () => $("#v-" + b.dataset.jump).scrollIntoView({ behavior: reduce ? "auto" : "smooth" })));
+}
+
+/* ================= Router ================= */
+let current = null;
+function resolve() {
+  const id = location.hash.slice(1);
+  const p = WORK.find(w => w.id === id);
+  if (p) return { key: id, html: viewProject(p), title: p.title, nav: null };
+  if (id === "visual") return { key: id, html: viewVisual(), title: "Visual work", nav: "visual" };
+  if (id === "resume") return { key: id, html: viewResume(), title: "Résumé", nav: "resume" };
+  if (id === "contact") return { key: id, html: viewContact(), title: "Contact", nav: "contact" };
+  return { key: "home", html: viewHome(), title: null, nav: null };
+}
+function render() {
+  const v = resolve(); if (v.key === current) return;
+  const fromHome = current === "home", toProject = WORK.some(w => w.id === v.key);
+  const swap = () => {
+    current = v.key;
+    app.innerHTML = v.html;
+    document.title = v.title ? `${v.title} · Jack Walker` : "Jack Walker Portfolio";
+    document.querySelectorAll("#nav a").forEach(a => { if (a.getAttribute("href") === "#" + v.nav) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+    if (fromHome && toProject) { const c = $("#p-cover"); if (c) c.style.viewTransitionName = "cover"; }
+    window.scrollTo(0, 0);
+    bindHome(); bindResume(); bindContact(); bindVisual();
+  };
+  if (document.startViewTransition && !reduce && current !== null) {
+    const t = document.startViewTransition(swap);
+    t.finished.finally(() => { const c = $("#p-cover"); if (c) c.style.viewTransitionName = ""; });
+  } else swap();
+}
+addEventListener("hashchange", render);
+addEventListener("keydown", e => {
+  if (e.target.closest && e.target.closest("input, textarea, [role=tab]")) return;
+  if (e.key === "Escape" && current !== "home") { location.hash = ""; return; }
+  const i = WORK.findIndex(w => w.id === current); if (i < 0) return;
+  if (e.key === "ArrowRight") location.hash = WORK[(i + 1) % WORK.length].id;
+  if (e.key === "ArrowLeft") location.hash = WORK[(i - 1 + WORK.length) % WORK.length].id;
+});
+render();
+</script>
+</body>
+</html>
