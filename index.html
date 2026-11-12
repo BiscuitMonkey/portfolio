@@ -141,6 +141,8 @@ figure .img.fit img { cursor: zoom-in; }
 #lb p { color: #E8E9EB; text-align: center; font-size: 15px; margin: 10px 0 0; }
 .phones { --n: 3; max-width: 700px; }
 .phones.two { --n: 2; max-width: 480px; }
+.dials { --n: 3; max-width: 540px; }
+.bare .img { background: transparent; border-radius: 0; }
 
 .nums { display: flex; flex-wrap: wrap; gap: 16px 40px; }
 .nums b { display: block; font-size: 34px; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; }
@@ -199,6 +201,7 @@ footer a { color: var(--muted); }
   .top nav { gap: 16px; }
   .figs { --n: 1 !important; }
   .figs.strip { --n: 3 !important; }
+  .figs.dials { --n: 3 !important; }
   .phones, .phones.two { --n: 2 !important; }
   .cs-body { gap: 56px; margin-top: 56px; }
 }
@@ -286,13 +289,13 @@ const FEATURED = [
         { p: "Over ten weeks, our team redesigned the Google Nest Thermostat's mobile app and its on-device screen. I led the UX/UI design. The brief: make the 3rd-generation Nest look and feel greener and more affordable." },
         { p: "Three ideas carry the system. Every mode has its own color. The interface always says what it's doing and for how long. And saving energy is framed in dollars, not just degrees." } ] },
       { h: "The redesign", blocks: [
-        { figs: [["nest-eco", "Eco Mode — the resting state, in green"], ["nest-cool", "Cooling shows the target and the time to get there: 70 → 68, 15 minutes left"], ["nest-heat", "Heating gets the same treatment in orange"]], kind: "phones" } ] },
+        { figs: [["nest-eco", "Eco Mode — the resting state, in green"], ["nest-cool", "Cooling shows the target and the time to get there: 70 → 68, 15 minutes left"], ["nest-heat", "Heating gets the same treatment in orange"]], kind: "dials bare" } ] },
       { h: "Key decisions", blocks: [
         { decision: { h: "Savings in dollars, not just degrees", p: "The home screen pairs the set temperature with an Eco Suggestion and a daily tally of hours run, kWh used and money saved. 'Greener and more affordable' becomes something you can read every morning instead of a slogan.",
-          kind: "phones two", figs: [["nest-home", "Home: set temperature, Eco Suggestion, and daily insights"]] } },
+          kind: "phones two bare", figs: [["nest-home", "Home: set temperature, Eco Suggestion, and daily insights"]] } },
         { decision: { h: "One color per mode, on the wall and in your hand", p: "Eco is green, cooling is blue, heating is orange — on the thermostat dial, in the app's progress bars, in every status pill. You can read the system's state from across the room, on either surface." } },
         { decision: { h: "A schedule that reads like a calendar", p: "Scheduling borrows the shape of a calendar app — Sleep and Work blocks on a week grid — so a first schedule takes seconds to understand.",
-          kind: "phones two", figs: [["nest-schedule", "The week view, with Sleep and Work blocks"]] } },
+          kind: "phones two bare", figs: [["nest-schedule", "The week view, with Sleep and Work blocks"]] } },
         { todo: "If one of these decisions misses the real story, swap it — each needs just the change, the reason, and one image." } ] },
       { h: "The system", blocks: [
         { p: "A six-page style guide kept the two surfaces consistent: Forest Green with deep blue and fiery orange as mode colors, a shared grayscale, and one typeface, Marlett, scaled separately for phone and thermostat. Click any page to read it." },
