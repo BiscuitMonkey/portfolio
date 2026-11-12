@@ -123,6 +123,8 @@ main { padding-block: 56px 96px; }
 .card p { color: var(--muted); max-width: 48ch; }
 .card .meta { font-size: 15px; color: var(--muted); font-weight: 500; }
 .card:hover h2 { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+.card.hl { border: 1.5px solid var(--link); border-radius: 14px; padding: 16px; margin: -16px; }
+.hl-tag { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--link); }
 
 .more { margin-top: 88px; padding-top: 32px; border-top: 1px solid var(--line); display: grid; gap: 28px; }
 .more > h2 { font-size: 20px; }
@@ -221,6 +223,7 @@ footer a { color: var(--muted); }
   .intro.has-portrait { grid-template-columns: 1fr; }
   .portrait-wrap { justify-items: start; }
   .ascii-reveal { max-width: 260px; }
+  .card.hl { padding: 12px; margin: -12px; }
 }
 @media (max-width: 560px) {
   body { font-size: 17px; }
@@ -237,7 +240,7 @@ footer a { color: var(--muted); }
 
 <header class="top"><div class="wrap">
   <a class="name" href="#">Jack Walker</a>
-  <nav aria-label="Main"><a href="#" data-nav="work">Home</a><a href="#other-work" data-nav="other">Other work</a><a href="#about" data-nav="about">About</a><button id="mode" type="button" aria-label="Switch color theme"></button></nav>
+  <nav aria-label="Main"><a href="#" data-nav="work">Home</a><a href="#other-work" data-nav="other">Other Work</a><a href="#about" data-nav="about">About</a><button id="mode" type="button" aria-label="Switch color theme"></button></nav>
 </div></header>
 <main id="app" class="wrap"></main>
 <dialog id="lb" aria-label="Image preview"><img alt=""><p></p></dialog>
@@ -261,7 +264,7 @@ const RESUME_PDF = "https://docs.google.com/document/d/1W2idFMJRs5636LlhtmxSSqJZ
    Block types: p, list, todo, figs [key, caption][] with n (columns) and kind ("phones"),
    decision {h, p, todo, figs}, nums [value, label][] */
 const FEATURED = [
-  { id: "quarters", title: "Quarters", summary: "An iPhone app and smart fridge magnet that help roommates split rent and chores.",
+  { id: "quarters", title: "Quarters", highlight: true, summary: "An iPhone app and smart fridge magnet that help roommates split rent and chores.",
     meta: "Project lead · Fall 2026", hero: "cover-quarters",
     facts: { Role: "Project lead", Team: "SCAD team", Timeline: "Fall 2026", Tools: "Figma" },
     sections: [
@@ -782,7 +785,8 @@ function block(b) {
   return "";
 }
 function card(p) {
-  return `<a class="card" href="#${p.id}">
+  return `<a class="card${p.highlight ? " hl" : ""}" href="#${p.id}">
+    ${p.highlight ? '<span class="hl-tag">Highlighted Work</span>' : ""}
     <div class="shot">${media(p.hero, "")}</div>
     <h2>${esc(p.title)}${p.sub ? ` <span>${esc(p.sub)}</span>` : ""}</h2>
     <p>${esc(p.summary)}</p>
@@ -808,7 +812,7 @@ function viewHome() {
     </section>
     <section class="featured"><h2>UX Projects</h2><div class="cards">${FEATURED.map(card).join("")}</div></section>
     <section class="more"><h2>More work</h2><div class="cards">${MORE.map(card).join("")}
-      <a class="card" href="#other-work"><div class="shot">${media("gd-type", "")}</div><h2>Other work</h2><p>Graphic design, research, print and industrial design.</p><span class="meta">2023 to 2026</span></a>
+      <a class="card" href="#other-work"><div class="shot">${media("gd-type", "")}</div><h2>Other Work</h2><p>Graphic design, research, print and industrial design.</p><span class="meta">2023 to 2026</span></a>
     </div></section>`;
 }
 
@@ -829,7 +833,7 @@ function viewCase(p) {
 
 function viewOther() {
   return `<section class="intro" style="padding-bottom:0">
-      <h1>Other work</h1>
+      <h1>Other Work</h1>
       <p>Work outside product design that shapes how I design: illustration, print, research and 3D.</p>
       <div class="toc">${OTHER.map(o => `<a href="#other-work" data-jump="${o.id}">${esc(o.title)}</a>`).join("")}</div>
     </section>
@@ -843,7 +847,7 @@ function viewAbout() {
   return `<div class="about">
       <div>
         <h1>About</h1>
-        <p class="lead">I'm Jack, a product designer from Dallas, Texas, finishing my BFA in UX Design at the Savannah College of Art &amp; Design. I design mobile and web products and take them from first sketches to developer-ready files.</p>
+        <p class="lead">I'm Jack, a product designer from Dallas, Texas, finishing my BFA in UX Design at Savannah College of Art &amp; Design. I design mobile and web products and take them from first sketches to developer-ready files.</p>
         ${DRAFT ? `<div class="col" style="margin-top:16px">${todo("A line or two in your own voice: what kind of product work you want to do next, and where.")}</div>` : ""}
       </div>
       <div class="photo">${media("jack-walker-headshot", "Jack Walker")}</div>
