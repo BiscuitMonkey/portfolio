@@ -211,9 +211,17 @@ figure .img.fit img { cursor: zoom-in; }
 .btn:hover { border-color: var(--link); }
 
 footer { border-top: 1px solid var(--line); }
-footer .wrap { display: flex; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; padding-block: 28px calc(28px + env(safe-area-inset-bottom, 0px)); font-size: 15px; color: var(--muted); }
-footer a { color: var(--muted); }
-footer a:hover { color: var(--link); }
+.foot { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); gap: 40px; padding-block: 56px 44px; }
+.f-main { display: grid; gap: 10px; align-content: start; }
+.f-name { font-size: 22px; font-weight: 800; letter-spacing: -0.01em; }
+.f-main p { color: var(--muted); font-size: 16px; max-width: 34ch; }
+.f-avail { display: inline-flex; align-items: center; gap: 9px; color: var(--ink); font-size: 16px; font-weight: 600; }
+.f-avail::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--link); flex: none; }
+.f-col { display: grid; gap: 10px; align-content: start; justify-items: start; }
+.f-col h3 { font-size: 13px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.f-col a { color: var(--ink); text-decoration: none; font-size: 16px; }
+.f-col a:hover { color: var(--link); }
+.f-base { display: flex; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-block: 20px calc(20px + env(safe-area-inset-bottom, 0px)); font-size: 14px; color: var(--muted); }
 
 @media (max-width: 860px) {
   .cards, .more .cards { grid-template-columns: 1fr; gap: 44px; }
@@ -226,6 +234,7 @@ footer a:hover { color: var(--link); }
   .portrait-wrap { justify-items: start; }
   .ascii-reveal { max-width: 260px; }
   .card.hl { padding: 12px; margin: -12px; }
+  .foot { grid-template-columns: 1fr; gap: 32px; }
 }
 @media (max-width: 560px) {
   body { font-size: 17px; }
@@ -247,10 +256,29 @@ footer a:hover { color: var(--link); }
 <main id="app" class="wrap"></main>
 <dialog id="lb" aria-label="Image preview"><img alt=""><p></p></dialog>
 <div id="cur" aria-hidden="true"><span id="cur-dot"></span><span id="cur-ring"><span id="cur-glyph"></span></span></div>
-<footer><div class="wrap">
-  <span>Jack Walker · UX Designer · BFA UX Design, SCAD, May 2027</span>
-  <span><a href="https://www.linkedin.com/in/jack-walker-b20035321/" target="_blank" rel="noopener">LinkedIn</a> · walkerajack@gmail.com</span>
-</div></footer>
+<footer>
+<div class="wrap foot">
+  <div class="f-main">
+    <span class="f-name">Jack Walker</span>
+    <p>UX designer finishing a BFA in UX Design at SCAD, May 2027.</p>
+    <span class="f-avail">Open to UX design roles · Winter 2026–27</span>
+  </div>
+  <div class="f-col">
+    <h3>Contact</h3>
+    <a href="mailto:walkerajack@gmail.com">walkerajack@gmail.com</a>
+    <a href="https://www.linkedin.com/in/jack-walker-b20035321/" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://www.instagram.com/trailwlk.r/" target="_blank" rel="noopener">Instagram</a>
+  </div>
+  <div class="f-col">
+    <h3>Site</h3>
+    <a href="#">Home</a>
+    <a href="#other-work">Other Work</a>
+    <a href="#about">About</a>
+    <a href="https://docs.google.com/document/d/1W2idFMJRs5636LlhtmxSSqJZcpYce-FCKtDAANgGB-8/export?format=pdf" target="_blank" rel="noopener">Résumé (PDF)</a>
+  </div>
+</div>
+<div class="wrap f-base"><span>© 2026 Jack Walker</span><span>Savannah, GA · Dallas, TX</span></div>
+</footer>
 
 <script>
 /* Draft notes (yellow boxes) mark what Jack still needs to supply. Set to false to hide them all. */
@@ -506,6 +534,7 @@ class AsciiReveal {
     sctx.drawImage(this.source, (cols - iw * sc) / 2, (rows - ih * sc) / 2, iw * sc, ih * sc);
     const data = sctx.getImageData(0, 0, cols, rows).data;
     const chars = this.opts.charset, th = this.theme();
+    const aFloor = th.invert ? .58 : .42, aSpan = th.invert ? .42 : .58;
     const cs = getComputedStyle(document.documentElement);
     this.inkRgb = th.rgb;
     this.accentColor = cs.getPropertyValue("--link").trim() || "#2343B8";
@@ -515,7 +544,7 @@ class AsciiReveal {
     ctx.clearRect(0, 0, w, h);
     if (this.fit) { // faint ghost of the photo beneath the characters, so the face reads
       ctx.save();
-      ctx.globalAlpha = .12;
+      ctx.globalAlpha = this.theme().invert ? .07 : .12;
       ctx.filter = "saturate(0)";
       ctx.drawImage(this.source, this.fit.dx, this.fit.dy, this.fit.dw, this.fit.dh);
       ctx.restore();
@@ -532,7 +561,7 @@ class AsciiReveal {
       this.grid.hash[gi] = ((Math.sin(gi * 12.9898) * 43758.5453) % 1 + 1) % 1;
       const ch = chars[Math.floor(lum * (chars.length - 1))];
       if (ch === " ") continue;
-      ctx.fillStyle = "rgba(" + th.rgb + "," + (.42 + lum * .58).toFixed(2) + ")";
+      ctx.fillStyle = "rgba(" + th.rgb + "," + (aFloor + lum * aSpan).toFixed(2) + ")";
       ctx.fillText(ch, x * cell, y * cell);
     }
   }
