@@ -82,9 +82,24 @@ main { padding-block: 56px 96px; }
 .ascii-reveal { position: relative; width: 100%; max-width: 320px; background: var(--wash); border-radius: 10px; overflow: hidden; cursor: crosshair; }
 .ascii-reveal canvas { display: block; width: 100%; height: 100%; }
 .ascii-reveal canvas.reveal { position: absolute; inset: 0; pointer-events: none; }
-.whisper { font-size: 13px; color: var(--muted); }
-.m-touch { display: none; }
-@media (hover: none) { .m-hover { display: none; } .m-touch { display: inline; } }
+/* Custom cursor (fine pointers only; enabled by JS) */
+#cur { display: none; }
+.has-cursor #cur { display: block; position: fixed; inset: 0; z-index: 99; pointer-events: none; }
+.has-cursor * { cursor: none !important; }
+#cur-dot { position: fixed; left: -60px; top: -60px; width: 6px; height: 6px; border-radius: 50%; background: var(--ink); transform: translate(-50%, -50%); transition: width .15s, height .15s, background-color .15s, opacity .2s; }
+#cur-ring { position: fixed; left: -60px; top: -60px; width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid color-mix(in srgb, var(--ink) 40%, transparent); transform: translate(-50%, -50%) scale(var(--cs, 1)); display: grid; place-items: center; transition: width .25s, height .25s, border-color .25s, background-color .25s, transform .15s, opacity .2s; }
+#cur-glyph { font-size: 15px; line-height: 1; color: var(--bg); opacity: 0; transition: opacity .15s; }
+#cur.off #cur-dot, #cur.off #cur-ring { opacity: 0; }
+#cur.link #cur-ring { width: 44px; height: 44px; border-color: var(--link); background: color-mix(in srgb, var(--link) 10%, transparent); }
+#cur.link #cur-dot { background: var(--link); }
+#cur.zoom #cur-ring { width: 42px; height: 42px; border-color: transparent; background: color-mix(in srgb, var(--ink) 88%, transparent); }
+#cur.zoom #cur-dot { opacity: 0; }
+#cur.zoom #cur-glyph { opacity: 1; }
+#cur.brush #cur-ring { width: 14px; height: 14px; border-color: var(--link); }
+#cur.brush #cur-dot { width: 3px; height: 3px; }
+#cur.down #cur-ring { --cs: .8; }
+.lb-open #cur #cur-dot, .lb-open #cur #cur-ring { opacity: 0; }
+.has-cursor.lb-open * { cursor: zoom-out !important; }
 
 .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px 32px; }
 .card { display: grid; gap: 14px; color: inherit; text-decoration: none; }
@@ -214,6 +229,7 @@ footer a { color: var(--muted); }
 </div></header>
 <main id="app" class="wrap"></main>
 <dialog id="lb" aria-label="Image preview"><img alt=""><p></p></dialog>
+<div id="cur" aria-hidden="true"><span id="cur-dot"></span><span id="cur-ring"><span id="cur-glyph"></span></span></div>
 <footer><div class="wrap">
   <span>Jack Walker · Product designer · BFA UX Design, SCAD, May 2027</span>
   <span><a href="https://www.linkedin.com/in/jack-walker-b20035321/" target="_blank" rel="noopener">LinkedIn</a> · walkerajack@gmail.com</span>
@@ -374,7 +390,7 @@ const CV = {
    soft parallax). Adapted for this site: theme-aware characters, pauses when
    offscreen, and tears down cleanly when the page changes. */
 const ASCII_CFG = {
-  cell: 6, charset: " .`':,;-~=+*#%@", contrast: 1.15,
+  cell: 5, charset: " .`':,;-~=+*#%@", contrast: 1.3,
   lensRadius: 60, trailLinger: 2.6, taper: 1.7, goo: 14,
   ambient: true, ambientStrength: .9, ambientBlobs: 4, ambientRadius: [50, 100],
   parallax: true, parallaxTilt: 2, parallaxShift: 8, wobbleAmount: .05
@@ -477,6 +493,14 @@ class AsciiReveal {
     this.fontStr = cell + "px ui-monospace, Menlo, Consolas, monospace";
     this.grid = { cell, cols, rows, lum: new Float32Array(cols * rows), hash: new Float32Array(cols * rows) };
     ctx.clearRect(0, 0, w, h);
+    if (this.fit) { // faint ghost of the photo beneath the characters, so the face reads
+      ctx.save();
+      ctx.globalAlpha = .12;
+      ctx.filter = "saturate(0)";
+      ctx.drawImage(this.source, this.fit.dx, this.fit.dy, this.fit.dw, this.fit.dh);
+      ctx.restore();
+      ctx.filter = "none";
+    }
     ctx.font = this.fontStr;
     ctx.textBaseline = "top";
     for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
@@ -519,13 +543,14 @@ class AsciiReveal {
         const a = pre[fy * fw + fx];
         if (a > 200) continue;
         const lum = g.lum[gi];
-        let draw = false, alpha = 0, color = ink, ch = "";
+        let draw = false, alpha = 0, color = ink, ch = "", cover = false;
         if (intro) {
           const delay = ((x + y) / (g.cols + g.rows)) * introSpan * .8 + h01 * introSpan * .3;
           if (introAge < delay) {
             ch = chars[1 + (((h01 * 997) | 0) + ((t * 14) | 0)) % nch];
             alpha = .3 + .3 * h01;
             draw = true;
+            cover = true;
           }
         }
         if (!draw && a > 50) {
@@ -556,8 +581,7 @@ class AsciiReveal {
           }
         }
         if (!draw || ch === " ") continue;
-        o.fillStyle = this.washColor;
-        o.fillRect(x * cell, y * cell, cell, cell);
+        if (cover) { o.fillStyle = this.washColor; o.fillRect(x * cell, y * cell, cell, cell); }
         o.globalAlpha = alpha;
         o.fillStyle = color;
         o.fillText(ch, x * cell, y * cell);
@@ -759,7 +783,6 @@ function viewHome() {
       </div>
       <div class="portrait-wrap">
         <figure class="ascii-reveal" id="portrait" aria-label="Portrait of Jack Walker, revealed as you move across it"></figure>
-        <p class="whisper"><span class="m-hover">Run your cursor across it</span><span class="m-touch">Tap it</span></p>
       </div>
     </section>
     <div class="cards">${FEATURED.map(card).join("")}</div>
@@ -839,7 +862,7 @@ function render() {
 document.body.classList.toggle("draft-off", !DRAFT);
 document.addEventListener("click", e => {
   const zi = e.target.closest("figure .img.fit img");
-  if (zi) { const lb = $("#lb"); const li = lb.querySelector("img"); li.src = zi.src; li.alt = zi.alt || ""; lb.querySelector("p").textContent = zi.closest("figure")?.querySelector("figcaption")?.textContent || ""; lb.showModal(); return; }
+  if (zi) { const lb = $("#lb"); const li = lb.querySelector("img"); li.src = zi.src; li.alt = zi.alt || ""; lb.querySelector("p").textContent = zi.closest("figure")?.querySelector("figcaption")?.textContent || ""; document.body.classList.add("lb-open"); lb.showModal(); return; }
   if (e.target.closest("#lb")) { $("#lb").close(); return; }
   const j = e.target.closest("[data-jump]");
   if (j) { e.preventDefault(); document.getElementById("o-" + j.dataset.jump)?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }
@@ -849,6 +872,46 @@ document.addEventListener("click", e => {
     try { navigator.clipboard.writeText(EMAIL).then(done, sel); } catch { sel(); }
   }
 });
+/* Custom cursor: ink dot + trailing ring with link / zoom / brush states */
+(function () {
+  if (!matchMedia("(pointer: fine)").matches) return;
+  const cur = $("#cur"), dot = $("#cur-dot"), ring = $("#cur-ring"), glyph = $("#cur-glyph");
+  if (!cur) return;
+  document.body.classList.add("has-cursor");
+  cur.classList.add("off");
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let x = -60, y = -60, rx = -60, ry = -60;
+  addEventListener("pointermove", e => {
+    if (e.pointerType === "touch") return;
+    x = e.clientX; y = e.clientY;
+    cur.classList.remove("off");
+    dot.style.left = x + "px"; dot.style.top = y + "px";
+    if (still) { rx = x; ry = y; ring.style.left = x + "px"; ring.style.top = y + "px"; }
+  }, { passive: true });
+  addEventListener("pointerdown", () => cur.classList.add("down"), true);
+  addEventListener("pointerup", () => cur.classList.remove("down"), true);
+  document.documentElement.addEventListener("pointerleave", () => cur.classList.add("off"));
+  addEventListener("blur", () => cur.classList.add("off"));
+  document.addEventListener("pointerover", e => {
+    const t = e.target;
+    if (!t.closest) return;
+    let mode = "", g = "";
+    if (t.closest(".ascii-reveal")) mode = "brush";
+    else if (t.closest("figure .img.fit")) { mode = "zoom"; g = "+"; }
+    else if (t.closest("a, button, summary, [data-jump]")) mode = "link";
+    cur.classList.toggle("link", mode === "link");
+    cur.classList.toggle("zoom", mode === "zoom");
+    cur.classList.toggle("brush", mode === "brush");
+    if (g) glyph.textContent = g;
+  });
+  if (!still) (function loop() {
+    rx += (x - rx) * .18; ry += (y - ry) * .18;
+    ring.style.left = rx.toFixed(1) + "px"; ring.style.top = ry.toFixed(1) + "px";
+    requestAnimationFrame(loop);
+  })();
+  const lb = $("#lb");
+  if (lb) lb.addEventListener("close", () => document.body.classList.remove("lb-open"));
+})();
 addEventListener("hashchange", render);
 render();
 </script>
