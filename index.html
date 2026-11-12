@@ -115,6 +115,7 @@ p { margin: 0; }
 figure { margin: 0; display: grid; gap: 8px; min-width: 0; }
 .ph { aspect-ratio: var(--r, 4 / 3); max-width: 100%; border-radius: 4px; overflow: hidden; display: grid; place-items: center; }
 .ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ph video { width: 100%; height: 100%; object-fit: cover; display: block; background: #000; }
 figcaption { font-size: 13.5px; color: var(--muted); }
 .nums { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .nums div { border: 1px solid var(--line); border-radius: 6px; padding: 14px; background: var(--surface); }
@@ -161,7 +162,7 @@ details.earlier summary { cursor: pointer; color: var(--muted); }
 .c-grid a:hover { text-decoration: underline; }
 
 /* Visual work */
-.v-index { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: clamp(32px, 4vw, 48px); }
+.v-index { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: clamp(32px, 4vw, 48px); }
 .v-card { all: unset; box-sizing: border-box; cursor: pointer; border-radius: 6px; padding: 18px; aspect-ratio: 4 / 3; max-width: 100%; display: flex; flex-direction: column; justify-content: space-between; transition: transform .5s var(--ease); }
 .v-card:hover { transform: translateY(-3px); }
 .v-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -229,12 +230,91 @@ const LINKS = {
   personal: "https://www.instagram.com/walkerajack/",
   email: "walkerajack@gmail.com"
 };
-const HEADSHOT = "assets/jack-walker-headshot.png";
-/* Drop real images in here: "cover-<project id>" for column + page covers, or any figure key below.
-   Any key left out keeps its generated placeholder. */
-const IMAGES = {};
+const HEADSHOT = "assets/jack-walker-headshot.webp";
+/* Real work images, pulled from Jack's Notion. Any key left out keeps its generated placeholder. */
+const IMAGES = {
+  "cover-quarters": "assets/cover-quarters.webp",
+  "cover-stewart-title": "assets/cover-stewart-title.png",
+  "cover-amazon-music": "assets/cover-amazon-music.webp",
+  "cover-savannah-parking": "assets/cover-savannah-parking.webp",
+  "cover-national-park-service": "assets/cover-national-park-service.webp",
+  "cover-nest-thermostat": "assets/cover-nest-thermostat.webp",
+  "nps-topo": "assets/nps-topo.webp",
+  "nps-real": "assets/nps-real.webp",
+  "nps-nat": "assets/nps-nat.webp",
+  "nps-con": "assets/nps-con.webp",
+  "nps-color": "assets/nps-color.webp",
+  "nps-type": "assets/nps-type.webp",
+  "nps-layout": "assets/nps-layout.webp",
+  "nps-mirage": "assets/nps-mirage.webp",
+  "nps-sunday": "assets/nps-sunday.png",
+  "nps-hikeon": "assets/nps-hikeon.webp",
+  "nps-palette": "assets/nps-palette.webp",
+  "nps-typefaces": "assets/nps-typefaces.webp",
+  "nps-shapes": "assets/nps-shapes.webp",
+  "nps-illus": "assets/nps-illus.webp",
+  "nps-components": "assets/nps-components.webp",
+  "nps-flow": "assets/nps-flow.webp",
+  "nest-lookbook": "assets/nest-lookbook.webp",
+  "nest-poster": "assets/nest-poster.webp",
+  "nest-summary": "assets/nest-summary.webp",
+  "nest-sg1": "assets/nest-sg1.png",
+  "nest-sg2": "assets/nest-sg2.png",
+  "nest-sg3": "assets/nest-sg3.png",
+  "nest-sg4": "assets/nest-sg4.png",
+  "nest-sg5": "assets/nest-sg5.png",
+  "nest-sg6": "assets/nest-sg6.png",
+  "nest-eco": "assets/nest-eco.png",
+  "nest-cool": "assets/nest-cool.webp",
+  "nest-heat": "assets/nest-heat.webp",
+  "nest-home": "assets/nest-home.png",
+  "nest-schedule": "assets/nest-schedule.png",
+  "fr-hero": "assets/fr-hero.webp",
+  "fr-obs1": "assets/fr-obs1.webp",
+  "fr-obs2": "assets/fr-obs2.webp",
+  "fr-stake": "assets/fr-stake.png",
+  "fr-screener": "assets/fr-screener.png",
+  "fr-questions": "assets/fr-questions.png",
+  "fr-insights": "assets/fr-insights.png",
+  "fr-workshop": "assets/fr-workshop.webp",
+  "fr-kit": "assets/fr-kit.webp",
+  "fr-data": "assets/fr-data.webp",
+  "fr-aff1": "assets/fr-aff1.webp",
+  "fr-aff2": "assets/fr-aff2.webp",
+  "fr-front": "assets/fr-front.webp",
+  "fr-back": "assets/fr-back.webp",
+  "fr-p12": "assets/fr-p12.webp",
+  "fr-p34": "assets/fr-p34.webp",
+  "fr-p56": "assets/fr-p56.webp",
+  "fr-mock": "assets/fr-mock.webp",
+  "gd-chloris": "assets/gd-chloris.webp",
+  "gd-film": "assets/gd-film.png",
+  "gd-type": "assets/gd-type.webp",
+  "pw-back": "assets/pw-back.webp",
+  "pw-front": "assets/pw-front.webp",
+  "pw-sticker": "assets/pw-sticker.webp",
+  "pw-sticker-ai": "assets/pw-sticker-ai.webp",
+  "pw-coaster": "assets/pw-coaster.webp",
+  "pw-coaster-ai": "assets/pw-coaster-ai.webp",
+  "id-model": "assets/id-model.webp",
+  "id-proto": "assets/id-proto.webp"
+};
+/* Screen-recording walkthroughs render as <video> in their slots. */
+const VIDEOS = {
+  "nps-landing": "assets/nps-landing.mp4",
+  "nps-alaska": "assets/nps-alaska.mp4",
+  "nps-denali": "assets/nps-denali.mp4"
+};
 
 const WORK = [
+  { id: "quarters", title: "Quarters", kind: "Mobile app · Product design", year: 2026, hue: "#5B6ABF",
+    tags: ["Product Design", "Research", "Prototype"],
+    lede: "A ten-week mobile product design project — research, prototyping and product design, led end to end.",
+    facts: { Role: "Project Lead", Platform: "Mobile", Timeline: "10 weeks · 2026", Tools: "Figma" },
+    body: [
+      { figs: [["quarters-1", "Project overview"]], n: 1, r: "16 / 9" },
+      { note: "Full case study coming soon." }
+    ]},
   { id: "stewart-title", title: "Stewart Title", sub: "Connect Close", kind: "Internship · Web app redesign", year: 2026, hue: "#6E8CC8",
     tags: ["Research", "Redesign", "Prototype"],
     lede: "A redesign of Connect Close, Stewart Title's title production software, built with the people who use it every day.",
@@ -301,21 +381,6 @@ const WORK = [
       { figs: [["nest-eco", "Eco"], ["nest-cool", "Cooling"], ["nest-heat", "Heating"]], n: 3, r: "9 / 16" },
       { figs: [["nest-home", "Home"], ["nest-schedule", "Schedule"]], r: "9 / 16" }
     ]},
-  { id: "fridge-research", title: "The Ideal Fridge", kind: "Research study", year: 2025, hue: "#8A7DB8",
-    tags: ["Research", "Data", "Workshop"],
-    lede: "A large research study into the user experience and design principles of an everyday appliance: the refrigerator.",
-    facts: { Method: "Mixed methods", Output: "Printed magazine", Tools: "Figma" },
-    body: [
-      { figs: [["fr-hero", "Final product: magazine prints showing the ideal fridge experience"]], n: 1, r: "16 / 9" },
-      { steps: [
-        { h: "Secondary research", p: "Before running our own research, we gathered as much existing data as we could. To improve a product, we had to understand it first." },
-        { h: "Observation", p: "Each of us observed participants using their fridge in a 60-minute window around dinner, the time we found it was used most. We noted opportunities across models, features that worked well, and other insights.", figs: [["fr-obs1", "Observation"], ["fr-obs2", "Observation"]] },
-        { h: "Screener and interviews", p: "We built a screener to recruit interview candidates across a wide range of demographics.", figs: [["fr-stake", "Stakeholder map"], ["fr-screener", "Screener outcomes"], ["fr-questions", "Introductory questions"], ["fr-insights", "Insights from each interview"]] },
-        { h: "Sensory cue workshop", p: "A four-part workshop to learn what draws people to a fridge: the ideal interior, how people organize, how a fridge should feel physically, and how it should feel emotionally.", figs: [["fr-workshop", "Participants in the workshop"], ["fr-kit", "Stimulus kit"], ["fr-data", "Data collected"]] },
-        { h: "Affinitization", p: "We grouped what we found into patterns, then into overarching ideas.", nums: [["1000+", "Unique insights"], ["114", "Tertiary data points"], ["29", "Secondary data points"], ["10", "Ultimate insights"]], figs: [["fr-aff1", "Affinity mapping"], ["fr-aff2", "Affinity mapping"]] },
-        { h: "Final product", p: "We organized our ten insights about what makes a fridge successful into a printed magazine.", figs: [["fr-front", "Front cover, designed by me"], ["fr-back", "Back cover, designed by me"], ["fr-p12", "Pages 1–2"], ["fr-p34", "Pages 3–4"], ["fr-p56", "Pages 5–6"], ["fr-mock", "Printed mockups"]] }
-      ]}
-    ]},
   { id: "highway-gothic", title: "Highway Gothic", kind: "Typographic web study", year: 2024, hue: "#56616E",
     tags: ["Type", "Web", "Prototype"],
     lede: "A typographic study of Highway Gothic, the typeface on road signs across the United States. My first web prototype, and my first project in Adobe XD.",
@@ -340,6 +405,19 @@ const VISUAL = [
       { figs: [["gd-film", "“Max Needs to Pay Rent”"]], n: 1, r: "2 / 3" },
       { h: "Typography studies" }, { p: "Work focused on type, including an editorial on the Highway Gothic typeface." },
       { figs: [["gd-type", "Highway Gothic editorial"]], n: 1, r: "16 / 10" }
+    ]},
+  { id: "fridge-research", title: "The Ideal Fridge", kind: "Research study", hue: "#8A7DB8", facts: { Method: "Mixed methods", Output: "Printed magazine", Tools: "Figma" },
+    lede: "A large research study into the user experience and design principles of an everyday appliance: the refrigerator.",
+    body: [
+      { figs: [["fr-hero", "Final product: magazine prints showing the ideal fridge experience"]], n: 1, r: "16 / 9" },
+      { steps: [
+        { h: "Secondary research", p: "Before running our own research, we gathered as much existing data as we could. To improve a product, we had to understand it first." },
+        { h: "Observation", p: "Each of us observed participants using their fridge in a 60-minute window around dinner, the time we found it was used most. We noted opportunities across models, features that worked well, and other insights.", figs: [["fr-obs1", "Observation"], ["fr-obs2", "Observation"]] },
+        { h: "Screener and interviews", p: "We built a screener to recruit interview candidates across a wide range of demographics.", figs: [["fr-stake", "Stakeholder map"], ["fr-screener", "Screener outcomes"], ["fr-questions", "Introductory questions"], ["fr-insights", "Insights from each interview"]] },
+        { h: "Sensory cue workshop", p: "A four-part workshop to learn what draws people to a fridge: the ideal interior, how people organize, how a fridge should feel physically, and how it should feel emotionally.", figs: [["fr-workshop", "Participants in the workshop"], ["fr-kit", "Stimulus kit"], ["fr-data", "Data collected"]] },
+        { h: "Affinitization", p: "We grouped what we found into patterns, then into overarching ideas.", nums: [["1000+", "Unique insights"], ["114", "Tertiary data points"], ["29", "Secondary data points"], ["10", "Ultimate insights"]], figs: [["fr-aff1", "Affinity mapping"], ["fr-aff2", "Affinity mapping"]] },
+        { h: "Final product", p: "We organized our ten insights about what makes a fridge successful into a printed magazine.", figs: [["fr-front", "Front cover, designed by me"], ["fr-back", "Back cover, designed by me"], ["fr-p12", "Pages 1–2"], ["fr-p34", "Pages 3–4"], ["fr-p56", "Pages 5–6"], ["fr-mock", "Printed mockups"]] }
+      ]}
     ]},
   { id: "print-work", title: "Print Work", kind: "Apparel & objects", hue: "#5E87B0", facts: { Tools: "Illustrator", Process: "Sublimation printing" },
     lede: "Designs I turned into physical pieces.",
@@ -424,7 +502,10 @@ function phSrc(key, hue = "#8A8A86") {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900"><rect width="1200" height="900" fill="#ECEBE7"/><rect width="1200" height="900" fill="${hue}" opacity=".14"/>${art}<rect x="34" y="822" width="${label.length * 17 + 44}" height="50" rx="8" fill="#141518" opacity=".55"/><text x="56" y="855" font-family="Menlo,Consolas,monospace" font-size="26" letter-spacing="2" fill="#FFFFFF">${label}</text></svg>`;
   return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
 }
-function img(key, alt, hue) { return `<img src="${IMAGES[key] || phSrc(key, hue)}" alt="${esc(alt || "")}" loading="lazy">`; }
+function img(key, alt, hue) {
+  if (VIDEOS[key]) return `<video src="${VIDEOS[key]}" controls muted playsinline preload="metadata" aria-label="${esc(alt || "")}"></video>`;
+  return `<img src="${IMAGES[key] || phSrc(key, hue)}" alt="${esc(alt || "")}" loading="lazy">`;
+}
 function slot(key, cap, r, hue) {
   return `<figure><div class="ph tone" style="--hue:${hue};--r:${r || "4 / 3"}">${img(key, cap, hue)}</div><figcaption>${esc(cap)}</figcaption></figure>`;
 }
@@ -493,7 +574,7 @@ function viewVisual() {
   return `<div class="page">
     <span class="mono">Beyond UX</span>
     <h1 class="p-title" style="margin-top:12px">Visual work</h1>
-    <div class="p-intro"><p class="lede">Graphic design, print, industrial design and motion.</p></div>
+    <div class="p-intro"><p class="lede">Graphic design, research, print, industrial design and motion.</p></div>
     <div class="v-index">${VISUAL.map(v => `<button class="v-card tone" type="button" data-jump="${v.id}" style="--hue:${v.hue}"><span class="mono">${esc(v.kind)}</span><b>${esc(v.title)}</b></button>`).join("")}</div>
     ${VISUAL.map(v => `<section class="v-piece" id="v-${v.id}">
       <span class="mono">${esc(v.kind)}</span>
