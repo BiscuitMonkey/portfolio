@@ -3,700 +3,465 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="Jack Walker — UX/UI and graphic designer. BFA UX Design, Savannah College of Art and Design.">
+<meta name="description" content="Jack Walker — product designer. BFA UX Design, Savannah College of Art and Design, May 2027.">
 <style>body{margin:0}img{max-width:100%}</style>
 </head>
 <body>
 <title>Jack Walker Portfolio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
 <style>
-/* Layout: the site is a frame for the work. Home = seven full-height project columns (from Jack's sketch);
-   hovering one opens it wide. Project pages: a left rail of section names, the work at full width on the right. */
+/* Layout: the site steps back so the work leads. One readable typeface, black on white,
+   one quiet ink-blue for links. Home: short intro, four large project cards, a smaller row of more work.
+   Case studies: one reading column, images break out wider. */
 :root {
-  --bg: #F6F6F4;
-  --surface: #FFFFFF;
-  --ink: #141518;
-  --muted: #6B6D73;
-  --line: #DDDDD9;
-  --accent: #2F49F5;
-  --tone-mix: 84%;
-  --display: "Manrope", "Helvetica Neue", Arial, sans-serif;
-  --sans: "Manrope", "Helvetica Neue", Arial, sans-serif;
-  --mono: "Manrope", "Helvetica Neue", Arial, sans-serif;
-  --ease: cubic-bezier(.22, .7, .12, 1);
-  --gut: clamp(16px, 2vw, 28px);
-  --barh: 56px;
+  --bg: #FFFFFF;
+  --ink: #17181B;
+  --muted: #5E6168;
+  --line: #E4E5E8;
+  --wash: #F4F5F7;
+  --link: #2343B8;
+  --todo-bg: #FFF7E0;
+  --todo-ink: #6B4E00;
+  --todo-line: #E8C766;
+  --font: "Hanken Grotesk", "Helvetica Neue", Arial, system-ui, sans-serif;
+  --text: 680px;
+  --wide: 1120px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0F1012; --surface: #17181B; --ink: #ECECE9; --muted: #9A9CA2; --line: #26282C;
-    --accent: #8E9BFF; --tone-mix: 80%; color-scheme: dark;
+    --bg: #121315; --ink: #ECEDEF; --muted: #A2A5AC; --line: #2A2C30; --wash: #1B1C1F; --link: #9DB0FF;
+    --todo-bg: #2A2414; --todo-ink: #F0D68A; --todo-line: #6B5A26; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0F1012; --surface: #17181B; --ink: #ECECE9; --muted: #9A9CA2; --line: #26282C;
-  --accent: #8E9BFF; --tone-mix: 80%; color-scheme: dark;
+  --bg: #121315; --ink: #ECEDEF; --muted: #A2A5AC; --line: #2A2C30; --wash: #1B1C1F; --link: #9DB0FF;
+  --todo-bg: #2A2414; --todo-ink: #F0D68A; --todo-line: #6B5A26; color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.55; padding-inline: var(--gut); }
-a { color: inherit; }
-button { font: inherit; color: inherit; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-::selection { background: var(--accent); color: var(--bg); }
-h1, h2, h3, h4 { margin: 0; font-family: var(--display); font-weight: 500; line-height: 1.05; text-wrap: balance; }
-p { margin: 0; }
-.mono { font-family: var(--mono); font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
-.tone { background: color-mix(in oklab, var(--bg) var(--tone-mix), var(--hue, #888)); }
-
-/* Bar */
-.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; height: var(--barh); display: flex; align-items: center; justify-content: space-between; gap: 16px; background: var(--bg); border-bottom: 1px solid var(--line); }
-.bar .me { font-family: var(--display); font-weight: 600; font-size: 17px; text-decoration: none; letter-spacing: -0.01em; white-space: nowrap; }
-.bar nav { display: flex; gap: 2px; }
-.bar nav a { text-decoration: none; font-size: 14.5px; color: var(--muted); padding: 6px 12px; border-radius: 999px; transition: color .2s, background .2s; white-space: nowrap; }
-.bar nav a:hover { color: var(--ink); background: color-mix(in srgb, var(--line) 70%, transparent); }
-.bar nav a[aria-current="page"] { color: var(--ink); background: var(--line); }
-
-/* Home: columns */
-.cols { display: flex; height: calc(100dvh - var(--barh) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - var(--gut) - 24px); min-height: 460px; border-inline: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.col { --g: 1; flex: var(--g) 1 0; min-width: 0; position: relative; overflow: hidden; text-decoration: none; border-left: 1px solid var(--line); transition: flex-grow .7s var(--ease); isolation: isolate; }
-.col:first-child { border-left: 0; }
-.cols.has-active .col { --g: .62; }
-.cols.has-active .col.active { --g: 3.6; }
-.col .bg { position: absolute; inset: 0; z-index: -1; }
-.col .bg img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(.95); opacity: .5; transition: filter .6s var(--ease), opacity .6s var(--ease), transform 1.2s var(--ease); transform: scale(1.04); }
-.col.active .bg img { filter: none; opacity: 1; transform: none; }
-.col .n { position: absolute; top: 16px; left: 16px; font-family: var(--mono); font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.col .yr { position: absolute; top: 34px; left: 16px; font-family: var(--mono); font-size: 11px; color: var(--muted); }
-.col .vt { position: absolute; left: 12px; bottom: 16px; writing-mode: vertical-rl; transform: rotate(180deg); font-family: var(--display); font-size: clamp(18px, 1.7vw, 27px); letter-spacing: -0.015em; font-weight: 450; white-space: nowrap; max-height: calc(100% - 90px); overflow: hidden; text-overflow: ellipsis; transition: opacity .35s var(--ease); }
-.col.active .vt { opacity: 0; }
-.cols.has-active .col:not(.active) .vt { opacity: .55; }
-.col .reveal { position: absolute; left: 0; bottom: 0; width: max(380px, 40vw); padding: 0 28px 26px; display: grid; gap: 12px; opacity: 0; transform: translateY(10px); transition: opacity .3s var(--ease), transform .5s var(--ease); pointer-events: none; }
-.col.active .reveal { opacity: 1; transform: none; transition-delay: .22s; }
-.col .reveal h2 { font-size: clamp(30px, 3.2vw, 50px); letter-spacing: -0.03em; }
-.col .reveal p { max-width: 42ch; color: color-mix(in srgb, var(--ink) 82%, var(--muted)); }
-.col .tags { display: flex; gap: 6px; flex-wrap: wrap; }
-.col .tags span, .chip { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent); border-radius: 999px; padding: 3px 9px; color: var(--ink); }
-.col .go { display: inline-flex; gap: 8px; align-items: center; font-weight: 600; font-size: 15px; margin-top: 4px; }
-.col .go svg { width: 16px; height: 16px; transition: transform .4s var(--ease); }
-.col.active .go svg { transform: translateX(4px); }
-.col.has-img.active .reveal, .col.has-img.active .reveal .mono, .col.has-img.active .tags span { color: #fff; }
-.col.has-img.active .reveal p { color: rgba(255,255,255,.85); }
-.col.has-img.active .tags span { border-color: rgba(255,255,255,.4); }
-.col.has-img .reveal::before { content: ""; position: absolute; inset: -80px 0 0; background: linear-gradient(transparent, rgba(0,0,0,.6)); z-index: -1; }
-.home-foot { display: flex; justify-content: space-between; gap: 16px; align-items: center; padding-block: 12px var(--gut); }
-
-/* Pages */
-.page { padding-block: clamp(36px, 6vw, 72px) 96px; max-width: 1360px; margin-inline: auto; }
-.p-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: clamp(28px, 4vw, 48px); }
-.back { text-decoration: none; display: inline-flex; gap: 8px; align-items: center; color: var(--muted); font-size: 14.5px; }
-.back:hover { color: var(--ink); }
-.mini { display: flex; gap: 4px; flex-wrap: wrap; }
-.mini a { width: 30px; height: 30px; display: grid; place-items: center; text-decoration: none; font-family: var(--mono); font-size: 10.5px; color: var(--muted); border-radius: 4px; border: 1px solid var(--line); transition: all .2s; }
-.mini a:hover { color: var(--ink); border-color: var(--ink); }
-.mini a[aria-current="page"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-.p-title { font-size: clamp(42px, 7vw, 104px); letter-spacing: -0.045em; line-height: .95; font-weight: 450; }
-.p-intro { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 64px); margin-top: clamp(22px, 3vw, 36px); align-items: start; }
-.lede { font-size: clamp(19px, 1.8vw, 23px); line-height: 1.45; font-weight: 350; max-width: 46ch; }
-.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; margin: 0; }
-.facts dd { margin: 4px 0 0; font-weight: 500; }
-.p-cover { margin-top: clamp(32px, 4vw, 56px); aspect-ratio: 16 / 8; border-radius: 6px; overflow: hidden; display: grid; place-items: center; max-width: 100%; }
-.p-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.secs { margin-top: clamp(40px, 6vw, 88px); display: grid; gap: clamp(48px, 6vw, 88px); }
-.sec { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 24px clamp(24px, 4vw, 64px); }
-.sec > .rail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + var(--barh) + 20px); align-self: start; display: grid; gap: 6px; }
-.sec > .rail h2 { font-family: var(--sans); font-size: 15px; font-weight: 600; letter-spacing: 0; }
-.sec > .main { display: grid; gap: 22px; min-width: 0; }
-.sec .main > p, .sec .main > ul { max-width: 64ch; }
-.sec ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
-.figs { display: grid; gap: 12px; grid-template-columns: repeat(var(--n, 2), minmax(0, 1fr)); }
-figure { margin: 0; display: grid; gap: 8px; min-width: 0; }
-.ph { aspect-ratio: var(--r, 4 / 3); max-width: 100%; border-radius: 4px; overflow: hidden; display: grid; place-items: center; }
-.ph img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.ph video { width: 100%; height: 100%; object-fit: cover; display: block; background: #000; }
-figcaption { font-size: 13.5px; color: var(--muted); }
-.nums { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
-.nums div { border: 1px solid var(--line); border-radius: 6px; padding: 14px; background: var(--surface); }
-.nums b { display: block; font-family: var(--display); font-weight: 500; font-size: 32px; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
-.nums span { font-size: 13px; color: var(--muted); }
-.note { color: var(--muted); display: flex; gap: 10px; align-items: center; }
-.note::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex: none; }
-.p-next { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 16px; margin-top: clamp(64px, 8vw, 120px); padding: clamp(22px, 3vw, 36px); border-radius: 6px; text-decoration: none; transition: transform .5s var(--ease); }
-.p-next:hover { transform: translateY(-3px); }
-.p-next b { display: block; font-family: var(--display); font-weight: 450; font-size: clamp(30px, 4.6vw, 64px); letter-spacing: -0.035em; line-height: 1; margin-top: 10px; }
-.p-next svg { width: clamp(28px, 3vw, 40px); height: clamp(28px, 3vw, 40px); }
-
-/* Résumé */
-.r-head { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 64px); align-items: end; }
-.r-head .lede { max-width: 38ch; }
-.stats { display: flex; gap: clamp(20px, 3vw, 40px); flex-wrap: wrap; justify-content: flex-end; }
-.stats b { display: block; font-family: var(--display); font-weight: 450; font-size: clamp(34px, 4vw, 52px); line-height: 1; letter-spacing: -0.035em; }
-.r-side { display: grid; gap: 24px; justify-items: end; }
-.portrait { width: clamp(160px, 20vw, 240px); aspect-ratio: 1; border-radius: 6px; overflow: hidden; }
-.portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 24px; }
-.btn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-size: 14.5px; font-weight: 500; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; transition: border-color .2s; }
-.btn:hover { border-color: var(--ink); }
-.btn.solid { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-.tabs { display: flex; gap: 2px; flex-wrap: wrap; border-bottom: 1px solid var(--line); margin-top: clamp(40px, 5vw, 64px); }
-.tab { background: none; border: 0; padding: 12px 14px 10px; font-size: 15px; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; }
-.tab:hover { color: var(--ink); }
-.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
-.role { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 6px clamp(24px, 4vw, 64px); padding-block: 26px; border-bottom: 1px solid var(--line); }
-.role .when { font-family: var(--mono); font-size: 11.5px; color: var(--muted); padding-top: 6px; }
-.role h3 { font-size: clamp(20px, 2vw, 25px); letter-spacing: -0.02em; }
-.role .org { color: var(--muted); margin-top: 2px; }
-.role ul { margin: 12px 0 0; padding-left: 18px; display: grid; gap: 6px; max-width: 66ch; }
-.role p.t { margin-top: 10px; max-width: 66ch; }
-details.earlier { padding-block: 18px; border-bottom: 1px solid var(--line); }
-details.earlier summary { cursor: pointer; color: var(--muted); }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; }
-
-/* Contact */
-.c-mail { display: inline-block; margin-top: 20px; font-family: var(--display); font-weight: 400; font-size: clamp(32px, 7vw, 104px); letter-spacing: -0.045em; line-height: 1; overflow-wrap: anywhere; user-select: all; }
-.c-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: clamp(48px, 6vw, 80px); padding-top: 24px; border-top: 1px solid var(--line); }
-.c-grid div { display: grid; gap: 4px; align-content: start; min-width: 0; overflow-wrap: anywhere; }
-.c-grid a { text-decoration: none; }
-.c-grid a:hover { text-decoration: underline; }
-
-/* Visual work */
-.v-index { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: clamp(32px, 4vw, 48px); }
-.v-card { all: unset; box-sizing: border-box; cursor: pointer; border-radius: 6px; padding: 18px; aspect-ratio: 4 / 3; max-width: 100%; display: flex; flex-direction: column; justify-content: space-between; transition: transform .5s var(--ease); }
-.v-card:hover { transform: translateY(-3px); }
-.v-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.v-card b { font-family: var(--display); font-weight: 500; font-size: clamp(20px, 2vw, 28px); letter-spacing: -0.02em; line-height: 1; }
-.v-piece { margin-top: clamp(64px, 8vw, 120px); padding-top: 28px; border-top: 1px solid var(--line); scroll-margin-top: calc(var(--barh) + 16px); }
-.v-piece > h2 { font-size: clamp(34px, 5vw, 64px); letter-spacing: -0.04em; font-weight: 450; }
-
-/* View transitions */
-::view-transition-old(root), ::view-transition-new(root) { animation-duration: .35s; }
-::view-transition-group(cover) { animation-duration: .6s; animation-timing-function: cubic-bezier(.22,.7,.12,1); }
-
-@media (max-width: 900px) {
-  .p-intro, .r-head { grid-template-columns: 1fr; }
-  .stats { justify-content: flex-start; }
-  .r-side { justify-items: start; }
-  .sec, .role { grid-template-columns: 1fr; }
-  .sec > .rail { position: static; }
-  .v-index { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .c-grid { grid-template-columns: 1fr; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font);
+  font-size: 18px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-font-smoothing: antialiased;
 }
-@media (max-width: 720px), (hover: none) {
-  .cols { flex-direction: column; height: auto; min-height: 0; border-inline: 0; }
-  .col { flex: none; min-height: 112px; border-left: 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 4px 12px; align-items: end; padding: 16px; }
-  .col:first-child { border-top: 0; }
-  .col .n, .col .yr { position: static; }
-  .col .n { grid-row: 1; grid-column: 1; align-self: start; }
-  .col .yr { grid-row: 1; grid-column: 3; align-self: start; }
-  .col .vt { position: static; writing-mode: horizontal-tb; transform: none; grid-column: 1 / -1; font-size: 26px; max-height: none; white-space: normal; opacity: 1 !important; }
-  .col .reveal { display: none; }
-  .col .bg img { opacity: .9; filter: none; transform: none; }
-  .col .bg::after { content: ""; position: absolute; inset: 0; background: color-mix(in srgb, var(--bg) 62%, transparent); }
-  .home-foot { padding-block: 20px 28px; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+a { color: var(--link); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; border-radius: 2px; }
+h1, h2, h3 { margin: 0; line-height: 1.15; text-wrap: balance; font-weight: 600; }
+p { margin: 0; }
+img, video { display: block; max-width: 100%; }
+
+.wrap { max-width: var(--wide); margin-inline: auto; }
+.col { max-width: var(--text); }
+
+/* Header */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 60px; }
+.top .name { font-weight: 600; font-size: 18px; color: var(--ink); text-decoration: none; }
+.top nav { display: flex; gap: 24px; }
+.top nav a { color: var(--muted); text-decoration: none; font-size: 16px; }
+.top nav a:hover, .top nav a[aria-current="page"] { color: var(--ink); }
+
+main { padding-block: 56px 96px; }
+
+/* Home */
+.intro { display: grid; gap: 16px; padding-bottom: 56px; }
+.intro h1 { font-size: clamp(30px, 4vw, 44px); font-weight: 600; letter-spacing: -0.015em; max-width: 22ch; }
+.intro p { color: var(--muted); font-size: 19px; max-width: 56ch; }
+
+.cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px 32px; }
+.card { display: grid; gap: 14px; color: inherit; text-decoration: none; }
+.card .shot { aspect-ratio: 16 / 10; max-width: 100%; background: var(--wash); border-radius: 8px; overflow: hidden; }
+.card .shot img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.card:hover .shot img { transform: scale(1.015); }
+.card h2 { font-size: 24px; }
+.card h2 span { color: var(--muted); font-weight: 500; }
+.card p { color: var(--muted); max-width: 48ch; }
+.card .meta { font-size: 15px; color: var(--muted); }
+.card:hover h2 { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+
+.more { margin-top: 88px; padding-top: 32px; border-top: 1px solid var(--line); display: grid; gap: 28px; }
+.more > h2 { font-size: 20px; }
+.more .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 24px; }
+.more .card h2 { font-size: 19px; }
+.more .card p { font-size: 16px; }
+
+/* Case study */
+.back { color: var(--muted); text-decoration: none; font-size: 16px; }
+.back:hover { color: var(--ink); }
+.cs-head { display: grid; gap: 18px; margin-top: 28px; }
+.cs-head h1 { font-size: clamp(36px, 5vw, 56px); letter-spacing: -0.02em; }
+.cs-head h1 span { color: var(--muted); font-weight: 500; }
+.cs-head .sum { font-size: 21px; line-height: 1.5; max-width: 40ch; }
+.facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px 24px; margin: 36px 0 0; padding-top: 24px; border-top: 1px solid var(--line); }
+.facts div { min-width: 0; }
+.facts dt { font-size: 14px; color: var(--muted); }
+.facts dd { margin: 2px 0 0; font-size: 16px; font-weight: 500; }
+.hero { margin-top: 40px; border-radius: 10px; overflow: hidden; background: var(--wash); }
+.hero img { width: 100%; height: auto; }
+
+.cs-body { display: grid; gap: 72px; margin-top: 72px; }
+.sec { display: grid; gap: 20px; }
+.sec > .col { display: grid; gap: 16px; }
+.sec h2 { font-size: 28px; letter-spacing: -0.01em; }
+.sec h3 { font-size: 20px; }
+.sec ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.decision { display: grid; gap: 14px; padding-top: 8px; }
+.decision + .decision { margin-top: 24px; }
+
+.figs { display: grid; gap: 16px; grid-template-columns: repeat(var(--n, 2), minmax(0, 1fr)); margin-top: 8px; }
+figure { margin: 0; display: grid; gap: 8px; min-width: 0; align-content: start; }
+figure .img { border-radius: 8px; overflow: hidden; background: var(--wash); }
+figure .img.fit img, figure .img.fit video { width: 100%; height: auto; }
+figcaption { font-size: 15px; color: var(--muted); }
+.phones { --n: 3; max-width: 820px; }
+.phones.two { --n: 2; max-width: 560px; }
+
+.nums { display: flex; flex-wrap: wrap; gap: 16px 40px; }
+.nums b { display: block; font-size: 34px; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.nums span { font-size: 15px; color: var(--muted); }
+
+.todo { background: var(--todo-bg); color: var(--todo-ink); border: 1px dashed var(--todo-line); border-radius: 8px; padding: 12px 16px; font-size: 16px; line-height: 1.5; }
+.todo b { font-weight: 600; }
+.draft-off .todo { display: none; }
+
+.next { margin-top: 96px; padding-top: 28px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; align-items: baseline; }
+.next span { color: var(--muted); font-size: 16px; }
+.next a { font-size: 26px; font-weight: 600; text-decoration: none; color: var(--ink); }
+.next a:hover { text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 1px; }
+
+/* Other work */
+.piece { margin-top: 80px; padding-top: 32px; border-top: 1px solid var(--line); display: grid; gap: 20px; scroll-margin-top: 80px; }
+.piece > h2 { font-size: 30px; }
+.toc { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 8px; }
+
+/* About */
+.about { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 56px; align-items: start; }
+.about .photo { border-radius: 10px; overflow: hidden; background: var(--wash); aspect-ratio: 1; }
+.about .photo img { width: 100%; height: 100%; object-fit: cover; }
+.about h1 { font-size: clamp(30px, 4vw, 44px); letter-spacing: -0.015em; }
+.about .lead { font-size: 20px; line-height: 1.55; max-width: 46ch; margin-top: 18px; }
+.cv { display: grid; gap: 48px; margin-top: 72px; }
+.cv h2 { font-size: 22px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.row { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 4px 32px; padding-block: 20px; border-bottom: 1px solid var(--line); }
+.row .when { color: var(--muted); font-size: 15px; padding-top: 3px; font-variant-numeric: tabular-nums; }
+.row h3 { font-size: 19px; }
+.row .org { color: var(--muted); font-size: 16px; }
+.row ul { margin: 10px 0 0; padding-left: 20px; display: grid; gap: 4px; font-size: 17px; max-width: 64ch; }
+.contact { display: grid; gap: 6px; }
+.contact .mail { font-size: clamp(22px, 3vw, 30px); font-weight: 600; user-select: all; overflow-wrap: anywhere; }
+.btn { font: inherit; font-size: 15px; padding: 7px 14px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; justify-self: start; }
+.btn:hover { border-color: var(--ink); }
+
+footer { border-top: 1px solid var(--line); }
+footer .wrap { display: flex; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; padding-block: 28px calc(28px + env(safe-area-inset-bottom, 0px)); font-size: 15px; color: var(--muted); }
+footer a { color: var(--muted); }
+
+@media (max-width: 860px) {
+  .cards, .more .cards { grid-template-columns: 1fr; gap: 44px; }
+  .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .about { grid-template-columns: 1fr; gap: 32px; }
+  .about .photo { max-width: 220px; }
+  .row { grid-template-columns: 1fr; }
 }
 @media (max-width: 560px) {
-  .bar nav a { padding: 6px 7px; font-size: 13.5px; }
-  .bar .me { font-size: 15.5px; }
-  .figs { grid-template-columns: 1fr; }
-  .nums { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .mini a { width: 26px; height: 26px; }
-  .p-next { grid-template-columns: 1fr; }
-  .home-foot { flex-direction: column; align-items: flex-start; }
+  body { font-size: 17px; }
+  main { padding-block: 36px 72px; }
+  .top nav { gap: 16px; }
+  .figs { --n: 1 !important; }
+  .phones, .phones.two { --n: 2 !important; }
+  .cs-body { gap: 56px; margin-top: 56px; }
 }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { transition: none !important; animation: none !important; }
-}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
-<header class="bar">
-  <a class="me" href="#">Jack Walker</a>
-  <nav aria-label="Main" id="nav">
-    <a href="#visual">Visual work</a>
-    <a href="#resume">Résumé</a>
-    <a href="#contact">Contact</a>
-  </nav>
-</header>
-<main id="app"></main>
+<header class="top"><div class="wrap">
+  <a class="name" href="#">Jack Walker</a>
+  <nav aria-label="Main"><a href="#" data-nav="work">Work</a><a href="#other-work" data-nav="other">Other work</a><a href="#about" data-nav="about">About</a></nav>
+</div></header>
+<main id="app" class="wrap"></main>
+<footer><div class="wrap">
+  <span>Jack Walker · Product designer · BFA UX Design, SCAD, May 2027</span>
+  <span><a href="https://www.linkedin.com/in/jack-walker-b20035321/" target="_blank" rel="noopener">LinkedIn</a> · walkerajack@gmail.com</span>
+</div></footer>
 
 <script>
-/* ================= Content ================= */
-const LINKS = {
-  resume: "https://docs.google.com/document/d/1W2idFMJRs5636LlhtmxSSqJZcpYce-FCKtDAANgGB-8/preview",
-  pdf: "https://docs.google.com/document/d/1W2idFMJRs5636LlhtmxSSqJZcpYce-FCKtDAANgGB-8/export?format=pdf",
-  linkedin: "https://www.linkedin.com/in/jack-walker-b20035321/",
-  art: "https://www.instagram.com/trailwlk.r/",
-  personal: "https://www.instagram.com/walkerajack/",
-  email: "walkerajack@gmail.com"
-};
-const HEADSHOT = "assets/jack-walker-headshot.webp";
-/* Real work images, pulled from Jack's Notion. Any key left out keeps its generated placeholder. */
-const IMAGES = {
-  "cover-quarters": "assets/cover-quarters.webp",
-  "cover-stewart-title": "assets/cover-stewart-title.png",
-  "cover-amazon-music": "assets/cover-amazon-music.webp",
-  "cover-savannah-parking": "assets/cover-savannah-parking.webp",
-  "cover-national-park-service": "assets/cover-national-park-service.webp",
-  "cover-nest-thermostat": "assets/cover-nest-thermostat.webp",
-  "nps-topo": "assets/nps-topo.webp",
-  "nps-real": "assets/nps-real.webp",
-  "nps-nat": "assets/nps-nat.webp",
-  "nps-con": "assets/nps-con.webp",
-  "nps-color": "assets/nps-color.webp",
-  "nps-type": "assets/nps-type.webp",
-  "nps-layout": "assets/nps-layout.webp",
-  "nps-mirage": "assets/nps-mirage.webp",
-  "nps-sunday": "assets/nps-sunday.png",
-  "nps-hikeon": "assets/nps-hikeon.webp",
-  "nps-palette": "assets/nps-palette.webp",
-  "nps-typefaces": "assets/nps-typefaces.webp",
-  "nps-shapes": "assets/nps-shapes.webp",
-  "nps-illus": "assets/nps-illus.webp",
-  "nps-components": "assets/nps-components.webp",
-  "nps-flow": "assets/nps-flow.webp",
-  "nest-lookbook": "assets/nest-lookbook.webp",
-  "nest-poster": "assets/nest-poster.webp",
-  "nest-summary": "assets/nest-summary.webp",
-  "nest-sg1": "assets/nest-sg1.png",
-  "nest-sg2": "assets/nest-sg2.png",
-  "nest-sg3": "assets/nest-sg3.png",
-  "nest-sg4": "assets/nest-sg4.png",
-  "nest-sg5": "assets/nest-sg5.png",
-  "nest-sg6": "assets/nest-sg6.png",
-  "nest-eco": "assets/nest-eco.png",
-  "nest-cool": "assets/nest-cool.webp",
-  "nest-heat": "assets/nest-heat.webp",
-  "nest-home": "assets/nest-home.png",
-  "nest-schedule": "assets/nest-schedule.png",
-  "fr-hero": "assets/fr-hero.webp",
-  "fr-obs1": "assets/fr-obs1.webp",
-  "fr-obs2": "assets/fr-obs2.webp",
-  "fr-stake": "assets/fr-stake.png",
-  "fr-screener": "assets/fr-screener.png",
-  "fr-questions": "assets/fr-questions.png",
-  "fr-insights": "assets/fr-insights.png",
-  "fr-workshop": "assets/fr-workshop.webp",
-  "fr-kit": "assets/fr-kit.webp",
-  "fr-data": "assets/fr-data.webp",
-  "fr-aff1": "assets/fr-aff1.webp",
-  "fr-aff2": "assets/fr-aff2.webp",
-  "fr-front": "assets/fr-front.webp",
-  "fr-back": "assets/fr-back.webp",
-  "fr-p12": "assets/fr-p12.webp",
-  "fr-p34": "assets/fr-p34.webp",
-  "fr-p56": "assets/fr-p56.webp",
-  "fr-mock": "assets/fr-mock.webp",
-  "gd-chloris": "assets/gd-chloris.webp",
-  "gd-film": "assets/gd-film.png",
-  "gd-type": "assets/gd-type.webp",
-  "pw-back": "assets/pw-back.webp",
-  "pw-front": "assets/pw-front.webp",
-  "pw-sticker": "assets/pw-sticker.webp",
-  "pw-sticker-ai": "assets/pw-sticker-ai.webp",
-  "pw-coaster": "assets/pw-coaster.webp",
-  "pw-coaster-ai": "assets/pw-coaster-ai.webp",
-  "id-model": "assets/id-model.webp",
-  "id-proto": "assets/id-proto.webp"
-};
-/* Screen-recording walkthroughs render as <video> in their slots. */
-const VIDEOS = {
-  "nps-landing": "assets/nps-landing.mp4",
-  "nps-alaska": "assets/nps-alaska.mp4",
-  "nps-denali": "assets/nps-denali.mp4"
-};
+/* Draft notes (yellow boxes) mark what Jack still needs to supply. Set to false to hide them all. */
+const DRAFT = true;
+const ASSETS = {"cover-quarters": "assets/cover-quarters.webp", "cover-stewart-title": "assets/cover-stewart-title.png", "cover-amazon-music": "assets/cover-amazon-music.webp", "cover-savannah-parking": "assets/cover-savannah-parking.webp", "cover-national-park-service": "assets/cover-national-park-service.webp", "cover-nest-thermostat": "assets/cover-nest-thermostat.webp", "nps-topo": "assets/nps-topo.webp", "nps-real": "assets/nps-real.webp", "nps-nat": "assets/nps-nat.webp", "nps-con": "assets/nps-con.webp", "nps-color": "assets/nps-color.webp", "nps-type": "assets/nps-type.webp", "nps-layout": "assets/nps-layout.webp", "nps-mirage": "assets/nps-mirage.webp", "nps-sunday": "assets/nps-sunday.png", "nps-hikeon": "assets/nps-hikeon.webp", "nps-palette": "assets/nps-palette.webp", "nps-typefaces": "assets/nps-typefaces.webp", "nps-shapes": "assets/nps-shapes.webp", "nps-illus": "assets/nps-illus.webp", "nps-components": "assets/nps-components.webp", "nps-flow": "assets/nps-flow.webp", "nest-lookbook": "assets/nest-lookbook.webp", "nest-poster": "assets/nest-poster.webp", "nest-summary": "assets/nest-summary.webp", "nest-sg1": "assets/nest-sg1.png", "nest-sg2": "assets/nest-sg2.png", "nest-sg3": "assets/nest-sg3.png", "nest-sg4": "assets/nest-sg4.png", "nest-sg5": "assets/nest-sg5.png", "nest-sg6": "assets/nest-sg6.png", "nest-eco": "assets/nest-eco.png", "nest-cool": "assets/nest-cool.webp", "nest-heat": "assets/nest-heat.webp", "nest-home": "assets/nest-home.png", "nest-schedule": "assets/nest-schedule.png", "fr-hero": "assets/fr-hero.webp", "fr-obs1": "assets/fr-obs1.webp", "fr-obs2": "assets/fr-obs2.webp", "fr-stake": "assets/fr-stake.png", "fr-screener": "assets/fr-screener.png", "fr-questions": "assets/fr-questions.png", "fr-insights": "assets/fr-insights.png", "fr-workshop": "assets/fr-workshop.webp", "fr-kit": "assets/fr-kit.webp", "fr-data": "assets/fr-data.webp", "fr-aff1": "assets/fr-aff1.webp", "fr-aff2": "assets/fr-aff2.webp", "fr-front": "assets/fr-front.webp", "fr-back": "assets/fr-back.webp", "fr-p12": "assets/fr-p12.webp", "fr-p34": "assets/fr-p34.webp", "fr-p56": "assets/fr-p56.webp", "fr-mock": "assets/fr-mock.webp", "gd-chloris": "assets/gd-chloris.webp", "gd-film": "assets/gd-film.png", "gd-type": "assets/gd-type.webp", "pw-back": "assets/pw-back.webp", "pw-front": "assets/pw-front.webp", "pw-sticker": "assets/pw-sticker.webp", "pw-sticker-ai": "assets/pw-sticker-ai.webp", "pw-coaster": "assets/pw-coaster.webp", "pw-coaster-ai": "assets/pw-coaster-ai.webp", "id-model": "assets/id-model.webp", "id-proto": "assets/id-proto.webp", "nps-landing": "assets/nps-landing.mp4", "nps-alaska": "assets/nps-alaska.mp4", "nps-denali": "assets/nps-denali.mp4", "jack-walker-headshot": "assets/jack-walker-headshot.webp"};
+const EMAIL = "walkerajack@gmail.com";
+const LINKEDIN = "https://www.linkedin.com/in/jack-walker-b20035321/";
 
-const WORK = [
-  { id: "quarters", title: "Quarters", kind: "Mobile app · Product design", year: 2026, hue: "#5B6ABF",
-    tags: ["Product Design", "Research", "Prototype"],
-    lede: "A ten-week mobile product design project — research, prototyping and product design, led end to end.",
-    facts: { Role: "Project Lead", Platform: "Mobile", Timeline: "10 weeks · 2026", Tools: "Figma" },
-    body: [
-      { figs: [["quarters-1", "Project overview"]], n: 1, r: "16 / 9" },
-      { note: "Full case study coming soon." }
+/* ---------- Content ----------
+   Block types: p, list, todo, figs [key, caption][] with n (columns) and kind ("phones"),
+   decision {h, p, todo, figs}, nums [value, label][] */
+const FEATURED = [
+  { id: "quarters", title: "Quarters", summary: "An iPhone app and smart fridge magnet that help roommates split rent and chores.",
+    meta: "Project lead · Fall 2026", hero: "cover-quarters",
+    facts: { Role: "Project lead", Team: "SCAD team", Timeline: "Fall 2026", Tools: "Figma" },
+    sections: [
+      { h: "Overview", blocks: [
+        { p: "I led a SCAD team designing Quarters, an iPhone app and a companion fridge magnet for splitting rent and chores between roommates. I also created the brand identity and the design system." } ] },
+      { h: "Problem", blocks: [
+        { todo: "Two or three sentences: what goes wrong for roommates today, and who you designed for." } ] },
+      { h: "Design decisions", blocks: [
+        { decision: { h: "Reframing the device around shared wins", p: "We reframed the fridge magnet so it celebrates what the household gets done together.",
+          todo: "Add why you made this change, with a before and after of the device." } },
+        { decision: { h: "Second decision", todo: "Pick one app decision, like how rent is split or how chores get assigned. Show the screen, then say what you changed and why." } } ] },
+      { h: "Testing", blocks: [
+        { p: "We built personas and journey maps, then tested a Figma prototype with users across five iterations." },
+        { todo: "Add the one or two biggest changes that testing led to." } ] },
+      { h: "Outcome", blocks: [
+        { todo: "Add 3 to 5 final screens, a look at the design system, and one line on what you would do next." } ] }
     ]},
-  { id: "stewart-title", title: "Stewart Title", sub: "Connect Close", kind: "Internship · Web app redesign", year: 2026, hue: "#6E8CC8",
-    tags: ["Research", "Redesign", "Prototype"],
-    lede: "A redesign of Connect Close, Stewart Title's title production software, built with the people who use it every day.",
-    facts: { Role: "UX/UI Design Intern", Team: "Cross-functional", Timeline: "Jun – Aug 2026", Tools: "Figma" },
-    body: [
-      { h: "What I did" },
-      { list: ["Partnered with developers, product managers, engineers and designers to lead the redesign of Connect Close", "Conducted primary and secondary research on title software and its end users", "Prepared my designs for real-world implementation in Q4 2026"] },
-      { figs: [["stewart-1", "Connect Close redesign"], ["stewart-2", "Key screens"]] },
-      { note: "Full case study coming soon." }
+  { id: "stewart-title", title: "Stewart Title", sub: "Connect Close", summary: "A redesign of Connect Close, Stewart Title's title production software, taken from first insights to developer-ready designs.",
+    meta: "UX/UI design intern · Summer 2026", hero: "cover-stewart-title",
+    facts: { Role: "UX/UI design intern", Team: "PMs, engineers, designers", Timeline: "Jun to Aug 2026", Tools: "Figma" },
+    sections: [
+      { h: "Overview", blocks: [
+        { p: "During my internship at Stewart Title I led a redesign of Connect Close, the company's title production software. I worked closely with product managers, engineers and designers." },
+        { todo: "Swap the logo above for real screens. If the work is under NDA, blurred or rebuilt screens are fine." } ] },
+      { h: "Problem", blocks: [
+        { todo: "Who uses Connect Close, and what was slowing them down? Two or three sentences." } ] },
+      { h: "Design decisions", blocks: [
+        { todo: "Two or three decisions. For each: a before and after screen, what you changed and why." } ] },
+      { h: "Testing", blocks: [
+        { p: "I tested designs through A/B testing and moderated user testing." },
+        { todo: "What did testing change? One or two examples." } ] },
+      { h: "Outcome", blocks: [
+        { p: "I delivered developer-ready designs, which are scheduled for implementation in Q4 2026." } ] }
     ]},
-  { id: "amazon-music", title: "Amazon Music", sub: "× SCADpro", kind: "Client project · Ecosystem", year: 2026, hue: "#3AA39B",
-    tags: ["Research", "Data", "Prototype"],
-    lede: "Rethinking how young adults discover, experience and engage with Amazon Music across everything Amazon makes.",
-    facts: { Team: "SCADpro × Amazon", Timeline: "Mar – Jun 2026", Tools: "Figma" },
-    body: [
-      { h: "What I did" },
-      { list: ["Transformed how customers discover, experience and engage with Amazon Music across Amazon", "Created touchpoints connecting Amazon Music with Prime Video, Retail, Audible, Kindle and Alexa+ for a unified entertainment experience that reaches young adults beyond current listeners"] },
-      { figs: [["amazon-1", "Concept overview"], ["amazon-2", "Cross-platform touchpoints"]] },
-      { note: "Full case study coming soon." }
+  { id: "amazon-music", title: "Amazon Music", sub: "SCADpro", summary: "New ways for young adults to discover and engage with Amazon Music across everything Amazon makes.",
+    meta: "SCADpro client project · Spring 2026", hero: "cover-amazon-music",
+    facts: { Role: "Add your role", Team: "SCADpro × Amazon Music", Timeline: "Mar to Jun 2026", Tools: "Figma" },
+    sections: [
+      { h: "Overview", blocks: [
+        { p: "With SCADpro, I designed new ways for young adults to discover, experience and engage with Amazon Music. That included touchpoints connecting it with Prime Video, Retail, Audible, Kindle and Alexa+, so it reaches people beyond current listeners." },
+        { todo: "Add your role on the team." } ] },
+      { h: "Problem", blocks: [
+        { todo: "What did Amazon want, and what did you find about how young adults listen today?" } ] },
+      { h: "Design decisions", blocks: [
+        { todo: "Two or three decisions with screens. The customizable soundtrack screens on the cover look like a strong one." } ] },
+      { h: "Testing", blocks: [
+        { todo: "How you checked the ideas with people, in a sentence or two." } ] },
+      { h: "Outcome", blocks: [
+        { todo: "Final screens and how Amazon responded." } ] }
     ]},
-  { id: "savannah-parking", title: "Savannah Parking", kind: "Civic app redesign", year: 2026, hue: "#C79A45",
-    tags: ["Research", "Redesign", "Prototype"],
-    lede: "A redesign of how people find and pay for parking in downtown Savannah.",
-    facts: { Timeline: "2026", Tools: "Figma, Illustrator" },
-    body: [
-      { figs: [["parking-1", "Project overview"]], n: 1, r: "16 / 9" },
-      { note: "Case study in progress." }
-    ]},
-  { id: "national-park-service", title: "National Park Service", kind: "Website redesign", year: 2025, hue: "#6F9358",
-    tags: ["Research", "Redesign", "Prototype"],
-    lede: "A redesign of the National Park Service website, built on extensive research into web design, user flow and interactivity.",
-    facts: { Timeline: "2025", Platform: "Web", Tools: "Figma" },
-    body: [
-      { h: "Mood boards" },
-      { p: "I based the redesign on four key works and built a mood board around each one." },
-      { figs: [["nps-topo", "Topographic"], ["nps-real", "Graphic realism"], ["nps-nat", "Naturalistic"], ["nps-con", "Contrasting"]] },
-      { p: "I then created color, type and layout mood boards." },
-      { figs: [["nps-color", "Color. I wanted imagery to carry more of the design than color."], ["nps-type", "Type"]] },
-      { figs: [["nps-layout", "Layout"]], n: 1, r: "16 / 9" },
-      { h: "Case studies" },
-      { p: "Next I studied sites that use the design elements I wanted to bring in. Three of them are shown here." },
-      { figs: [["nps-mirage", "Mirage"], ["nps-sunday", "Sun Day"], ["nps-hikeon", "HikeOn"]], n: 3, r: "3 / 4" },
-      { h: "Design system" },
-      { p: "With the research done, I defined my type, color, shape and illustration palettes." },
-      { figs: [["nps-palette", "Color palette"], ["nps-typefaces", "Typefaces"], ["nps-shapes", "Shape palette"], ["nps-illus", "Illustration palette: topographic background elements"]] },
-      { h: "Final design" },
-      { figs: [["nps-landing", "Landing page"]], n: 1, r: "16 / 9" },
-      { figs: [["nps-alaska", "'Alaska' page"], ["nps-denali", "'Denali National Park' page"]], r: "16 / 10" },
-      { figs: [["nps-components", "Components used"], ["nps-flow", "User flow"]] }
-    ]},
-  { id: "nest-thermostat", title: "Nest Thermostat", kind: "Product & app redesign", year: 2025, hue: "#C2775B",
-    tags: ["Redesign", "Prototype", "Team"],
-    lede: "Over ten weeks, our team redesigned the Google Nest Thermostat's mobile app and hardware UI to feel greener and more affordable.",
-    facts: { Role: "UX/UI design lead", Team: "Team project", Timeline: "Jan – Mar 2025", Tools: "Figma, Illustrator" },
-    body: [
-      { h: "What I did" },
-      { list: ["Redesigned Google's 3rd-gen Nest Thermostat with a green, affordable look and feel", "Used Figma to prototype, wireframe, user test and design the device and phone software", "Led UX/UI design and development alongside my teammates"] },
-      { h: "Lookbook" },
-      { figs: [["nest-lookbook", "Lookbook"]], n: 1, r: "16 / 9" },
-      { figs: [["nest-poster", "Poster"], ["nest-summary", "Executive summary"]] },
-      { h: "Style guide" },
-      { figs: [["nest-sg1", "Page 1"], ["nest-sg2", "Page 2"], ["nest-sg3", "Page 3"], ["nest-sg4", "Page 4"], ["nest-sg5", "Page 5"], ["nest-sg6", "Page 6"]], n: 3, r: "8.5 / 11" },
-      { h: "Final designs" },
-      { figs: [["nest-eco", "Eco"], ["nest-cool", "Cooling"], ["nest-heat", "Heating"]], n: 3, r: "9 / 16" },
-      { figs: [["nest-home", "Home"], ["nest-schedule", "Schedule"]], r: "9 / 16" }
-    ]},
-  { id: "highway-gothic", title: "Highway Gothic", kind: "Typographic web study", year: 2024, hue: "#56616E",
-    tags: ["Type", "Web", "Prototype"],
-    lede: "A typographic study of Highway Gothic, the typeface on road signs across the United States. My first web prototype, and my first project in Adobe XD.",
-    facts: { Timeline: "2024", Platform: "Web", Tools: "Adobe XD" },
-    body: [
-      { h: "Print pieces" },
-      { p: "The project started with a poster and a magazine editorial." },
-      { figs: [["hg-poster", "Poster"], ["hg-editorial", "Editorial"]], r: "3 / 4" },
-      { h: "Webpage" },
-      { figs: [["hg-pages", "Pages overview"]], n: 1, r: "16 / 9" },
-      { figs: [["hg-video", "Page interactions"]], n: 1, r: "16 / 9" }
+  { id: "nest-thermostat", title: "Nest Thermostat", summary: "A redesign of the Nest Thermostat app and device screen to feel greener and more affordable.",
+    meta: "UX/UI design lead · Winter 2025", hero: "cover-nest-thermostat",
+    facts: { Role: "UX/UI design lead", Team: "Team project", Timeline: "Jan to Mar 2025", Tools: "Figma, Illustrator" },
+    sections: [
+      { h: "Overview", blocks: [
+        { p: "Over ten weeks, our team redesigned the Google Nest Thermostat's mobile app and its hardware interface. I led the UX/UI design." } ] },
+      { h: "Problem", blocks: [
+        { p: "Our brief was to make the 3rd-generation Nest Thermostat look and feel greener and more affordable." },
+        { todo: "What felt expensive or wasteful about the original? One or two sentences." } ] },
+      { h: "Final design", blocks: [
+        { figs: [["nest-eco", "Eco mode"], ["nest-cool", "Cooling"], ["nest-heat", "Heating"]], kind: "phones" },
+        { figs: [["nest-home", "Home"], ["nest-schedule", "Schedule"]], kind: "phones two" } ] },
+      { h: "Design decisions", blocks: [
+        { todo: "Two or three decisions, like the color for each mode or how the schedule works. Say what you changed and why." } ] },
+      { h: "Testing", blocks: [
+        { p: "We wireframed, prototyped and user tested both the device and the phone screens in Figma." },
+        { todo: "One finding from testing and what it changed." } ] },
+      { h: "Style guide", blocks: [
+        { figs: [["nest-sg1", "Page 1"], ["nest-sg2", "Page 2"], ["nest-sg3", "Page 3"]], n: 3 },
+        { figs: [["nest-sg4", "Page 4"], ["nest-sg5", "Page 5"], ["nest-sg6", "Page 6"]], n: 3 } ] },
+      { h: "Lookbook", blocks: [
+        { figs: [["nest-lookbook", "Lookbook"]], n: 1 },
+        { figs: [["nest-poster", "Poster"], ["nest-summary", "Executive summary"]] } ] }
     ]}
 ];
 
-const VISUAL = [
-  { id: "graphic-design", title: "Graphic Design", kind: "Posters & illustration", hue: "#B86B86", facts: { Tools: "Illustrator, Photoshop" },
-    lede: "Graphic design work I've made professionally and personally.",
-    body: [
-      { h: "Personal collection" }, { p: "Work that's personal to me, including “Chloris' Madonna,” a 2025 digital illustration." },
-      { figs: [["gd-chloris", "“Chloris' Madonna,” 2025"]], n: 1, r: "4 / 5" },
-      { h: "Student film posters" }, { p: "Posters for fellow SCAD student films, including “Max Needs to Pay Rent.”" },
-      { figs: [["gd-film", "“Max Needs to Pay Rent”"]], n: 1, r: "2 / 3" },
-      { h: "Typography studies" }, { p: "Work focused on type, including an editorial on the Highway Gothic typeface." },
-      { figs: [["gd-type", "Highway Gothic editorial"]], n: 1, r: "16 / 10" }
+const MORE = [
+  { id: "savannah-parking", title: "Savannah Parking", summary: "A redesign of how people find and pay for parking in downtown Savannah.",
+    meta: "App redesign · 2026", hero: "cover-savannah-parking",
+    facts: { Timeline: "2026", Platform: "Mobile", Tools: "Figma, Illustrator" },
+    sections: [
+      { h: "Overview", blocks: [
+        { todo: "This one needs a short case study: the problem, two decisions with screens, and the final design. The live parking map on the cover is a good lead image." } ] }
     ]},
-  { id: "fridge-research", title: "The Ideal Fridge", kind: "Research study", hue: "#8A7DB8", facts: { Method: "Mixed methods", Output: "Printed magazine", Tools: "Figma" },
-    lede: "A large research study into the user experience and design principles of an everyday appliance: the refrigerator.",
-    body: [
-      { figs: [["fr-hero", "Final product: magazine prints showing the ideal fridge experience"]], n: 1, r: "16 / 9" },
-      { steps: [
-        { h: "Secondary research", p: "Before running our own research, we gathered as much existing data as we could. To improve a product, we had to understand it first." },
-        { h: "Observation", p: "Each of us observed participants using their fridge in a 60-minute window around dinner, the time we found it was used most. We noted opportunities across models, features that worked well, and other insights.", figs: [["fr-obs1", "Observation"], ["fr-obs2", "Observation"]] },
-        { h: "Screener and interviews", p: "We built a screener to recruit interview candidates across a wide range of demographics.", figs: [["fr-stake", "Stakeholder map"], ["fr-screener", "Screener outcomes"], ["fr-questions", "Introductory questions"], ["fr-insights", "Insights from each interview"]] },
-        { h: "Sensory cue workshop", p: "A four-part workshop to learn what draws people to a fridge: the ideal interior, how people organize, how a fridge should feel physically, and how it should feel emotionally.", figs: [["fr-workshop", "Participants in the workshop"], ["fr-kit", "Stimulus kit"], ["fr-data", "Data collected"]] },
-        { h: "Affinitization", p: "We grouped what we found into patterns, then into overarching ideas.", nums: [["1000+", "Unique insights"], ["114", "Tertiary data points"], ["29", "Secondary data points"], ["10", "Ultimate insights"]], figs: [["fr-aff1", "Affinity mapping"], ["fr-aff2", "Affinity mapping"]] },
-        { h: "Final product", p: "We organized our ten insights about what makes a fridge successful into a printed magazine.", figs: [["fr-front", "Front cover, designed by me"], ["fr-back", "Back cover, designed by me"], ["fr-p12", "Pages 1–2"], ["fr-p34", "Pages 3–4"], ["fr-p56", "Pages 5–6"], ["fr-mock", "Printed mockups"]] }
-      ]}
-    ]},
-  { id: "print-work", title: "Print Work", kind: "Apparel & objects", hue: "#5E87B0", facts: { Tools: "Illustrator", Process: "Sublimation printing" },
-    lede: "Designs I turned into physical pieces.",
-    body: [
-      { h: "BMW crewneck" }, { p: "Designed in Adobe Illustrator and produced with sublimation printing." },
-      { figs: [["pw-back", "Back"], ["pw-front", "Front"]] },
-      { h: "'Save the Trees' sticker" }, { p: "Made for a Design for Good campaign about deforestation in the Amazon rainforest and around the world." },
-      { figs: [["pw-sticker", "Sticker"], ["pw-sticker-ai", "Illustrator file"]] },
-      { h: "'Born To Lead' coaster" }, { p: "Designed and batch-produced for teachers and principals in the LISD school district in Texas, presented alongside a talk on how the graphic design program shaped my future." },
-      { figs: [["pw-coaster", "Coaster"], ["pw-coaster-ai", "Illustrator file"]] }
-    ]},
-  { id: "industrial-design", title: "Industrial Design", kind: "3D modeling & fabrication", hue: "#9C7A55", facts: { Tools: "Rhino 7 & 8, Keyshot", Also: "3D printing, woodwork" },
-    lede: "3D modeling, 3D printing and woodwork.",
-    body: [
-      { h: "3D modeling" }, { figs: [["id-model", "Modeled in Rhino 7 and 8"]], n: 1, r: "16 / 9" },
-      { h: "Rapid prototyping" }, { p: "My process with tools and materials in the workshop." },
-      { figs: [["id-proto", "Workshop prototyping"]], n: 1, r: "16 / 9" }
-    ]},
-  { id: "motion-media", title: "Motion Media", kind: "Motion & logo animation", hue: "#5A9C7E", facts: { Tools: "After Effects, Figma" },
-    lede: "Motion graphics and animated logo work.",
-    body: [{ figs: [["mm-1", "Motion piece"]], n: 1, r: "16 / 9" }, { note: "Work coming soon." }]}
+  { id: "national-park-service", title: "National Park Service", summary: "A redesign of the National Park Service website, from mood boards to a working prototype.",
+    meta: "Website redesign · 2025", hero: "cover-national-park-service",
+    facts: { Timeline: "2025", Platform: "Web", Tools: "Figma" },
+    sections: [
+      { h: "Final design", blocks: [
+        { figs: [["nps-landing", "Landing page"]], n: 1 },
+        { figs: [["nps-alaska", "Alaska page"], ["nps-denali", "Denali National Park page"]] } ] },
+      { h: "Direction", blocks: [
+        { p: "I based the redesign on four key works and built a mood board around each one, then made color, type and layout boards. I wanted imagery to carry more of the design than color." },
+        { figs: [["nps-topo", "Topographic"], ["nps-real", "Graphic realism"], ["nps-nat", "Naturalistic"], ["nps-con", "Contrasting"]] } ] },
+      { h: "Design system", blocks: [
+        { p: "With the direction set, I defined type, color, shape and illustration palettes, then built the components." },
+        { figs: [["nps-palette", "Color palette"], ["nps-typefaces", "Typefaces"], ["nps-components", "Components"], ["nps-flow", "User flow"]] } ] }
+    ]}
 ];
 
-const RESUME = {
+const OTHER = [
+  { id: "graphic-design", title: "Graphic design", lede: "Illustration, posters and type work.",
+    blocks: [
+      { figs: [["gd-chloris", "Chloris' Madonna, digital illustration, 2025"], ["gd-film", "Poster for the SCAD student film Max Needs to Pay Rent"]] },
+      { figs: [["gd-type", "Editorial on the Highway Gothic typeface"]], n: 1 } ] },
+  { id: "fridge-research", title: "The Ideal Fridge", lede: "A team research study into how people use their refrigerators, published as a printed magazine. I designed the front and back covers.",
+    blocks: [
+      { figs: [["fr-hero", "The finished magazine"]], n: 1 },
+      { p: "We observed people at dinner time, interviewed a wide range of participants and ran a sensory workshop, then grouped what we found into ten core insights." },
+      { nums: [["1000+", "Unique insights"], ["10", "Core insights"]] },
+      { figs: [["fr-front", "Front cover, designed by me"], ["fr-back", "Back cover, designed by me"]] } ] },
+  { id: "print-work", title: "Print work", lede: "Designs made into physical pieces in Illustrator and sublimation printing.",
+    blocks: [
+      { figs: [["pw-front", "BMW crewneck, front"], ["pw-back", "BMW crewneck, back"]] },
+      { figs: [["pw-sticker", "Save the Trees sticker, for a Design for Good campaign"], ["pw-coaster", "Born To Lead coaster for LISD teachers and principals"]] } ] },
+  { id: "industrial-design", title: "Industrial design", lede: "3D modeling in Rhino and KeyShot, plus prototyping in the workshop.",
+    blocks: [
+      { figs: [["id-model", "Modeled in Rhino"], ["id-proto", "Workshop prototyping"]] } ] }
+];
+
+const CV = {
   experience: [
-    { when: "Jun – Aug 2026", title: "UX/UI Design Intern", org: "Stewart Title", bullets: ["Partnered with developers, product managers, engineers and designers to lead a redesign of Connect Close, Stewart Title's title production software", "Conducted primary and secondary research on title software and its end users", "Prepared designs for real-world implementation in Q4 2026"] },
-    { when: "Mar – Jun 2026", title: "SCADpro × Amazon Music", org: "Client project", bullets: ["Reimagined how customers discover, experience and engage with Amazon Music across Amazon", "Designed touchpoints linking Amazon Music with Prime Video, Retail, Audible, Kindle and Alexa+ for a unified experience aimed at young adults"] },
-    { when: "Jan – Mar 2025", title: "Nest Thermostat Redesign", org: "Team project", bullets: ["Redesigned Google's 3rd-gen Nest Thermostat with a greener, more affordable look and feel", "Prototyped, wireframed, user-tested and designed the device and phone software in Figma", "Led UX/UI design and development alongside teammates"] },
-    { when: "Jun – Aug 2024", title: "Design Intern", org: "Switch Design Studio & Autside · Dallas, TX", bullets: ["Designed mockups and renders for the Autside digital storefront", "Built web pages and interactive experiences for the Autside website", "Helped launch the Autside 100 campaign and build out the business-to-business program", "Supported Shopify storefront creation and improvements"] }
-  ],
-  earlier: [
-    { when: "Feb 2023", title: "Principal U Presenter", org: "TECC East, Hebron High School", text: "Spoke to LISD principals about the TECC Graphic Design program and its impact on my future." },
-    { when: "Oct – Dec 2021", title: "Student Design Haus Campaign", org: "TECC East, Hebron High School", text: "Created the logo, Twitter profile, color scheme and style guide for our student design company." }
+    { when: "Jun to Aug 2026", title: "UX/UI Design Intern", org: "Stewart Title", bullets: ["Led a redesign of Connect Close, Stewart Title's title production software, with product managers, engineers and designers", "Tested designs through A/B testing and moderated user testing", "Delivered developer-ready designs, scheduled for implementation in Q4 2026"] },
+    { when: "Mar to Jun 2026", title: "SCADpro × Amazon Music", org: "Client project", bullets: ["Designed new ways for young adults to discover and engage with Amazon Music across Amazon", "Designed touchpoints connecting Amazon Music with Prime Video, Retail, Audible, Kindle and Alexa+"] },
+    { when: "Jun to Aug 2024", title: "Design Intern", org: "Switch Design Studio & Autside, Dallas", bullets: ["Designed web pages, mockups and renders for the Autside storefront", "Supported the Autside 100 launch and helped improve the Shopify store"] }
   ],
   education: [
-    { when: "Sep 2023 – present", title: "Savannah College of Art & Design", org: "BFA, UX Design · Savannah, GA", text: "GPA 3.81 · Dean's Honor List" },
-    { when: "Aug 2019 – May 2023", title: "Hebron High School", org: "Carrollton, TX", text: "GPA 4.18 (weighted)" }
-  ],
-  leadership: [
-    { when: "Aug 2019 – May 2023", title: "Young Men's Service League", org: "Castle Hills, TX", bullets: ["Communications Committee (2022–2023)", "Meetings Committee Leader (2019–2022)"] },
-    { when: "Aug 2019 – May 2023", title: "Volunteer", org: "North Texas", text: "85 service hours with Feed My Starving Children, CCA Food Pantry, Hope Supply and Honor Flight." }
+    { when: "2023 to May 2027", title: "Savannah College of Art & Design", org: "BFA, UX Design · GPA 3.81 · Dean's Honor List" }
   ],
   skills: [
-    ["Design & Prototyping", ["Figma", "Adobe XD", "Illustrator", "Photoshop", "InDesign", "Lightroom"]],
-    ["Motion, 3D & Code", ["After Effects", "Rhino", "Keyshot", "HTML", "CSS"]],
-    ["Research & Process", ["User research", "Data collection", "Prototyping", "Redesign"]],
-    ["Certifications", ["Adobe Certified Professional, Creative Cloud", "Adobe Illustrator", "Microsoft Office Specialist: Word, Excel, PowerPoint"]]
+    { when: "Methods", title: "Wireframing, prototyping, design systems, user testing, A/B testing, design handoff" },
+    { when: "Tools", title: "Figma, Illustrator (certified), Photoshop, InDesign, Adobe XD, Rhino, KeyShot, HTML, CSS, JavaScript" }
   ]
 };
 
-/* ================= Helpers ================= */
-const $ = (s, r = document) => r.querySelector(s);
+/* ---------- Rendering ---------- */
+const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const pad = n => String(n).padStart(2, "0");
-const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-const app = $("#app");
+const ALL = [...FEATURED, ...MORE];
+const VIDEOS = new Set(["nps-landing", "nps-alaska", "nps-denali"]);
 
-/* Generated placeholder art: deterministic per image key, tinted with the project hue,
-   labeled with the key so each slot says exactly which file replaces it. */
-function phSrc(key, hue = "#8A8A86") {
-  let h = 2166136261 >>> 0;
-  for (let i = 0; i < key.length; i++) { h ^= key.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
-  const r1 = h % 100, r2 = (h >>> 7) % 100, v = h % 4;
-  let art = "";
-  if (v === 0) {
-    art = `<circle cx="${200 + r1 * 6}" cy="${150 + r2 * 4}" r="300" fill="${hue}" opacity=".3"/><circle cx="${900 - r2 * 3}" cy="${700 - r1 * 2}" r="380" fill="${hue}" opacity=".18"/>`;
-  } else if (v === 1) {
-    let s = "";
-    for (let i = 0; i < 7; i++) s += `<rect x="${-300 + i * 260}" y="-300" width="${90 + r1}" height="1500" fill="${hue}" opacity="${(0.12 + (i % 3) * 0.08).toFixed(2)}"/>`;
-    art = `<g transform="rotate(${18 + r2 % 30} 600 450)">${s}</g>`;
-  } else if (v === 2) {
-    let s = "";
-    for (let i = 1; i <= 6; i++) s += `<circle cx="${300 + r1 * 6}" cy="${280 + r2 * 4}" r="${i * 95}" fill="none" stroke="${hue}" stroke-width="22" opacity="${(0.3 - i * 0.035).toFixed(3)}"/>`;
-    art = s;
-  } else {
-    let s = "";
-    for (let gx = 0; gx < 6; gx++) for (let gy = 0; gy < 5; gy++) if ((gx * 5 + gy + r1) % 3) s += `<rect x="${60 + gx * 190}" y="${50 + gy * 175}" width="130" height="118" rx="10" fill="${hue}" opacity="${(gx + gy) % 2 ? ".22" : ".12"}"/>`;
-    art = s;
-  }
-  const label = key.toUpperCase() + " · PLACEHOLDER";
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900"><rect width="1200" height="900" fill="#ECEBE7"/><rect width="1200" height="900" fill="${hue}" opacity=".14"/>${art}<rect x="34" y="822" width="${label.length * 17 + 44}" height="50" rx="8" fill="#141518" opacity=".55"/><text x="56" y="855" font-family="Menlo,Consolas,monospace" font-size="26" letter-spacing="2" fill="#FFFFFF">${label}</text></svg>`;
-  return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+function media(key, alt, eager) {
+  const src = ASSETS[key];
+  if (!src) return "";
+  if (VIDEOS.has(key))
+    return `<video src="${src}" controls muted playsinline preload="metadata" aria-label="${esc(alt)}"></video>`;
+  return `<img src="${src}" alt="${esc(alt)}"${eager ? "" : ' loading="lazy"'}>`;
 }
-function img(key, alt, hue) {
-  if (VIDEOS[key]) return `<video src="${VIDEOS[key]}" controls muted playsinline preload="metadata" aria-label="${esc(alt || "")}"></video>`;
-  return `<img src="${IMAGES[key] || phSrc(key, hue)}" alt="${esc(alt || "")}" loading="lazy">`;
+function figs(list, n, kind) {
+  const cols = n || (list.length >= 3 ? 3 : list.length);
+  return `<div class="figs ${kind || ""}" style="--n:${kind ? "" : cols}">${list.map(([k, c]) =>
+    `<figure><div class="img fit">${media(k, c)}</div><figcaption>${esc(c)}</figcaption></figure>`).join("")}</div>`;
 }
-function slot(key, cap, r, hue) {
-  return `<figure><div class="ph tone" style="--hue:${hue};--r:${r || "4 / 3"}">${img(key, cap, hue)}</div><figcaption>${esc(cap)}</figcaption></figure>`;
-}
-function figs(list, n, r, hue) { const cols = n || (list.length === 4 ? 2 : Math.min(3, list.length)); return `<div class="figs" style="--n:${cols}">${list.map(([k, c]) => slot(k, c, r, hue)).join("")}</div>`; }
-
-/* Turn a flat list of blocks into rail sections */
-function sections(body) {
-  const out = []; let cur = null;
-  const push = () => { if (cur && cur.items.length) out.push(cur); };
-  body.forEach(b => {
-    if (b.h) { push(); cur = { title: b.h, items: [] }; return; }
-    if (b.steps) { push(); cur = null; b.steps.forEach((s, i) => out.push({ label: "Step " + pad(i + 1), title: s.h, items: [{ p: s.p }, ...(s.nums ? [{ nums: s.nums }] : []), ...(s.figs ? [{ figs: s.figs }] : [])] })); return; }
-    if (!cur) cur = { title: "Overview", items: [] };
-    cur.items.push(b);
-  });
-  push(); return out;
-}
-function renderItem(b, hue) {
-  if (b.p) return `<p>${esc(b.p)}</p>`;
-  if (b.list) return `<ul>${b.list.map(i => `<li>${esc(i)}</li>`).join("")}</ul>`;
-  if (b.figs) return figs(b.figs, b.n, b.r, hue);
+const todo = t => `<p class="todo"><b>To add:</b> ${esc(t)}</p>`;
+function block(b) {
+  if (b.p) return `<p class="col">${esc(b.p)}</p>`;
+  if (b.list) return `<ul class="col">${b.list.map(i => `<li>${esc(i)}</li>`).join("")}</ul>`;
+  if (b.todo) return `<div class="col">${todo(b.todo)}</div>`;
+  if (b.figs) return figs(b.figs, b.n, b.kind);
   if (b.nums) return `<div class="nums">${b.nums.map(([v, l]) => `<div><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("")}</div>`;
-  if (b.note) return `<p class="note">${esc(b.note)}</p>`;
+  if (b.decision) { const d = b.decision; return `<div class="decision"><div class="col" style="display:grid;gap:12px"><h3>${esc(d.h)}</h3>${d.p ? `<p>${esc(d.p)}</p>` : ""}${d.todo ? todo(d.todo) : ""}</div>${d.figs ? figs(d.figs) : ""}</div>`; }
   return "";
 }
-function renderSecs(body, hue) {
-  return `<div class="secs">${sections(body).map(s => `<section class="sec"><div class="rail">${s.label ? `<span class="mono">${s.label}</span>` : ""}<h2>${esc(s.title)}</h2></div><div class="main">${s.items.map(b => renderItem(b, hue)).join("")}</div></section>`).join("")}</div>`;
+function card(p) {
+  return `<a class="card" href="#${p.id}">
+    <div class="shot">${media(p.hero, "")}</div>
+    <h2>${esc(p.title)}${p.sub ? ` <span>${esc(p.sub)}</span>` : ""}</h2>
+    <p>${esc(p.summary)}</p>
+    <span class="meta">${esc(p.meta)}</span>
+  </a>`;
 }
-function factsDl(f) { return `<dl class="facts">${Object.entries(f).map(([k, v]) => `<div><dt class="mono">${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>`; }
 
-/* ================= Views ================= */
 function viewHome() {
-  return `<div class="cols" id="cols">${WORK.map((p, i) => `
-    <a class="col tone has-img" href="#${p.id}" data-id="${p.id}" style="--hue:${p.hue}" aria-label="${esc(p.title)}, ${p.year}, ${esc(p.kind)}">
-      <span class="bg">${img("cover-" + p.id, "", p.hue)}</span>
-      <span class="n">${pad(i + 1)}</span><span class="yr">${p.year}</span>
-      <span class="vt">${esc(p.title)}</span>
-      <span class="reveal">
-        <span class="mono">${esc(p.kind)}</span>
-        <h2>${esc(p.title)}${p.sub ? ` <span style="color:var(--muted)">${esc(p.sub)}</span>` : ""}</h2>
-        <p>${esc(p.lede)}</p>
-        <span class="tags">${p.tags.map(t => `<span>${esc(t)}</span>`).join("")}</span>
-        <span class="go">View project ${ARROW}</span>
-      </span>
-    </a>`).join("")}</div>
-    <div class="home-foot"><span class="mono">UX/UI &amp; graphic designer · BFA UX Design, SCAD</span><span class="mono">${WORK.length} projects · 2024–2026</span></div>`;
+  return `<section class="intro">
+      <h1>Jack Walker designs mobile and web products.</h1>
+      <p>I'm a product designer finishing my BFA in UX Design at SCAD in May 2027. Most recently I redesigned title production software as a UX/UI design intern at Stewart Title.</p>
+    </section>
+    <div class="cards">${FEATURED.map(card).join("")}</div>
+    <section class="more"><h2>More work</h2><div class="cards">${MORE.map(card).join("")}
+      <a class="card" href="#other-work"><div class="shot">${media("gd-type", "")}</div><h2>Other work</h2><p>Graphic design, research, print and industrial design.</p><span class="meta">2023 to 2026</span></a>
+    </div></section>`;
 }
 
-function viewProject(p) {
-  const i = WORK.indexOf(p), next = WORK[(i + 1) % WORK.length];
-  return `<article class="page">
-    <div class="p-top">
-      <a class="back" href="#">&larr; All work</a>
-      <nav class="mini" aria-label="Projects">${WORK.map((w, k) => `<a href="#${w.id}" title="${esc(w.title)}"${w === p ? ' aria-current="page"' : ""}>${pad(k + 1)}</a>`).join("")}</nav>
-    </div>
-    <span class="mono">${pad(i + 1)} · ${p.year} · ${esc(p.kind)}</span>
-    <h1 class="p-title" style="margin-top:12px">${esc(p.title)}${p.sub ? `<br><span style="color:var(--muted)">${esc(p.sub)}</span>` : ""}</h1>
-    <div class="p-intro"><p class="lede">${esc(p.lede)}</p>${factsDl(p.facts)}</div>
-    <div class="p-cover tone" id="p-cover" style="--hue:${p.hue}">${img("cover-" + p.id, p.title, p.hue)}</div>
-    ${renderSecs(p.body, p.hue)}
-    <a class="p-next tone" href="#${next.id}" style="--hue:${next.hue}"><div><span class="mono">Next project · ${pad(WORK.indexOf(next) + 1)}</span><b>${esc(next.title)}</b></div>${ARROW}</a>
+function viewCase(p) {
+  const i = ALL.indexOf(p), next = ALL[(i + 1) % ALL.length];
+  return `<article>
+    <a class="back" href="#">&larr; All work</a>
+    <header class="cs-head">
+      <h1>${esc(p.title)}${p.sub ? ` <span>${esc(p.sub)}</span>` : ""}</h1>
+      <p class="sum">${esc(p.summary)}</p>
+    </header>
+    <dl class="facts">${Object.entries(p.facts).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
+    <div class="hero">${media(p.hero, p.title + " cover", true)}</div>
+    <div class="cs-body">${p.sections.map(s => `<section class="sec"><h2>${esc(s.h)}</h2>${s.blocks.map(block).join("")}</section>`).join("")}</div>
+    <nav class="next" aria-label="Next project"><span>Next project</span><a href="#${next.id}">${esc(next.title)} &rarr;</a></nav>
   </article>`;
 }
 
-function viewVisual() {
-  return `<div class="page">
-    <span class="mono">Beyond UX</span>
-    <h1 class="p-title" style="margin-top:12px">Visual work</h1>
-    <div class="p-intro"><p class="lede">Graphic design, research, print, industrial design and motion.</p></div>
-    <div class="v-index">${VISUAL.map(v => `<button class="v-card tone" type="button" data-jump="${v.id}" style="--hue:${v.hue}"><span class="mono">${esc(v.kind)}</span><b>${esc(v.title)}</b></button>`).join("")}</div>
-    ${VISUAL.map(v => `<section class="v-piece" id="v-${v.id}">
-      <span class="mono">${esc(v.kind)}</span>
-      <h2 style="margin-top:10px">${esc(v.title)}</h2>
-      <div class="p-intro"><p class="lede">${esc(v.lede)}</p>${factsDl(v.facts)}</div>
-      ${renderSecs(v.body, v.hue)}
-    </section>`).join("")}
-  </div>`;
+function viewOther() {
+  return `<section class="intro" style="padding-bottom:0">
+      <h1>Other work</h1>
+      <p>Work outside product design that shapes how I design: illustration, print, research and 3D.</p>
+      <div class="toc">${OTHER.map(o => `<a href="#other-work" data-jump="${o.id}">${esc(o.title)}</a>`).join("")}</div>
+    </section>
+    ${OTHER.map(o => `<section class="piece" id="o-${o.id}"><h2>${esc(o.title)}</h2><p class="col" style="color:var(--muted)">${esc(o.lede)}</p>${o.blocks.map(block).join("")}</section>`).join("")}`;
 }
 
-function role(r) {
-  const body = r.bullets ? `<ul>${r.bullets.map(b => `<li>${esc(b)}</li>`).join("")}</ul>` : (r.text ? `<p class="t">${esc(r.text)}</p>` : "");
-  return `<div class="role"><div class="when">${esc(r.when)}</div><div><h3>${esc(r.title)}</h3><div class="org">${esc(r.org)}</div>${body}</div></div>`;
+function row(r) {
+  return `<div class="row"><div class="when">${esc(r.when)}</div><div><h3>${esc(r.title)}</h3>${r.org ? `<div class="org">${esc(r.org)}</div>` : ""}${r.bullets ? `<ul>${r.bullets.map(b => `<li>${esc(b)}</li>`).join("")}</ul>` : ""}</div></div>`;
 }
-function viewResume() {
-  const T = [["exp", "Experience"], ["edu", "Education"], ["lead", "Leadership & Service"], ["skill", "Skills & Toolkit"]];
-  return `<div class="page">
-    <span class="mono">Résumé</span>
-    <div class="r-head" style="margin-top:12px">
+function viewAbout() {
+  return `<div class="about">
       <div>
-        <h1 class="p-title">UX/UI &amp; graphic designer</h1>
-        <p class="lede" style="margin-top:22px">From Dallas, Texas, studying for a BFA in UX Design at the Savannah College of Art &amp; Design. Most recently a UX/UI design intern at Stewart Title. I design new solutions in ways users can anticipate.</p>
-        <div class="btns"><a class="btn solid" href="${LINKS.resume}" target="_blank" rel="noopener">View résumé</a><a class="btn" href="${LINKS.pdf}" target="_blank" rel="noopener">Download PDF</a></div>
+        <h1>About</h1>
+        <p class="lead">I'm Jack, a product designer from Dallas, Texas, finishing my BFA in UX Design at the Savannah College of Art &amp; Design. I design mobile and web products and take them from first sketches to developer-ready files.</p>
+        ${DRAFT ? `<div class="col" style="margin-top:16px">${todo("A line or two in your own voice: what kind of product work you want to do next, and where.")}</div>` : ""}
       </div>
-      <div class="r-side">
-        <div class="portrait tone" style="--hue:#6E8CC8"><img src="${HEADSHOT}" alt="Jack Walker" loading="lazy"></div>
-        <div class="stats">
-          <div><b>8+</b><span class="mono">Years graphic design</span></div>
-          <div><b>4+</b><span class="mono">Years UX/UI</span></div>
-          <div><b>80+</b><span class="mono">Projects &amp; pieces</span></div>
+      <div class="photo">${media("jack-walker-headshot", "Jack Walker")}</div>
+    </div>
+    <div class="cv">
+      <section><h2>Experience</h2>${CV.experience.map(row).join("")}</section>
+      <section><h2>Education</h2>${CV.education.map(row).join("")}</section>
+      <section><h2>Skills</h2>${CV.skills.map(row).join("")}</section>
+      <section id="contact"><h2>Contact</h2>
+        <div class="contact" style="padding-top:20px">
+          <span class="mail" id="mail">${EMAIL}</span>
+          <button class="btn" type="button" id="copy">Copy email</button>
+          <a href="${LINKEDIN}" target="_blank" rel="noopener" style="margin-top:8px">LinkedIn</a>
+          ${DRAFT ? todo("A PDF of your Product Designer resume, so I can link it here.") : ""}
         </div>
-      </div>
-    </div>
-    <div class="tabs" role="tablist" aria-label="Résumé sections">${T.map(([k, l], i) => `<button class="tab" role="tab" id="t-${k}" aria-controls="p-${k}" aria-selected="${i === 0}"${i ? ' tabindex="-1"' : ""}>${l}</button>`).join("")}</div>
-    <div role="tabpanel" id="p-exp" aria-labelledby="t-exp">${RESUME.experience.map(role).join("")}<details class="earlier"><summary>Earlier work, high school</summary>${RESUME.earlier.map(role).join("")}</details></div>
-    <div role="tabpanel" id="p-edu" aria-labelledby="t-edu" hidden>${RESUME.education.map(role).join("")}</div>
-    <div role="tabpanel" id="p-lead" aria-labelledby="t-lead" hidden>${RESUME.leadership.map(role).join("")}</div>
-    <div role="tabpanel" id="p-skill" aria-labelledby="t-skill" hidden>${RESUME.skills.map(([h, items]) => `<div class="role"><div class="when">${esc(h)}</div><div class="chips">${items.map(i => `<span class="chip">${esc(i)}</span>`).join("")}</div></div>`).join("")}</div>
-  </div>`;
-}
-function viewContact() {
-  return `<div class="page">
-    <span class="mono">Contact</span>
-    <p class="lede" style="margin-top:14px">Have a role, a project or a question? I'd love to hear from you.</p>
-    <span class="c-mail" id="email">${LINKS.email}</span>
-    <div class="btns"><button class="btn solid" type="button" id="copy">Copy email</button><a class="btn" href="mailto:${LINKS.email}">Open mail app</a></div>
-    <div class="c-grid">
-      <div><span class="mono">Elsewhere</span><a href="${LINKS.linkedin}" target="_blank" rel="noopener">LinkedIn</a><a href="${LINKS.art}" target="_blank" rel="noopener">Art Instagram</a><a href="${LINKS.personal}" target="_blank" rel="noopener">Personal Instagram</a></div>
-      <div><span class="mono">Direct</span><span>walkerajack@gmail.com</span><span>jwalke47@student.scad.edu</span><span>(214) 972-7225</span></div>
-      <div><span class="mono">Based in</span><span>Savannah, GA</span><span>Dallas, TX</span><span class="mono" style="margin-top:10px">Updated November 2026</span></div>
-    </div>
-  </div>`;
+      </section>
+    </div>`;
 }
 
-/* ================= Behavior ================= */
-function bindHome() {
-  const cols = $("#cols"); if (!cols) return;
-  const all = [...cols.querySelectorAll(".col")];
-  const wide = () => matchMedia("(min-width: 721px) and (hover: hover)").matches;
-  const set = el => { if (!wide()) return; all.forEach(c => c.classList.toggle("active", c === el)); cols.classList.toggle("has-active", !!el); };
-  all.forEach(c => {
-    c.addEventListener("pointerenter", () => set(c));
-    c.addEventListener("focus", () => set(c));
-    c.addEventListener("click", () => { all.forEach(x => (x.querySelector(".bg").style.viewTransitionName = "")); c.querySelector(".bg").style.viewTransitionName = "cover"; });
-  });
-  cols.addEventListener("pointerleave", () => set(null));
-  cols.addEventListener("focusout", e => { if (!cols.contains(e.relatedTarget)) set(null); });
-}
-function bindResume() {
-  const tabs = [...app.querySelectorAll('[role="tab"]')]; if (!tabs.length) return;
-  const select = t => tabs.forEach(x => { const on = x === t; x.setAttribute("aria-selected", on); x.tabIndex = on ? 0 : -1; $("#" + x.getAttribute("aria-controls")).hidden = !on; });
-  tabs.forEach((t, i) => { t.addEventListener("click", () => select(t)); t.addEventListener("keydown", e => {
-    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return; const n = tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length]; select(n); n.focus(); e.preventDefault(); }); });
-}
-function bindContact() {
-  const b = $("#copy"); if (!b) return;
-  b.addEventListener("click", () => {
-    const done = m => { b.textContent = m; setTimeout(() => (b.textContent = "Copy email"), 1800); };
-    const fallback = () => { const r = document.createRange(); r.selectNodeContents($("#email")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); done("Selected"); };
-    try { navigator.clipboard.writeText(LINKS.email).then(() => done("Copied"), fallback); } catch (e) { fallback(); }
-  });
-}
-function bindVisual() {
-  app.querySelectorAll("[data-jump]").forEach(b => b.addEventListener("click", () => $("#v-" + b.dataset.jump).scrollIntoView({ behavior: reduce ? "auto" : "smooth" })));
-}
-
-/* ================= Router ================= */
-let current = null;
-function resolve() {
-  const id = location.hash.slice(1);
-  const p = WORK.find(w => w.id === id);
-  if (p) return { key: id, html: viewProject(p), title: p.title, nav: null };
-  if (id === "visual") return { key: id, html: viewVisual(), title: "Visual work", nav: "visual" };
-  if (id === "resume") return { key: id, html: viewResume(), title: "Résumé", nav: "resume" };
-  if (id === "contact") return { key: id, html: viewContact(), title: "Contact", nav: "contact" };
-  return { key: "home", html: viewHome(), title: null, nav: null };
-}
 function render() {
-  const v = resolve(); if (v.key === current) return;
-  const fromHome = current === "home", toProject = WORK.some(w => w.id === v.key);
-  const swap = () => {
-    current = v.key;
-    app.innerHTML = v.html;
-    document.title = v.title ? `${v.title} · Jack Walker` : "Jack Walker Portfolio";
-    document.querySelectorAll("#nav a").forEach(a => { if (a.getAttribute("href") === "#" + v.nav) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
-    if (fromHome && toProject) { const c = $("#p-cover"); if (c) c.style.viewTransitionName = "cover"; }
-    window.scrollTo(0, 0);
-    bindHome(); bindResume(); bindContact(); bindVisual();
-  };
-  if (document.startViewTransition && !reduce && current !== null) {
-    const t = document.startViewTransition(swap);
-    t.finished.finally(() => { const c = $("#p-cover"); if (c) c.style.viewTransitionName = ""; });
-  } else swap();
+  const id = location.hash.replace(/^#/, "");
+  const p = ALL.find(x => x.id === id);
+  let html, nav = "work";
+  if (p) html = viewCase(p);
+  else if (id === "other-work") { html = viewOther(); nav = "other"; }
+  else if (id === "about") { html = viewAbout(); nav = "about"; }
+  else html = viewHome();
+  $("#app").innerHTML = html;
+  document.querySelectorAll("[data-nav]").forEach(a => { if (a.dataset.nav === nav) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+  document.title = p ? `${p.title} · Jack Walker` : "Jack Walker Portfolio";
+  window.scrollTo(0, 0);
 }
-addEventListener("hashchange", render);
-addEventListener("keydown", e => {
-  if (e.target.closest && e.target.closest("input, textarea, [role=tab]")) return;
-  if (e.key === "Escape" && current !== "home") { location.hash = ""; return; }
-  const i = WORK.findIndex(w => w.id === current); if (i < 0) return;
-  if (e.key === "ArrowRight") location.hash = WORK[(i + 1) % WORK.length].id;
-  if (e.key === "ArrowLeft") location.hash = WORK[(i - 1 + WORK.length) % WORK.length].id;
+
+document.body.classList.toggle("draft-off", !DRAFT);
+document.addEventListener("click", e => {
+  const j = e.target.closest("[data-jump]");
+  if (j) { e.preventDefault(); document.getElementById("o-" + j.dataset.jump)?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }
+  if (e.target.id === "copy") {
+    const done = () => { e.target.textContent = "Copied"; setTimeout(() => (e.target.textContent = "Copy email"), 1600); };
+    const sel = () => { const r = document.createRange(); r.selectNodeContents($("#mail")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
+    try { navigator.clipboard.writeText(EMAIL).then(done, sel); } catch { sel(); }
+  }
 });
+addEventListener("hashchange", render);
 render();
 </script>
 </body>
