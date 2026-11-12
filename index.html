@@ -788,8 +788,8 @@ function block(b) {
 }
 function card(p) {
   return `<a class="card${p.highlight ? " hl" : ""}" href="#${p.id}">
-    ${p.highlight ? '<span class="hl-tag">Highlighted Work</span>' : ""}
     <div class="shot">${media(p.hero, "")}</div>
+    ${p.highlight ? '<span class="hl-tag">Highlighted Work</span>' : ""}
     <h2>${esc(p.title)}${p.sub ? ` <span>${esc(p.sub)}</span>` : ""}</h2>
     <p>${esc(p.summary)}</p>
     <span class="meta">${esc(p.meta)}</span>
