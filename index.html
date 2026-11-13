@@ -115,8 +115,8 @@ main { padding-block: 56px 96px; }
 #cur { display: none; }
 .has-cursor #cur { display: block; position: fixed; inset: 0; z-index: 99; pointer-events: none; }
 .has-cursor * { cursor: none !important; }
-#cur-dot { position: fixed; left: -60px; top: -60px; width: 7px; height: 7px; border-radius: 50%; background: var(--cur-fill); box-shadow: 0 0 0 1.25px var(--cur-edge); transform: translate(-50%, -50%); transition: width .15s, height .15s, opacity .2s; }
-#cur-ring { position: fixed; left: -60px; top: -60px; width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid var(--cur-fill); box-shadow: 0 0 0 1.25px var(--cur-edge), inset 0 0 0 1.25px var(--cur-edge); transform: translate(-50%, -50%) scale(var(--cs, 1)); display: grid; place-items: center; transition: width .25s, height .25s, background-color .25s, transform .15s, opacity .2s; }
+#cur-dot { position: fixed; left: 0; top: 0; translate: -60px -60px; will-change: translate; width: 7px; height: 7px; border-radius: 50%; background: var(--cur-fill); box-shadow: 0 0 0 1.25px var(--cur-edge); transform: translate(-50%, -50%); transition: width .15s, height .15s, opacity .2s; }
+#cur-ring { position: fixed; left: 0; top: 0; translate: -60px -60px; will-change: translate; width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid var(--cur-fill); box-shadow: 0 0 0 1.25px var(--cur-edge), inset 0 0 0 1.25px var(--cur-edge); transform: translate(-50%, -50%) scale(var(--cs, 1)); display: grid; place-items: center; transition: width .25s, height .25s, background-color .25s, transform .15s, opacity .2s; }
 #cur-glyph { font-size: 15px; line-height: 1; color: #FFF; opacity: 0; transition: opacity .15s; }
 #cur.off #cur-dot, #cur.off #cur-ring { opacity: 0; }
 #cur.link #cur-ring { width: 20px; height: 20px; }
@@ -534,8 +534,9 @@ class AsciiReveal {
     this.ov = document.createElement("canvas"); this.ov.className = "reveal"; this.octx = this.ov.getContext("2d");
     this.rev = document.createElement("canvas"); this.rev.className = "reveal"; this.rctx = this.rev.getContext("2d");
     this.field = document.createElement("canvas"); this.fctx = this.field.getContext("2d", { willReadFrequently: true });
-    this.t1 = document.createElement("canvas"); this.t1ctx = this.t1.getContext("2d");
-    this.t2 = document.createElement("canvas"); this.t2ctx = this.t2.getContext("2d");
+    this.t1 = document.createElement("canvas"); this.t1ctx = this.t1.getContext("2d", { willReadFrequently: true });
+    this.t2 = document.createElement("canvas"); this.t2ctx = this.t2.getContext("2d", { willReadFrequently: true });
+    this.photo = document.createElement("canvas"); this.frameN = 0;
     el.appendChild(this.ascii); el.appendChild(this.ov); el.appendChild(this.rev);
     this.pointer = { x: 0, y: 0, inside: false }; this.cur = { x: 0, y: 0 };
     this.hasCur = false; this.trail = []; this.blobs = [];
@@ -602,6 +603,11 @@ class AsciiReveal {
     const iw = this.source.naturalWidth, ih = this.source.naturalHeight;
     const s = Math.max(w / iw, h / ih);
     this.fit = { dw: iw * s, dh: ih * s, dx: (w - iw * s) / 2, dy: (h - ih * s) / 2 };
+    this.photo.width = w * dpr; this.photo.height = h * dpr;
+    const pc = this.photo.getContext("2d");
+    pc.imageSmoothingQuality = "high";
+    pc.setTransform(dpr, 0, 0, dpr, 0, 0);
+    pc.drawImage(this.source, this.fit.dx, this.fit.dy, this.fit.dw, this.fit.dh);
     this.renderAscii();
   }
   renderAscii() {
@@ -815,15 +821,15 @@ class AsciiReveal {
       }
       f.putImageData(id, 0, 0);
       const rc = this.rctx;
-      rc.clearRect(0, 0, this.w, this.h);
-      rc.globalCompositeOperation = "source-over";
-      rc.drawImage(this.source, this.fit.dx, this.fit.dy, this.fit.dw, this.fit.dh);
-      rc.globalCompositeOperation = "destination-in";
       rc.setTransform(1, 0, 0, 1, 0, 0);
+      rc.clearRect(0, 0, this.rev.width, this.rev.height);
+      rc.globalCompositeOperation = "source-over";
+      rc.drawImage(this.photo, 0, 0);
+      rc.globalCompositeOperation = "destination-in";
       rc.drawImage(this.field, 0, 0, this.rev.width, this.rev.height);
       rc.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
       rc.globalCompositeOperation = "source-over";
-      if (!this.reduced) this.drawOverlay(now, t);
+      if (!this.reduced && (++this.frameN & 1)) this.drawOverlay(now, t);
       if (this.opts.parallax && !this.reduced) {
         this.par.nx += (this.par.tx - this.par.nx) * .05;
         this.par.ny += (this.par.ty - this.par.ny) * .05;
@@ -867,7 +873,7 @@ function media(key, alt, eager) {
   if (!src) return "";
   if (VIDEOS.has(key))
     return `<video src="${src}" controls muted playsinline preload="metadata" aria-label="${esc(alt)}"></video>`;
-  return `<img src="${src}" alt="${esc(alt)}"${eager ? "" : ' loading="lazy"'}>`;
+  return `<img src="${src}" alt="${esc(alt)}" decoding="async"${eager ? "" : ' loading="lazy"'}>`;
 }
 function figs(list, n, kind) {
   const cols = n || (list.length === 4 ? 2 : Math.min(3, list.length));
@@ -1226,13 +1232,20 @@ document.addEventListener("click", e => {
   document.body.classList.add("has-cursor");
   cur.classList.add("off");
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let x = -60, y = -60, rx = -60, ry = -60;
+  let x = -60, y = -60, rx = -60, ry = -60, moving = false;
+  const step = () => {
+    rx += (x - rx) * .18; ry += (y - ry) * .18;
+    if (Math.abs(x - rx) < .15 && Math.abs(y - ry) < .15) { rx = x; ry = y; moving = false; }
+    ring.style.translate = rx.toFixed(1) + "px " + ry.toFixed(1) + "px";
+    if (moving) requestAnimationFrame(step);
+  };
   addEventListener("pointermove", e => {
     if (e.pointerType === "touch") return;
     x = e.clientX; y = e.clientY;
     cur.classList.remove("off");
-    dot.style.left = x + "px"; dot.style.top = y + "px";
-    if (still) { rx = x; ry = y; ring.style.left = x + "px"; ring.style.top = y + "px"; }
+    dot.style.translate = x + "px " + y + "px";
+    if (still) { rx = x; ry = y; ring.style.translate = x + "px " + y + "px"; }
+    else if (!moving) { moving = true; requestAnimationFrame(step); }
   }, { passive: true });
   addEventListener("pointerdown", () => cur.classList.add("down"), true);
   addEventListener("pointerup", () => cur.classList.remove("down"), true);
@@ -1251,11 +1264,6 @@ document.addEventListener("click", e => {
     cur.classList.toggle("brush", mode === "brush");
     if (g) glyph.textContent = g;
   });
-  if (!still) (function loop() {
-    rx += (x - rx) * .18; ry += (y - ry) * .18;
-    ring.style.left = rx.toFixed(1) + "px"; ring.style.top = ry.toFixed(1) + "px";
-    requestAnimationFrame(loop);
-  })();
   const lb = $("#lb");
   if (lb) lb.addEventListener("close", () => document.body.classList.remove("lb-open"));
 })();
