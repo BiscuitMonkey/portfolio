@@ -73,6 +73,11 @@ img, video { display: block; max-width: 100%; }
 .brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
 .crumb { color: var(--muted); font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .crumb:not(:empty)::before { content: "/"; margin-right: 8px; }
+.top .crumb { display: block; gap: 0; }
+.top .crumb a { font-size: 15px; font-weight: 500; color: var(--muted); text-decoration: none; transition: color .15s; }
+.top .crumb a:hover { color: var(--link); }
+.crumb i { font-style: normal; margin: 0 8px; }
+.crumb b { font-weight: 500; color: var(--ink); }
 .top nav { display: flex; gap: 24px; }
 .top nav a { color: var(--muted); text-decoration: none; font-size: 16px; font-weight: 500; }
 .top nav a:hover { color: var(--link); }
@@ -100,7 +105,7 @@ main { padding-block: 56px 96px; }
 .qsplit a { color: inherit; text-decoration: none; }
 .qsplit a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .qsplit i { font-style: normal; color: var(--muted); margin-inline: 2px; }
-.featured { display: grid; gap: 44px; margin-top: 32px; }
+.featured { display: grid; gap: 44px; margin-top: 32px; scroll-margin-top: 72px; }
 .featured > h2 { font-size: clamp(26px, 3.2vw, 34px); font-weight: 800; letter-spacing: -0.015em; text-align: center; }
 .portrait-wrap { display: grid; gap: 10px; justify-items: center; }
 .ascii-reveal { position: relative; width: 100%; max-width: 320px; background: var(--wash); border-radius: 10px; overflow: hidden; cursor: crosshair; }
@@ -145,8 +150,10 @@ main { padding-block: 56px 96px; }
 .more .card p { font-size: 16px; }
 
 /* Case study */
-.back { color: var(--muted); text-decoration: none; font-size: 16px; }
-.back:hover { color: var(--link); }
+.back { display: inline-flex; align-items: center; gap: 8px; justify-self: start; width: max-content; padding: 8px 16px 8px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); text-decoration: none; font-size: 15px; font-weight: 600; transition: color .15s, border-color .15s; }
+.back span { transition: transform .15s; }
+.back:hover { color: var(--link); border-color: var(--link); }
+.back:hover span { transform: translateX(-3px); }
 .cs-head { display: grid; gap: 18px; margin-top: 28px; }
 .cs-head h1 { font-size: clamp(36px, 5vw, 56px); font-weight: 800; letter-spacing: -0.025em; }
 .cs-head h1 span { color: var(--muted); font-weight: 500; }
@@ -165,7 +172,7 @@ main { padding-block: 56px 96px; }
 .proto-col { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 72px); height: calc(100vh - 96px); height: calc(100dvh - 96px); display: flex; flex-direction: column; gap: 8px; }
 .proto-col iframe { flex: 1; min-height: 0; width: 100%; border: 0; display: block; background: transparent; filter: drop-shadow(0 16px 26px var(--proto-shadow)); }
 .proto-msg { flex: 1; display: grid; place-items: center; text-align: center; padding: 24px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); font-size: 15px; }
-.proto-cap { font-size: 14px; font-weight: 500; color: var(--muted); text-align: center; }
+.proto-h { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; text-align: center; margin: 0; }
 .cs-main { min-width: 0; }
 .sec { display: grid; gap: 20px; }
 .sec > .col { display: grid; gap: 16px; }
@@ -207,10 +214,11 @@ figure .img.fit img { cursor: zoom-in; }
 .todo b { font-weight: 600; }
 .draft-off .todo { display: none; }
 
-.next { margin-top: 96px; padding-top: 28px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; align-items: baseline; }
+.next { margin-top: 96px; padding-top: 28px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; align-items: center; }
+.next-go { display: grid; gap: 4px; text-align: right; }
 .next span { color: var(--muted); font-size: 16px; }
-.next a { font-size: 26px; font-weight: 700; text-decoration: none; color: var(--ink); }
-.next a:hover { color: var(--link); text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 1px; }
+.next-go a { font-size: 26px; font-weight: 700; text-decoration: none; color: var(--ink); }
+.next-go a:hover { color: var(--link); text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 1px; }
 
 /* Other work */
 .piece { margin-top: 80px; padding-top: 32px; border-top: 1px solid var(--line); display: grid; gap: 20px; scroll-margin-top: 80px; }
@@ -273,7 +281,9 @@ footer { border-top: 1px solid var(--line); }
   .top nav { gap: 12px; align-items: center; }
   .top nav a { font-size: 14.5px; white-space: nowrap; }
   .top .name { white-space: nowrap; font-size: 17px; }
-  .crumb { display: none; }
+  .top .crumb { display: none; }
+  .next { flex-direction: column; align-items: flex-start; }
+  .next-go { text-align: left; }
   .figs { --n: 1 !important; }
   .figs.strip { --n: 3 !important; }
   .figs.dials { --n: 3 !important; }
@@ -285,7 +295,7 @@ footer { border-top: 1px solid var(--line); }
 </style>
 
 <header class="top"><div class="wrap">
-  <div class="brand"><a class="name" href="#">Jack Walker</a><span id="crumb" class="crumb" aria-current="page"></span></div>
+  <div class="brand"><a class="name" href="#">Jack Walker</a><nav id="crumb" class="crumb" aria-label="Breadcrumb"></nav></div>
   <nav aria-label="Main"><a href="#" data-nav="work">Home</a><a href="#beyond-ux" data-nav="other">Beyond UX</a><a href="#about" data-nav="about">About</a><button id="mode" type="button" aria-label="Switch color theme"></button></nav>
 </div></header>
 <main id="app" class="wrap"></main>
@@ -903,7 +913,7 @@ function viewHome() {
         <figure class="ascii-reveal" id="portrait" aria-label="Portrait of Jack Walker, revealed as you move across it"></figure>
       </div>
     </section>
-    <section class="featured"><h2>UX Projects</h2><div class="cards">${FEATURED.map(card).join("")}</div></section>
+    <section class="featured" id="projects"><h2>UX Projects</h2><div class="cards">${FEATURED.map(card).join("")}</div></section>
     <section class="more"><h2>More work</h2><div class="cards">${MORE.map(card).join("")}
       <a class="card" href="#beyond-ux"><div class="shot">${media("gd-type", "")}</div><h2>Beyond UX</h2><p>Graphic design, research, print and industrial design.</p><span class="meta">2023 to 2026</span></a>
     </div></section>`;
@@ -912,7 +922,7 @@ function viewHome() {
 function viewCase(p) {
   const i = ALL.indexOf(p), next = ALL[(i + 1) % ALL.length];
   const inner = `
-    <a class="back" href="#">&larr; All work</a>
+    <a class="back" href="#projects"><span aria-hidden="true">&larr;</span> All projects</a>
     <header class="cs-head">
       <h1>${esc(p.title)}${p.sub ? ` <span>${esc(p.sub)}</span>` : ""}</h1>
       <p class="sum">${esc(p.summary)}</p>
@@ -920,12 +930,12 @@ function viewCase(p) {
     <dl class="facts">${Object.entries(p.facts).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
     <div class="hero">${media(p.hero, p.title + " cover", true)}</div>
     <div class="cs-body">${p.sections.map(s => `<section class="sec"><h2>${esc(s.h)}</h2>${s.blocks.map(block).join("")}</section>`).join("")}</div>
-    <nav class="next" aria-label="Next project"><span>Next project</span><a href="#${next.id}">${esc(next.title)} &rarr;</a></nav>`;
+    <nav class="next" aria-label="Project navigation"><a class="back" href="#projects"><span aria-hidden="true">&larr;</span> All projects</a><div class="next-go"><span>Next project</span><a href="#${next.id}">${esc(next.title)} &rarr;</a></div></nav>`;
   if (!p.proto) return `<article>${inner}</article>`;
   return `<article class="cs-split">
     <aside class="proto-col" aria-label="${esc(p.title)} interactive prototype">
+      <h2 class="proto-h">Interactive Prototype</h2>
       <div class="proto-msg" id="proto-slot">Loading the prototype…</div>
-      <p class="proto-cap">Prototype built for phone</p>
     </aside>
     <div class="cs-main">${inner}</div>
   </article>`;
@@ -1068,7 +1078,7 @@ function initNameFx() {
   const easeIO = t => -(Math.cos(Math.PI * t) - 1) / 2; // sine in-out: no sudden rush mid-sweep
   const smooth = t => t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t);
   const HALF = 56, FEATH = 130, DUR = 3200; // sweep band core, crossfade, duration
-  const R = 30, RF = 30;                    // hover lens radius, crossfade
+  const R = 48, RF = 38;                    // hover lens radius, crossfade
   const hov = { in: false, x: 0, y: 0, cx: 0, cy: 0, s: 0 };
   let sweepT0 = -1, running = false, ink = "#161917", acc = "#007F3F";
   const readColors = () => {
@@ -1165,11 +1175,14 @@ function initNameFx() {
   setTimeout(loop, 1200);
 }
 
+let lastId = "";
 function render() {
   const id = location.hash.replace(/^#/, "");
   const p = ALL.find(x => x.id === id);
+  const cameFrom = ALL.find(x => x.id === lastId);
+  lastId = id;
   let html, nav = "work";
-  if (p) html = viewCase(p);
+  if (p) { html = viewCase(p); nav = ""; }
   else if (id === "beyond-ux" || id === "other-work") { html = viewOther(); nav = "other"; }
   else if (id === "about") { html = viewAbout(); nav = "about"; }
   else html = viewHome();
@@ -1178,8 +1191,14 @@ function render() {
   document.querySelectorAll("[data-nav]").forEach(a => { if (a.dataset.nav === nav) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
   document.title = p ? `${p.title} · Jack Walker` : "Jack Walker Portfolio";
   const crumb = document.getElementById("crumb");
-  if (crumb) crumb.textContent = p ? p.title : (id === "beyond-ux" || id === "other-work") ? "Beyond UX" : id === "about" ? "About" : "";
-  window.scrollTo(0, 0);
+  if (crumb) crumb.innerHTML = p ? `<a href="#projects">UX Projects</a><i aria-hidden="true">/</i><b aria-current="page">${esc(p.title)}</b>`
+    : (id === "beyond-ux" || id === "other-work") ? '<b aria-current="page">Beyond UX</b>' : id === "about" ? '<b aria-current="page">About</b>' : "";
+  // Coming back home lands you where you left off: on the project you opened, or the project grid.
+  const home = !p && !["beyond-ux", "other-work", "about"].includes(id);
+  const card = home && cameFrom ? document.querySelector(`.card[href="#${cameFrom.id}"]`) : null;
+  if (card) card.scrollIntoView({ block: "center" });
+  else if (id === "projects") document.getElementById("projects").scrollIntoView({ block: "start" });
+  else window.scrollTo(0, 0);
   const pel = document.getElementById("portrait");
   if (pel) portraitWidget = new AsciiReveal(pel, ASSETS["jack-walker-headshot"], ASCII_CFG);
   initNameFx();
