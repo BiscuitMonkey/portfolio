@@ -89,9 +89,14 @@ img, video { display: block; max-width: 100%; }
 .top nav a:hover { color: var(--link); }
 .top nav a[aria-current="page"] { color: var(--ink); }
 .top nav { align-items: center; }
-.top nav a.nav-hl { color: var(--link); font-weight: 600; padding: 4px 13px; border: 1.5px solid var(--link); border-radius: 999px; line-height: 1.3; transition: background-color .15s, color .15s; }
-.top nav a.nav-hl:hover { background: color-mix(in srgb, var(--link) 10%, transparent); }
-.top nav a.nav-hl[aria-current="page"] { color: var(--link); background: color-mix(in srgb, var(--link) 14%, transparent); }
+.top nav { --hp: 1; }
+.top nav a.nav-hl { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); font-weight: 600; opacity: var(--hp); transform: translateY(calc((1 - var(--hp)) * 10px)); transition: color .15s; }
+.nav-hl-img { width: 28px; height: 20px; flex: none; border-radius: 5px; overflow: hidden; border: 1px solid var(--line); background: var(--wash); transform: scale(calc(.7 + var(--hp) * .3)); }
+.nav-hl-img img { width: 100%; height: 100%; object-fit: cover; }
+.top nav a.nav-hl:hover, .top nav a.nav-hl[aria-current="page"] { color: var(--link); }
+.top nav a.nav-hl[aria-current="page"] .nav-hl-img { border-color: var(--link); }
+.nav-sep { width: 1px; height: 18px; background: var(--line); opacity: var(--hp); margin-left: -4px; }
+.top nav .off { visibility: hidden; }
 .top nav button { background: none; border: 0; padding: 4px; margin-left: 4px; color: var(--muted); display: grid; place-items: center; }
 .top nav button:hover { color: var(--link); }
 .nav-tools { display: flex; align-items: center; gap: 2px; }
@@ -362,7 +367,7 @@ footer { border-top: 1px solid var(--line); }
   .top .brand { flex: 1 0 100%; }
   .top nav { flex: 1 0 100%; gap: 14px; align-items: center; justify-content: space-between; }
   .top nav .nav-tools { margin-left: auto; }
-  .top nav a.nav-hl { padding: 3px 10px; }
+  .nav-sep { display: none; }
   .top nav a { font-size: 14.5px; white-space: nowrap; }
   .top .name { white-space: nowrap; font-size: 17px; }
   .top .crumb { display: none; }
@@ -390,7 +395,7 @@ footer { border-top: 1px solid var(--line); }
 
 <header class="top"><div class="wrap">
   <div class="brand"><a class="name" href="#"><svg class="logo" viewBox="186 98 390 502" aria-hidden="true"><path class="logo-bar" d="M449.77 594.89 314.75 102.24h123.36l131.6 492.65z"/><path fill="#007F3F" d="M191.59 102.24h123.16V225.4H191.59zM191.59 286.98h123.16v123.16H191.59zM191.59 471.73h123.16v123.16H191.59z"/></svg><span>Jack Walker</span></a><nav id="crumb" class="crumb" aria-label="Breadcrumb"></nav></div>
-  <nav aria-label="Main"><a href="#" data-nav="work">Home</a><a href="#beyond-ux" data-nav="other">Beyond UX</a><a href="#about" data-nav="about">About</a><a class="nav-hl" href="#quarters" data-nav="hl">Quarters</a><span class="nav-tools"><button id="mode" type="button" aria-label="Switch color theme"></button><button id="cur-toggle" type="button" hidden></button></span></nav>
+  <nav aria-label="Main"><a class="nav-hl off" href="#quarters" data-nav="hl"><span class="nav-hl-img"></span><span class="nav-hl-t">Quarters</span></a><span class="nav-sep" aria-hidden="true"></span><a href="#" data-nav="work">Home</a><a href="#beyond-ux" data-nav="other">Beyond UX</a><a href="#about" data-nav="about">About</a><span class="nav-tools"><button id="mode" type="button" aria-label="Switch color theme"></button><button id="cur-toggle" type="button" hidden></button></span></nav>
 </div></header>
 <main id="app" class="wrap"></main>
 <dialog id="lb" aria-label="Image preview"><img alt=""><p></p></dialog>
@@ -1177,6 +1182,32 @@ function viewOther(sel) {
     </div>
     <section class="bux-panel" id="bux-panel" role="tabpanel" aria-labelledby="tab-${cur.id}">${buxPanel(cur)}</section>`;
 }
+/* The highlighted project's nav link: on the home page it slides into the nav as the
+   highlighted card scrolls up under the header; everywhere else it's simply there. */
+let navHl = null;
+function initNavHl() {
+  if (navHl) { removeEventListener("scroll", navHl); navHl = null; }
+  const nav = document.querySelector('nav[aria-label="Main"]'), link = document.querySelector(".nav-hl");
+  if (!nav || !link) return;
+  const sep = nav.querySelector(".nav-sep");
+  const set = p => {
+    nav.style.setProperty("--hp", p.toFixed(3));
+    const off = p < .02; link.classList.toggle("off", off); if (sep) sep.classList.toggle("off", off);
+    link.tabIndex = p > .5 ? 0 : -1;
+  };
+  const card = document.querySelector(".card.hl");
+  if (!card) { set(1); return; }
+  let raf = 0, last = -1;
+  const update = () => {
+    raf = 0;
+    const hb = document.querySelector(".top").getBoundingClientRect().bottom;
+    const p = Math.min(1, Math.max(0, (hb + 60 - card.getBoundingClientRect().top) / 120));
+    if (Math.abs(p - last) < .002) return; last = p; set(p);
+  };
+  navHl = () => { if (!raf) raf = requestAnimationFrame(update); };
+  addEventListener("scroll", navHl, { passive: true });
+  update();
+}
 let bux = null;
 function initBux() {
   if (bux) { removeEventListener("scroll", bux.onScroll); removeEventListener("resize", bux.onResize); bux = null; }
@@ -1456,6 +1487,7 @@ function render() {
   initNameFx();
   if (p && p.proto) mountProto(p.proto);
   initBux();
+  initNavHl();
 }
 
 document.body.classList.toggle("draft-off", !DRAFT);
@@ -1463,7 +1495,9 @@ document.body.classList.toggle("draft-off", !DRAFT);
   const hp = ALL.find(x => x.highlight), a = document.querySelector(".nav-hl");
   if (!a) return;
   if (!hp) { a.remove(); return; }
-  a.href = "#" + hp.id; a.textContent = hp.title;
+  a.href = "#" + hp.id;
+  a.querySelector(".nav-hl-t").textContent = hp.title;
+  a.querySelector(".nav-hl-img").innerHTML = media(hp.hero, "");
 })();
 document.addEventListener("click", e => {
   const zi = e.target.closest("figure .img.fit img");
