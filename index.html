@@ -206,6 +206,15 @@ figure .img.fit img { cursor: zoom-in; }
 .bare .img { background: transparent; border-radius: 0; }
 .figs.posters { --n: 4; }
 .figs.lead { grid-template-columns: .393fr 1fr; }
+.figs.posters2 { --n: 2; max-width: 880px; margin-inline: auto; width: 100%; gap: 36px; }
+.figs.narrow { --n: 1; max-width: 560px; margin-inline: auto; width: 100%; }
+.piece-h { font-size: 17px; font-weight: 700; line-height: 1.35; margin: 36px 0 0; }
+.piece-p { color: var(--muted); margin-top: -12px; font-size: 16.5px; }
+.sec-graphic-design { gap: 28px; }
+.sec-graphic-design .figs { gap: 32px; }
+.sec-graphic-design .sub-h { margin-top: 88px; font-size: 22px; }
+.sec-graphic-design .sub-h:first-of-type { margin-top: 24px; }
+.sec-graphic-design figcaption { margin-top: 4px; }
 .pull { margin: 8px 0 24px; padding: 4px 0 4px 20px; border-left: 3px solid var(--link); display: grid; gap: 8px; }
 .pull p { font-size: 20px; line-height: 1.5; }
 .pull cite { font-style: normal; font-size: 15px; color: var(--muted); }
@@ -233,25 +242,18 @@ figure .img.fit img { cursor: zoom-in; }
 .piece { margin-top: 80px; padding-top: 32px; border-top: 1px solid var(--line); display: grid; gap: 20px; scroll-margin-top: 80px; }
 .piece > h2 { font-size: 30px; }
 .bux-intro { padding-bottom: 0; }
-.bux-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; margin-top: 32px; }
-.bux-card { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; text-align: left; display: grid; gap: 10px; align-content: start; cursor: pointer; }
-.bux-img { display: block; aspect-ratio: 4 / 5; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: var(--wash); outline: 2px solid transparent; outline-offset: 4px; transition: outline-color .2s; }
+.bux-cards { --p: 0; --img-min: 44px; position: sticky; z-index: 4; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; align-items: end; margin-top: 24px; padding: 8px 0 14px; background: var(--bg); }
+.bux-cards::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--line); opacity: var(--p); }
+.bux-card { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; text-align: left; display: flex; flex-direction: column; justify-content: flex-end; min-width: 0; cursor: pointer; }
+.bux-img { display: block; height: calc(var(--img-h, 300px) - (var(--img-h, 300px) - var(--img-min)) * var(--p)); border-radius: calc(10px - 3px * var(--p)); overflow: hidden; border: 1px solid var(--line); background: var(--wash); outline: 2px solid transparent; outline-offset: calc(4px - 1px * var(--p)); transition: outline-color .2s; }
 .bux-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s ease; }
 .bux-card:hover .bux-img img { transform: scale(1.035); }
-.bux-t { font-size: 19px; font-weight: 700; line-height: 1.25; transition: color .15s; }
-.bux-m { font-size: 15px; color: var(--muted); line-height: 1.4; }
+.bux-t { font-size: calc(19px - 3px * var(--p)); font-weight: 700; line-height: 1.25; margin-top: calc(10px - 3px * var(--p)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color .15s; }
+.bux-m { font-size: 15px; color: var(--muted); line-height: 1.4; height: calc(42px * (1 - var(--p))); margin-top: calc(4px * (1 - var(--p))); opacity: calc(1 - var(--p) * 2.2); overflow: hidden; }
 .bux-card:hover .bux-t, .bux-card.on .bux-t { color: var(--link); }
 .bux-card.on .bux-img { outline-color: var(--link); }
 .bux-card:focus-visible { outline: none; }
 .bux-card:focus-visible .bux-img { outline-color: var(--link); outline-style: dashed; }
-.bux-bar { position: fixed; left: 0; right: 0; top: calc(env(safe-area-inset-top, 0px) + 60px); z-index: 4; padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); background: var(--bg); border-bottom: 1px solid var(--line); transform: translateY(-105%); opacity: 0; pointer-events: none; transition: transform .28s ease, opacity .2s; }
-.bux-bar.show { transform: none; opacity: 1; pointer-events: auto; }
-.bux-bar .wrap { display: flex; gap: 8px; padding-block: 10px; overflow-x: auto; scrollbar-width: none; }
-.bux-thumb { width: 24px; height: 24px; border-radius: 50%; overflow: hidden; flex: none; background: var(--wash); }
-.bux-thumb img { width: 100%; height: 100%; object-fit: cover; }
-.bux-tab { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-size: 15px; font-weight: 600; white-space: nowrap; padding: 5px 14px 5px 5px; border-radius: 999px; border: 1px solid var(--line); background: none; color: var(--muted); cursor: pointer; transition: color .15s, border-color .15s; }
-.bux-tab:hover { color: var(--link); }
-.bux-tab.on { color: var(--link); border-color: var(--link); }
 .bux-panel { margin-top: 56px; }
 .bux-piece { margin-top: 0; padding-top: 0; border-top: 0; }
 .toc { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 8px; }
@@ -322,12 +324,9 @@ footer { border-top: 1px solid var(--line); }
   .figs.posters, .figs.steps, .figs.pair { --n: 2 !important; }
   .figs.lead { grid-template-columns: 1fr; }
   .pull p { font-size: 18px; }
-  .bux-cards { gap: 10px; margin-top: 24px; }
-  .bux-img { aspect-ratio: 3 / 4; border-radius: 8px; outline-offset: 3px; }
-  .bux-t { font-size: 13px; }
+  .bux-cards { gap: 10px; --img-min: 36px; }
+  .bux-t { font-size: calc(13px - 1px * var(--p)); white-space: normal; line-height: 1.2; min-height: 2.4em; }
   .bux-m { display: none; }
-  .bux-tab { font-size: 13.5px; padding: 4px 11px 4px 4px; gap: 6px; }
-  .bux-thumb { width: 22px; height: 22px; }
   .bux-panel { margin-top: 40px; }
   .cs-body { gap: 56px; margin-top: 56px; }
 }
@@ -483,28 +482,46 @@ const MORE = [
 ];
 
 const OTHER = [
-  { id: "graphic-design", tab: "Graphic design", cover: "arc-cover", blurb: "Arc'teryx report book, posters and type", title: "Graphic design", lede: "Editorial design, posters, illustration and type work, made for classmates, clients and myself.",
+  { id: "graphic-design", tab: "Graphic design", cover: "arc-cover", blurb: "Arc'teryx report book, posters and type", title: "Graphic design", lede: "A collection of various graphic design works I’ve made professionally and personally.",
     blocks: [
-      { h: "Arc'teryx Progress Report Book", p: "A printed climate report for Arc'teryx, built around ReBIRD, its program to reduce, reuse and recycle gear. GRDS 348, 2026." },
-      { figs: [["arc-cover", "Front cover"], ["arc-rebird", "ReBIRD spread: a circular journey"]], kind: "lead" },
-      { p: "I started by researching who Arc'teryx is for and where it stands on sustainability, then built a brand system for the book: logo lockups, a column grid, type, color and an imagery direction." },
-      { figs: [["arc-02", "Research and positioning: who Arc'teryx is, and its sustainability goals"], ["arc-03", "Early inspiration board"], ["arc-04", "Book system: logo, grid, imagery, type and color"], ["arc-05", "Design development: infinity shapes, grid layouts and an early cover"]] },
-      { p: "For the photography, I wanted to show the intentionality behind Arc'teryx's materials and its climbers, hikers and outdoorspeople. That led me to normal people accomplishing big things: vast landscapes, and extreme close-ups of the fabric." },
-      { figs: [["arc-06", "Photography treatment"]], n: 1 },
-      { figs: [["arc-07", "Pages 1 to 6: covers, contents, leadership message and ReBIRD"]], n: 1 },
-      { figs: [["arc-08", "Pages 7 to 12: emissions, revenue and the future"]], n: 1 },
-      { quote: "This project required me to think about sustainability in physical design, which I haven't done before. If I could do it again, I would give myself more time for actually preparing for print, and less towards the assembly of the piece. Overall, I am happy with my final product and how it all ended up coming together.", by: "My reflection" },
-      { h: "Student film posters", p: "Posters for films made by fellow SCAD students." },
-      { figs: [["gd-mntpr", "Max Needs to Pay Rent, 2025"], ["gd-focus", "Focus Goggles, 2025"], ["gd-nina2", "NINA, poster 02, 2024"], ["gd-nina1", "NINA, poster 01, 2024"]], kind: "posters" },
-      { h: "Personal work" },
-      { figs: [["gd-chloris", "Chloris' Madonna, 2025"], ["gd-chloris2", "Chloris' Madonna, variation"], ["gd-chloris3", "Chloris' Madonna, variation"]], n: 3 },
-      { figs: [["gd-escape", "ESCAPE WILL MAKE ME GOD, 2025. Characters from Bungie's Marathon."]], n: 1 },
-      { figs: [["gd-bigbend2", "Big Bend National Park 02, 2025"], ["gd-bigbend1", "Big Bend National Park 01, 2024"], ["gd-tsa", "Teacher Student Association T-shirt, 2023"]], n: 3 },
-      { figs: [["gd-brand", "Personal brand logo and identity, 2025"]], n: 1 },
-      { h: "Typography studies" },
-      { figs: [["gd-hwy-poster", "Highway Gothic poster"], ["gd-type", "Highway Gothic editorial"]] },
-      { p: "Farmers market posters: a design challenge built only from typographic elements, with the rules loosening each round." },
-      { figs: [["gd-farm1", "1. No color, one font size"], ["gd-farm2", "2. No color, multiple sizes"], ["gd-farm3", "3. Color, limited shapes"], ["gd-farm4", "4. No limits"]], kind: "posters" } ] },
+      { h: "Arc’teryx Progress Report Book" },
+      { figs: [["arc-cover", "Climate Report Book - 2026"], ["arc-rebird", "ReBIRD, A Circular Journey"]], kind: "lead" },
+      { t: "Research & Positioning" },
+      { figs: [["arc-02", ""]], n: 1 },
+      { t: "Early Inspiration Board" },
+      { figs: [["arc-03", ""]], n: 1 },
+      { t: "Logo, Grid/Column, Imagery, Type System, Color System" },
+      { figs: [["arc-04", ""]], n: 1 },
+      { t: "Design Development" },
+      { figs: [["arc-05", ""]], n: 1 },
+      { t: "Photography Treatment", p: "I wanted to focus on Arc’teryx’ intentionality as a brand with their material choice and main client base, climbers, hikers, and outdoorsmen. This caused me to focus on normal people accomplishing big things. I used vast, large landscapes of nature, and extreme closeups of clothing materials with people climbing and hiking on them to simulate this idea." },
+      { figs: [["arc-06", ""]], n: 1 },
+      { t: "Pages, Part 1" },
+      { figs: [["arc-07", ""]], n: 1 },
+      { t: "Pages, Part 2" },
+      { figs: [["arc-08", ""]], n: 1 },
+      { t: "Reflection" },
+      { quote: "This project required me to think about sustainability in physical design, which I haven't done before. If I could do it again, I would allocate my time differently. I would give myself more time for actually preparing for print, and less towards the assembly of the piece. Overall, I am happy with my final product and how it all ended up coming together." },
+      { h: "Student Film Poster Collection", p: "A collection of movie posters made for fellow SCAD student films." },
+      { figs: [["gd-mntpr", "‘Max Needs to Pay Rent’, 2025, Digital Illustration"], ["gd-focus", "‘Focus Goggles’, 2025, Digital Illustration"]], kind: "posters2" },
+      { figs: [["gd-nina2", "‘NINA’ 02, 2024, Digital Illustration"], ["gd-nina1", "‘NINA’ 01, 2024, Digital Illustration"]], kind: "posters2" },
+      { h: "Personal Design Collection", p: "A collection of graphic design work personal to me." },
+      { t: "“Chloris’ Madonna” 2025, Digital Illustration" },
+      { figs: [["gd-chloris", ""], ["gd-chloris2", ""], ["gd-chloris3", ""]], n: 3 },
+      { t: "‘ESCAPE WILL MAKE ME GOD’ 2025, Digital Illustration", p: "Characters depicted are from Bungie’s ‘Marathon’" },
+      { figs: [["gd-escape", ""]], n: 1 },
+      { t: "Personal Brand Logo and Identity, 2025, Digital Illustration" },
+      { figs: [["gd-brand", ""]], n: 1 },
+      { t: "Big Bend National Park" },
+      { figs: [["gd-bigbend2", "‘Big Bend National Park 02’, 2025, Digital Illustration"], ["gd-bigbend1", "‘Big Bend National Park 01’, 2024, Digital Illustration"]], kind: "posters2" },
+      { t: "Teacher Student Association T-Shirt Design 2023, Digital Illustration" },
+      { figs: [["gd-tsa", ""]], kind: "narrow" },
+      { h: "Typography Studies", p: "A collection of graphic design work focused on typography and typographic elements." },
+      { t: "Highway Gothic Study", p: "Both of these works are a part of a larger collection." },
+      { figs: [["gd-hwy-poster", "Highway Gothic Poster"], ["gd-type", "Highway Gothic Editorial"]] },
+      { t: "Farmers Market Posters", p: "This next series of posters was designed only with specific typographic elements. No other shapes were allowed during this design challenge." },
+      { figs: [["gd-farm1", "Poster 1 - No Color, 1 font size"], ["gd-farm2", "Poster 2 - No Color, Multiple font sizes"]], kind: "posters2" },
+      { figs: [["gd-farm3", "Poster 3 - Color Allowed, Limited shape usage"], ["gd-farm4", "Poster 4 - No limits"]], kind: "posters2" } ] },
   { id: "fridge-research", tab: "Research", cover: "fr-front", blurb: "The Ideal Fridge study", title: "The Ideal Fridge", lede: "A team research study into how people use their refrigerators, published as a printed magazine. I designed the front and back covers.",
     blocks: [
       { figs: [["fr-hero", "The finished magazine"]], n: 1 },
@@ -952,10 +969,11 @@ function figs(list, n, kind) {
   const cls = "figs" + (kind ? " " + kind : "") + (!kind && cols === 1 ? " one" : "");
   const style = kind ? "" : ' style="--n:' + cols + '"';
   return `<div class="${cls}"${style}>${list.map(([k, c]) =>
-    `<figure><div class="img fit">${media(k, c)}</div><figcaption>${esc(c)}</figcaption></figure>`).join("")}</div>`;
+    `<figure><div class="img fit">${media(k, c)}</div>${c ? `<figcaption>${esc(c)}</figcaption>` : ""}</figure>`).join("")}</div>`;
 }
 const todo = t => `<p class="todo"><b>To add:</b> ${esc(t)}</p>`;
 function block(b) {
+  if (b.t) return `<h4 class="piece-h">${esc(b.t)}</h4>` + (b.p ? `<p class="col piece-p">${esc(b.p)}</p>` : "");
   if (b.h) return `<h3 class="sub-h">${esc(b.h)}</h3>` + (b.p ? `<p class="col sub-p">${esc(b.p)}</p>` : "");
   if (b.p) return `<p class="col">${esc(b.p)}</p>`;
   if (b.quote) return `<blockquote class="col pull"><p>${esc(b.quote)}</p>${b.by ? `<cite>${esc(b.by)}</cite>` : ""}</blockquote>`;
@@ -1055,9 +1073,11 @@ function mountProto(path) {
     .catch(() => { if (slot.isConnected) slot.textContent = "The prototype couldn’t load here."; });
 }
 
-/* Beyond UX: four section cards. They start large; once scrolled past they collapse into a
-   slim tab bar pinned under the header. The selected card decides what shows below. */
-const buxPanel = o => `<div class="piece bux-piece"><h2>${esc(o.title)}</h2><p class="col" style="color:var(--muted)">${esc(o.lede)}</p>${o.blocks.map(block).join("")}</div>`;
+/* Beyond UX: four section cards. As you scroll they stay where they are and squish: the card
+   images shrink to a slim strip that stays pinned under the header. The selected card decides
+   what shows below. The cards' box keeps its full height in the layout and is pinned with a
+   negative offset, so the content below never jumps while they shrink. */
+const buxPanel = o => `<div class="piece bux-piece sec-${o.id}"><h2>${esc(o.title)}</h2><p class="col" style="color:var(--muted)">${esc(o.lede)}</p>${o.blocks.map(block).join("")}</div>`;
 function viewOther(sel) {
   const cur = OTHER.find(o => o.id === sel) || OTHER[0];
   return `<section class="intro bux-intro">
@@ -1071,17 +1091,43 @@ function viewOther(sel) {
         <span class="bux-m">${esc(o.blurb)}</span>
       </button>`).join("")}
     </div>
-    <div class="bux-bar" aria-hidden="true"><div class="wrap">${OTHER.map(o => `<button class="bux-tab${o === cur ? " on" : ""}" type="button" tabindex="-1" data-sec="${o.id}"><span class="bux-thumb">${media(o.cover, "", true)}</span>${esc(o.tab)}</button>`).join("")}</div></div>
     <section class="bux-panel" id="bux-panel" role="tabpanel" aria-labelledby="tab-${cur.id}">${buxPanel(cur)}</section>`;
 }
-let buxObs = null;
+let bux = null;
 function initBux() {
-  if (buxObs) { buxObs.disconnect(); buxObs = null; }
-  const cards = document.querySelector(".bux-cards"), bar = document.querySelector(".bux-bar");
-  if (!cards || !bar) return;
-  // Show the slim bar once the big cards have scrolled up under the header
-  buxObs = new IntersectionObserver(([e]) => bar.classList.toggle("show", !e.isIntersecting && e.boundingClientRect.top < 0), { rootMargin: "-124px 0px 0px 0px" });
-  buxObs.observe(cards);
+  if (bux) { removeEventListener("scroll", bux.onScroll); removeEventListener("resize", bux.onResize); bux = null; }
+  const c = document.querySelector(".bux-cards");
+  if (!c) return;
+  const st = { p: -1, D: 1, small: 0, raf: 0 };
+  const headerBottom = () => document.querySelector(".top").getBoundingClientRect().bottom;
+  const update = () => {
+    st.raf = 0;
+    const p = Math.min(1, Math.max(0, (headerBottom() - c.getBoundingClientRect().top) / st.D));
+    if (Math.abs(p - st.p) < .001) return;
+    st.p = p; c.style.setProperty("--p", p.toFixed(3));
+  };
+  const measure = () => {
+    if (!c.isConnected) return;
+    c.style.height = ""; c.style.top = "";
+    c.style.setProperty("--p", 0);
+    const w = c.querySelector(".bux-img").offsetWidth;
+    c.style.setProperty("--img-h", Math.round(w * (innerWidth <= 560 ? 4 / 3 : 5 / 4)) + "px");
+    const full = c.offsetHeight;
+    c.style.setProperty("--p", 1);
+    st.small = c.offsetHeight;
+    st.D = Math.max(1, full - st.small);
+    c.style.height = full + "px";
+    c.style.top = (headerBottom() - st.D) + "px";
+    st.p = -1; update();
+  };
+  st.onScroll = () => { if (!st.raf) st.raf = requestAnimationFrame(update); };
+  let rt; st.onResize = () => { clearTimeout(rt); rt = setTimeout(measure, 120); };
+  addEventListener("scroll", st.onScroll, { passive: true });
+  addEventListener("resize", st.onResize);
+  st.collapsedBottom = () => headerBottom() + st.small;
+  bux = st;
+  measure();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
 }
 function selectBux(id, focusTab) {
   const o = OTHER.find(x => x.id === id), panel = document.getElementById("bux-panel");
@@ -1093,14 +1139,11 @@ function selectBux(id, focusTab) {
     b.classList.toggle("on", on);
     if (b.getAttribute("role") === "tab") { b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1; if (on && focusTab) b.focus(); }
   });
-  const strip = document.querySelector(".bux-bar .wrap"), tab = strip && strip.querySelector(".bux-tab.on");
-  if (tab) { const r = tab.getBoundingClientRect(), sr = strip.getBoundingClientRect();
-    if (r.left < sr.left || r.right > sr.right) strip.scrollLeft += r.left - sr.left - 8; }
   history.replaceState(null, "", "#beyond-ux/" + id);
   lastId = "beyond-ux/" + id;
-  // If we're already scrolled into the content, jump to the top of the new section (just under the bar)
-  const top = panel.getBoundingClientRect().top, under = 60 + 62;
-  if (top < under) window.scrollTo(0, window.scrollY + top - under - 8);
+  // If we're already scrolled into the content, jump to the top of the new section (just under the squished cards)
+  const top = panel.getBoundingClientRect().top, under = bux ? bux.collapsedBottom() : 140;
+  if (top < under) window.scrollTo(0, window.scrollY + top - under - 16);
 }
 
 function row(r) {
