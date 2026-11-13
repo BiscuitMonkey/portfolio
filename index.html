@@ -84,6 +84,8 @@ img, video { display: block; max-width: 100%; }
 .top nav a[aria-current="page"] { color: var(--ink); }
 .top nav button { background: none; border: 0; padding: 4px; margin-left: 4px; color: var(--muted); display: grid; place-items: center; }
 .top nav button:hover { color: var(--link); }
+.nav-tools { display: flex; align-items: center; gap: 2px; }
+.top nav button[hidden] { display: none; }
 .top nav button svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 
 main { padding-block: 56px 96px; }
@@ -296,7 +298,7 @@ footer { border-top: 1px solid var(--line); }
 
 <header class="top"><div class="wrap">
   <div class="brand"><a class="name" href="#">Jack Walker</a><nav id="crumb" class="crumb" aria-label="Breadcrumb"></nav></div>
-  <nav aria-label="Main"><a href="#" data-nav="work">Home</a><a href="#beyond-ux" data-nav="other">Beyond UX</a><a href="#about" data-nav="about">About</a><button id="mode" type="button" aria-label="Switch color theme"></button></nav>
+  <nav aria-label="Main"><a href="#" data-nav="work">Home</a><a href="#beyond-ux" data-nav="other">Beyond UX</a><a href="#about" data-nav="about">About</a><span class="nav-tools"><button id="cur-toggle" type="button" hidden></button><button id="mode" type="button" aria-label="Switch color theme"></button></span></nav>
 </div></header>
 <main id="app" class="wrap"></main>
 <dialog id="lb" aria-label="Image preview"><img alt=""><p></p></dialog>
@@ -1244,8 +1246,29 @@ document.addEventListener("click", e => {
   if (!matchMedia("(pointer: fine)").matches) return;
   const cur = $("#cur"), dot = $("#cur-dot"), ring = $("#cur-ring"), glyph = $("#cur-glyph");
   if (!cur) return;
-  document.body.classList.add("has-cursor");
   cur.classList.add("off");
+  // Visitors can switch the custom cursor off; the choice is remembered.
+  const btn = $("#cur-toggle");
+  let enabled = true;
+  try { enabled = localStorage.getItem("cursor") !== "off"; } catch (e) {}
+  const ICON_ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5l11.5 9-5.2.9 2.9 5.8-2.3 1.1-2.9-5.8-4 3.6z"/></svg>';
+  const ICON_RING = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/></svg>';
+  const apply = () => {
+    document.body.classList.toggle("has-cursor", enabled);
+    if (!enabled) cur.classList.add("off");
+    const label = enabled ? "Use standard cursor" : "Use custom cursor";
+    btn.innerHTML = enabled ? ICON_ARROW : ICON_RING;
+    btn.setAttribute("aria-label", label); btn.title = label;
+  };
+  if (btn) {
+    btn.hidden = false;
+    btn.addEventListener("click", () => {
+      enabled = !enabled;
+      try { localStorage.setItem("cursor", enabled ? "on" : "off"); } catch (e) {}
+      apply();
+      if (enabled) { rx = x; ry = y; dot.style.translate = ring.style.translate = x + "px " + y + "px"; cur.classList.remove("off"); }
+    });
+  }
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let x = -60, y = -60, rx = -60, ry = -60, moving = false;
   const step = () => {
@@ -1254,9 +1277,11 @@ document.addEventListener("click", e => {
     ring.style.translate = rx.toFixed(1) + "px " + ry.toFixed(1) + "px";
     if (moving) requestAnimationFrame(step);
   };
+  if (btn) apply(); else document.body.classList.add("has-cursor");
   addEventListener("pointermove", e => {
     if (e.pointerType === "touch") return;
     x = e.clientX; y = e.clientY;
+    if (!enabled) return;
     cur.classList.remove("off");
     dot.style.translate = x + "px " + y + "px";
     if (still) { rx = x; ry = y; ring.style.translate = x + "px " + y + "px"; }
