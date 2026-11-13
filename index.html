@@ -470,6 +470,11 @@ const ASCII_CFG = {
   ambient: true, ambientStrength: .9, ambientBlobs: 4, ambientRadius: [50, 100],
   parallax: true, parallaxTilt: 2, parallaxShift: 8, wobbleAmount: .05
 };
+/* Field alpha → photo alpha. A wide smoothstep ramp (instead of a hard
+   threshold) gives the reveal the same feathered crossfade as the name sweep. */
+const REVEAL_LO = 58, REVEAL_HI = 196;
+const smoothstep01 = t => t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t);
+const REVEAL_LUT = new Uint8ClampedArray(256).map((_, a) => Math.round(255 * smoothstep01((a - REVEAL_LO) / (REVEAL_HI - REVEAL_LO))));
 class AsciiReveal {
   constructor(el, src, opts) {
     this.el = el; this.opts = opts; this.dead = false; this.visible = true;
@@ -592,9 +597,10 @@ class AsciiReveal {
       ctx.fillText(ch, x * cell, y * cell);
     }
   }
-  /* The living layer: scrambled glyphs where the photo boils back into
-     ASCII, a stir around the cursor, an intro resolve wave, and sparse
-     twinkles. Driven by the goo field the effect already computes. */
+  /* The living layer, built like the name sweep: every glyph is weighted
+     by a continuous amount (rim of the reveal, intro wave, cursor halo) and
+     fades by that weight, so nothing pops on or off. Glyphs only shimmer one
+     density step either side of the photo's tone, at a calm ~9 Hz. */
   drawOverlay(now, t) {
     const g = this.grid;
     if (!g || !this.alphaPre) return;
@@ -606,64 +612,50 @@ class AsciiReveal {
     const fw = this.field.width, fh = this.field.height, fs = this.fscale;
     const pre = this.alphaPre;
     const ink = "rgb(" + this.inkRgb + ")";
-    const introAge = now - this.introT0, introSpan = 1100;
-    const intro = introAge < introSpan * 1.3;
-    const cx = this.cur.x, cy = this.cur.y;
-    const lens = this.opts.lensRadius, halo = lens * 1.6;
+    const introAge = now - this.introT0, introSpan = 1500, introFade = 520;
+    const intro = introAge < introSpan + introFade;
+    const cx = this.cur.x, cy = this.cur.y, inside = this.pointer.inside;
+    const lens = this.opts.lensRadius, halo = lens * 1.7;
     const nch = chars.length - 1;
+    const tick = Math.floor(now / 110);
+    const ss = smoothstep01;
     for (let y = 0; y < g.rows; y++) {
       for (let x = 0; x < g.cols; x++) {
         const gi = y * g.cols + x, h01 = g.hash[gi];
         const pxc = (x + .5) * cell, pyc = (y + .5) * cell;
         const fx = Math.min(fw - 1, (pxc * fs) | 0), fy = Math.min(fh - 1, (pyc * fs) | 0);
-        const a = pre[fy * fw + fx];
-        if (a > 200) continue;
+        const ph = REVEAL_LUT[pre[fy * fw + fx]] / 255; // how much photo shows here
         const lum = g.lum[gi];
-        let draw = false, alpha = 0, color = ink, ch = "", cover = false;
+        // Rim: peaks where the photo is half faded in, zero at either side.
+        let w = Math.sin(Math.PI * ph) * .9;
+        // Intro: each cell resolves from a covered, shimmering state on a soft ramp.
+        let cover = 0;
         if (intro) {
-          const delay = ((x + y) / (g.cols + g.rows)) * introSpan * .8 + h01 * introSpan * .3;
-          if (introAge < delay) {
-            ch = chars[1 + (((h01 * 997) | 0) + ((t * 14) | 0)) % nch];
-            alpha = .3 + .3 * h01;
-            draw = true;
-            cover = true;
-          }
+          const delay = ((x + y) / (g.cols + g.rows)) * introSpan * .8 + h01 * introSpan * .25;
+          cover = 1 - ss((introAge - delay) / introFade);
+          w = Math.max(w, cover * (.45 + .25 * h01));
         }
-        if (!draw && a > 50) {
-          const k = Math.min(1, (a - 50) / 140);
-          ch = chars[1 + (((h01 * 883) | 0) + ((t * (6 + h01 * 9)) | 0)) % nch];
-          alpha = .4 + .55 * k;
-          if (h01 > .93) color = this.accentColor;
-          draw = true;
-        }
-        if (!draw && this.pointer.inside) {
+        // Halo: a gentle stir around the cursor, strongest just outside the lens.
+        if (inside && ph < .98) {
           const d = Math.hypot(pxc - cx, pyc - cy);
-          if (d < halo && d > lens * .35) {
-            const k = 1 - d / halo;
-            if (((h01 * 31 + t * (.8 + h01)) % 1) < k * .45) {
-              const base = Math.round(lum * nch);
-              ch = chars[Math.max(1, Math.min(nch, base + (((h01 * 7) | 0) % 3) - 1))];
-              alpha = .3 + .45 * k;
-              draw = true;
-            }
-          }
+          if (d < halo) w = Math.max(w, .38 * ss((halo - d) / (halo - lens * .5)) * (1 - ph));
         }
-        if (!draw) {
-          const tw = (h01 * 43 + t * .12) % 1;
-          if (tw > .985) {
-            ch = chars[Math.max(1, Math.round(lum * nch))];
-            alpha = .2 + .55 * Math.sin(((tw - .985) / .015) * Math.PI);
-            draw = true;
-          }
+        if (cover > .004) { o.globalAlpha = cover; o.fillStyle = this.washColor; o.fillRect(x * cell, y * cell, cell, cell); }
+        if (w < .03) {
+          // Rare, slow twinkles keep the still portrait breathing.
+          const tw = (h01 * 43 + t * .05) % 1;
+          if (tw < .97 || ph > .5) continue;
+          w = .5 * Math.sin(((tw - .97) / .03) * Math.PI);
+          if (w < .03) continue;
         }
-        if (!draw || ch === " ") continue;
-        if (cover) { o.fillStyle = this.washColor; o.fillRect(x * cell, y * cell, cell, cell); }
-        o.globalAlpha = alpha;
-        o.fillStyle = color;
-        o.fillText(ch, x * cell, y * cell);
-        o.globalAlpha = 1;
+        const idx = Math.max(1, Math.min(nch, Math.round(lum * nch) + (((h01 * 97 + tick) | 0) % 3) - 1));
+        const jit = (1 - w) * 1.6;
+        o.globalAlpha = w;
+        o.fillStyle = (ph > .15 && ph < .85 && h01 > .94) ? this.accentColor : ink;
+        o.fillText(chars[idx], x * cell + (h01 - .5) * 2 * jit, y * cell + (((h01 * 7) % 1) - .5) * 2 * jit);
       }
     }
+    o.globalAlpha = 1;
   }
   stamp(x, y, r, bornAt) {
     const d = { x, y, r, born: bornAt, seed: Math.random() * Math.PI * 2 };
@@ -767,7 +759,8 @@ class AsciiReveal {
       for (let i = 3, j = 0; i < pix.length; i += 4, j++) {
         const a = pix[i];
         pre[j] = a;
-        pix[i] = a < 96 ? 0 : a > 168 ? 255 : (((a - 96) * 3.54) | 0);
+        // Soft, feathered edge: the photo crossfades in rather than snapping on.
+        pix[i] = REVEAL_LUT[a];
       }
       f.putImageData(id, 0, 0);
       const rc = this.rctx;
@@ -1029,10 +1022,10 @@ function initNameFx() {
     G = { dpr, W, H, ox: wr.left - hr.left, oy: wr.top - hr.top, cells };
   };
 
-  const easeIO = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const easeIO = t => -(Math.cos(Math.PI * t) - 1) / 2; // sine in-out: no sudden rush mid-sweep
   const smooth = t => t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t);
-  const HALF = 60, FEATH = 110, DUR = 1700; // sweep band core, crossfade, duration
-  const R = 64, RF = 46;                    // hover lens radius, crossfade
+  const HALF = 56, FEATH = 130, DUR = 3200; // sweep band core, crossfade, duration
+  const R = 30, RF = 30;                    // hover lens radius, crossfade
   const hov = { in: false, x: 0, y: 0, cx: 0, cy: 0, s: 0 };
   let sweepT0 = -1, running = false, ink = "#161917", acc = "#007F3F";
   const readColors = () => {
@@ -1073,7 +1066,7 @@ function initNameFx() {
     ctx.clearRect(0, 0, G.W, G.H);
     ctx.font = "700 " + CELL + "px ui-monospace, Menlo, Consolas, monospace";
     ctx.textBaseline = "top";
-    const tick = Math.floor(now / 80), n = DENS.length - 1;
+    const tick = Math.floor(now / 110), n = DENS.length - 1;
     for (const c of G.cells) {
       const mx = c.x + CELL / 2, my = c.y + CELL / 2;
       let w = 0;
@@ -1124,7 +1117,7 @@ function initNameFx() {
   const loop = () => {
     if (!h.isConnected) return;
     sweep();
-    setTimeout(loop, 5200 + Math.random() * 3800);
+    setTimeout(loop, 6800 + Math.random() * 4000);
   };
   setTimeout(loop, 1200);
 }
