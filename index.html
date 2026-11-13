@@ -89,14 +89,12 @@ img, video { display: block; max-width: 100%; }
 .top nav a:hover { color: var(--link); }
 .top nav a[aria-current="page"] { color: var(--ink); }
 .top nav { align-items: center; }
-.top nav { --hp: 1; }
-.top nav a.nav-hl { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); font-weight: 600; opacity: var(--hp); transform: translateY(calc((1 - var(--hp)) * 10px)); transition: color .15s; }
-.nav-hl-img { width: 28px; height: 20px; flex: none; border-radius: 5px; overflow: hidden; border: 1px solid var(--line); background: var(--wash); transform: scale(calc(.7 + var(--hp) * .3)); }
-.nav-hl-img img { width: 100%; height: 100%; object-fit: cover; }
-.top nav a.nav-hl:hover, .top nav a.nav-hl[aria-current="page"] { color: var(--link); }
-.top nav a.nav-hl[aria-current="page"] .nav-hl-img { border-color: var(--link); }
-.nav-sep { width: 1px; height: 18px; background: var(--line); opacity: var(--hp); margin-left: -4px; }
-.top nav .off { visibility: hidden; }
+.hdr-links { --hp: 0; display: none; align-items: center; gap: 18px; padding-right: 24px; margin-right: 0; border-right: 1px solid transparent; }
+.on-home .hdr-links { display: flex; border-right-color: color-mix(in srgb, var(--line) calc(var(--hp) * 100%), transparent); }
+.hdr-links.off { visibility: hidden; }
+.top nav .hdr-links a { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; --o: clamp(0, calc(var(--hp) * 1.75 - var(--i) * .25), 1); opacity: var(--o); transform: translateY(calc((1 - var(--o)) * 10px)); }
+.hdr-links svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+@media (max-width: 1040px) { .on-home .hdr-links { display: none; } }
 .top nav button { background: none; border: 0; padding: 4px; margin-left: 4px; color: var(--muted); display: grid; place-items: center; }
 .top nav button:hover { color: var(--link); }
 .nav-tools { display: flex; align-items: center; gap: 2px; }
@@ -363,11 +361,7 @@ footer { border-top: 1px solid var(--line); }
 @media (max-width: 560px) {
   body { font-size: 17px; }
   main { padding-block: 36px 72px; }
-  .top .wrap { height: auto; flex-wrap: wrap; padding-block: 12px 10px; row-gap: 8px; }
-  .top .brand { flex: 1 0 100%; }
-  .top nav { flex: 1 0 100%; gap: 14px; align-items: center; justify-content: space-between; }
-  .top nav .nav-tools { margin-left: auto; }
-  .nav-sep { display: none; }
+  .top nav { gap: 12px; align-items: center; }
   .top nav a { font-size: 14.5px; white-space: nowrap; }
   .top .name { white-space: nowrap; font-size: 17px; }
   .top .crumb { display: none; }
@@ -389,13 +383,12 @@ footer { border-top: 1px solid var(--line); }
   .bux-panel { margin-top: 40px; }
   .cs-body { gap: 56px; margin-top: 56px; }
 }
-@media (max-width: 400px) { .top nav { gap: 10px; } .top nav a { font-size: 14px; } .top nav button { margin-left: 0; } .nav-tools { gap: 0; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
 <header class="top"><div class="wrap">
   <div class="brand"><a class="name" href="#"><svg class="logo" viewBox="186 98 390 502" aria-hidden="true"><path class="logo-bar" d="M449.77 594.89 314.75 102.24h123.36l131.6 492.65z"/><path fill="#007F3F" d="M191.59 102.24h123.16V225.4H191.59zM191.59 286.98h123.16v123.16H191.59zM191.59 471.73h123.16v123.16H191.59z"/></svg><span>Jack Walker</span></a><nav id="crumb" class="crumb" aria-label="Breadcrumb"></nav></div>
-  <nav aria-label="Main"><a class="nav-hl off" href="#quarters" data-nav="hl"><span class="nav-hl-img"></span><span class="nav-hl-t">Quarters</span></a><span class="nav-sep" aria-hidden="true"></span><a href="#" data-nav="work">Home</a><a href="#beyond-ux" data-nav="other">Beyond UX</a><a href="#about" data-nav="about">About</a><span class="nav-tools"><button id="mode" type="button" aria-label="Switch color theme"></button><button id="cur-toggle" type="button" hidden></button></span></nav>
+  <nav aria-label="Main"><span class="hdr-links" id="hdr-links"><a style="--i:0" href="mailto:walkerajack@gmail.com" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Email</a><a style="--i:1" href="https://www.linkedin.com/in/jack-walker-b20035321/" target="_blank" rel="noopener" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a3.5 3.5 0 0 0 5 0l4-4a3.5 3.5 0 0 0-5-5l-2 2"/><path d="M14 10a3.5 3.5 0 0 0-5 0l-4 4a3.5 3.5 0 0 0 5 5l2-2"/></svg>LinkedIn</a><a style="--i:2" href="https://www.instagram.com/trailwlk.r/" target="_blank" rel="noopener" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="12" cy="12" r="3.8"/><circle cx="17" cy="7" r="1" fill="currentColor" stroke="none"/></svg>Instagram</a><a style="--i:3" href="https://docs.google.com/document/d/1W2idFMJRs5636LlhtmxSSqJZcpYce-FCKtDAANgGB-8/preview" target="_blank" rel="noopener" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6"/></svg>Résumé</a></span><a href="#" data-nav="work">Home</a><a href="#beyond-ux" data-nav="other">Beyond UX</a><a href="#about" data-nav="about">About</a><span class="nav-tools"><button id="mode" type="button" aria-label="Switch color theme"></button><button id="cur-toggle" type="button" hidden></button></span></nav>
 </div></header>
 <main id="app" class="wrap"></main>
 <dialog id="lb" aria-label="Image preview"><img alt=""><p></p></dialog>
@@ -1182,30 +1175,30 @@ function viewOther(sel) {
     </div>
     <section class="bux-panel" id="bux-panel" role="tabpanel" aria-labelledby="tab-${cur.id}">${buxPanel(cur)}</section>`;
 }
-/* The highlighted project's nav link: on the home page it slides into the nav as the
-   highlighted card scrolls up under the header; everywhere else it's simply there. */
-let navHl = null;
-function initNavHl() {
-  if (navHl) { removeEventListener("scroll", navHl); navHl = null; }
-  const nav = document.querySelector('nav[aria-label="Main"]'), link = document.querySelector(".nav-hl");
-  if (!nav || !link) return;
-  const sep = nav.querySelector(".nav-sep");
-  const set = p => {
-    nav.style.setProperty("--hp", p.toFixed(3));
-    const off = p < .02; link.classList.toggle("off", off); if (sep) sep.classList.toggle("off", off);
-    link.tabIndex = p > .5 ? 0 : -1;
-  };
-  const card = document.querySelector(".card.hl");
-  if (!card) { set(1); return; }
+let homeLinks = null;
+function initHomeLinks() {
+  if (homeLinks) { removeEventListener("scroll", homeLinks.on); removeEventListener("resize", homeLinks.on); homeLinks = null; }
+  const q = document.querySelector(".intro .qlinks"), hl = document.getElementById("hdr-links");
+  document.body.classList.toggle("on-home", !!q);
+  if (!q || !hl) return;
+  const hb = () => document.querySelector(".top").getBoundingClientRect().bottom;
   let raf = 0, last = -1;
   const update = () => {
     raf = 0;
-    const hb = document.querySelector(".top").getBoundingClientRect().bottom;
-    const p = Math.min(1, Math.max(0, (hb + 60 - card.getBoundingClientRect().top) / 120));
-    if (Math.abs(p - last) < .002) return; last = p; set(p);
+    // 0 while the pills sit well below the header, 1 once they've slid up under it
+    const shown = getComputedStyle(hl).display !== "none"; // the nav links only exist on wide screens
+    const p = shown ? Math.min(1, Math.max(0, (hb() + 90 - q.getBoundingClientRect().top) / 100)) : 0;
+    if (Math.abs(p - last) < .002) return; last = p;
+    q.style.opacity = (1 - p).toFixed(3);
+    q.style.transform = `translateY(${(-12 * p).toFixed(1)}px)`;
+    hl.style.setProperty("--hp", p.toFixed(3));
+    hl.classList.toggle("off", p < .02);
+    hl.querySelectorAll("a").forEach(a => a.tabIndex = p > .5 ? 0 : -1);
   };
-  navHl = () => { if (!raf) raf = requestAnimationFrame(update); };
-  addEventListener("scroll", navHl, { passive: true });
+  const on = () => { if (!raf) raf = requestAnimationFrame(update); };
+  addEventListener("scroll", on, { passive: true });
+  addEventListener("resize", on);
+  homeLinks = { on };
   update();
 }
 let bux = null;
@@ -1465,7 +1458,7 @@ function render() {
   const cameFrom = ALL.find(x => x.id === lastId);
   lastId = id;
   let html, nav = "work";
-  if (p) { html = viewCase(p); nav = p.highlight ? "hl" : ""; }
+  if (p) { html = viewCase(p); nav = ""; }
   else if (isBux) { html = viewOther(sub); nav = "other"; }
   else if (id === "about") { html = viewAbout(); nav = "about"; }
   else html = viewHome();
@@ -1487,18 +1480,10 @@ function render() {
   initNameFx();
   if (p && p.proto) mountProto(p.proto);
   initBux();
-  initNavHl();
+  initHomeLinks();
 }
 
 document.body.classList.toggle("draft-off", !DRAFT);
-(function () { // nav link to the highlighted project
-  const hp = ALL.find(x => x.highlight), a = document.querySelector(".nav-hl");
-  if (!a) return;
-  if (!hp) { a.remove(); return; }
-  a.href = "#" + hp.id;
-  a.querySelector(".nav-hl-t").textContent = hp.title;
-  a.querySelector(".nav-hl-img").innerHTML = media(hp.hero, "");
-})();
 document.addEventListener("click", e => {
   const zi = e.target.closest("figure .img.fit img");
   if (zi) { const lb = $("#lb"); const li = lb.querySelector("img"); li.src = zi.src; li.alt = zi.alt || ""; lb.querySelector("p").textContent = zi.closest("figure")?.querySelector("figcaption")?.textContent || ""; document.body.classList.add("lb-open"); lb.showModal(); return; }
