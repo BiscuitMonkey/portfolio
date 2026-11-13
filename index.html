@@ -73,7 +73,10 @@ img, video { display: block; max-width: 100%; }
 .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 60px; }
 .top .name { font-weight: 700; font-size: 18px; color: var(--ink); text-decoration: none; transition: color .15s; }
 .top .name:hover, .top .name:focus-visible { color: var(--link); }
-.brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.top .name { display: inline-flex; align-items: center; gap: 9px; }
+.logo { height: 22px; width: auto; flex: none; }
+.logo-bar { fill: var(--ink); }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .crumb { color: var(--muted); font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .crumb:not(:empty)::before { content: "/"; margin-right: 8px; }
 .top .crumb { display: block; gap: 0; }
@@ -85,6 +88,13 @@ img, video { display: block; max-width: 100%; }
 .top nav a { color: var(--muted); text-decoration: none; font-size: 16px; font-weight: 500; }
 .top nav a:hover { color: var(--link); }
 .top nav a[aria-current="page"] { color: var(--ink); }
+.top nav { align-items: center; }
+.hdr-links { --hp: 0; display: none; align-items: center; gap: 18px; padding-right: 24px; margin-right: 0; border-right: 1px solid transparent; }
+.on-home .hdr-links { display: flex; border-right-color: color-mix(in srgb, var(--line) calc(var(--hp) * 100%), transparent); }
+.hdr-links.off { visibility: hidden; }
+.top nav .hdr-links a { display: inline-flex; align-items: center; gap: 6px; font-size: 15px; --o: clamp(0, calc(var(--hp) * 1.75 - var(--i) * .25), 1); opacity: var(--o); transform: translateY(calc((1 - var(--o)) * 10px)); }
+.hdr-links svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+@media (max-width: 1040px) { .on-home .hdr-links { display: none; } }
 .top nav button { background: none; border: 0; padding: 4px; margin-left: 4px; color: var(--muted); display: grid; place-items: center; }
 .top nav button:hover { color: var(--link); }
 .nav-tools { display: flex; align-items: center; gap: 2px; }
@@ -263,10 +273,26 @@ figure .img.fit img { cursor: zoom-in; }
 .bux-panel { margin-top: 56px; }
 .bux-piece { margin-top: 0; padding-top: 0; border-top: 0; counter-reset: sub; }
 .bux-piece > h2 { font-size: clamp(32px, 4vw, 44px); font-weight: 800; letter-spacing: -0.02em; }
-.bux-piece .sub-h { counter-increment: sub; margin-top: 104px; padding-top: 32px; border-top: 1px solid var(--line); font-size: clamp(26px, 3vw, 32px); font-weight: 800; letter-spacing: -0.015em; line-height: 1.15; }
+.bux-piece .sub-h { counter-increment: sub; margin: 0; font-size: clamp(24px, 2.8vw, 30px); font-weight: 800; letter-spacing: -0.015em; line-height: 1.15; }
+.projs { display: grid; margin-top: 8px; border-bottom: 1px solid var(--line); }
+.proj { border-top: 1px solid var(--line); padding: 28px 0; }
+.proj-tools { display: flex; justify-content: flex-end; margin-top: 24px; }
+.proj-all { font: inherit; font-size: 15px; font-weight: 600; color: var(--muted); background: none; border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+.proj-all:hover { color: var(--link); border-color: var(--link); }
+.proj-toggle { font: inherit; color: inherit; letter-spacing: inherit; background: none; border: 0; padding: 0; width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 20px; text-align: left; cursor: pointer; }
+.proj-toggle:hover .proj-title, .proj-toggle:hover .proj-chev { color: var(--link); }
+.proj-chev { width: 28px; height: 28px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; color: var(--muted); transition: transform .3s ease, color .15s; }
+.proj.closed .proj-chev { transform: rotate(-90deg); }
+.proj .sub-p { margin-top: 10px; }
+.proj-body { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .45s ease; }
+.proj.closed .proj-body { grid-template-rows: 0fr; }
+.proj-clip { min-height: 0; overflow: hidden; }
+.proj.closed .proj-clip { visibility: hidden; transition: visibility 0s .45s; }
+.proj-inner { display: grid; gap: 20px; padding: 36px 0 32px; }
+.sec-graphic-design .proj-inner { gap: 28px; }
 .bux-piece .sub-h::before { content: counter(sub, decimal-leading-zero); display: block; margin-bottom: 12px; font-size: 14px; font-weight: 700; letter-spacing: .06em; color: var(--link); }
-.bux-piece .sub-h:first-of-type { margin-top: 48px; }
-.bux-piece .sub-p { font-size: 17px; margin-top: -8px; max-width: 62ch; }
+
+.bux-piece .sub-p { font-size: 17px; max-width: 62ch; color: var(--muted); }
 .toc { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 8px; }
 
 /* About */
@@ -339,7 +365,8 @@ footer { border-top: 1px solid var(--line); }
   .pull p { font-size: 18px; }
   .bux-cards { gap: 8px; }
   .bux-card { padding: calc(9px * var(--p)) calc(9px * var(--p)); }
-  .bux-piece .sub-h { margin-top: 80px; }
+  .proj { padding: 22px 0; }
+  .proj-chev { width: 24px; height: 24px; }
   .bux-t { font-size: calc(13px - 1px * var(--p)); white-space: normal; line-height: 1.2; min-height: 2.4em; }
   .bux-m { display: none; }
   .bux-panel { margin-top: 40px; }
@@ -349,8 +376,8 @@ footer { border-top: 1px solid var(--line); }
 </style>
 
 <header class="top"><div class="wrap">
-  <div class="brand"><a class="name" href="#">Jack Walker</a><nav id="crumb" class="crumb" aria-label="Breadcrumb"></nav></div>
-  <nav aria-label="Main"><a href="#" data-nav="work">Home</a><a href="#beyond-ux" data-nav="other">Beyond UX</a><a href="#about" data-nav="about">About</a><span class="nav-tools"><button id="mode" type="button" aria-label="Switch color theme"></button><button id="cur-toggle" type="button" hidden></button></span></nav>
+  <div class="brand"><a class="name" href="#"><svg class="logo" viewBox="186 98 390 502" aria-hidden="true"><path class="logo-bar" d="M449.77 594.89 314.75 102.24h123.36l131.6 492.65z"/><path fill="#007F3F" d="M191.59 102.24h123.16V225.4H191.59zM191.59 286.98h123.16v123.16H191.59zM191.59 471.73h123.16v123.16H191.59z"/></svg><span>Jack Walker</span></a><nav id="crumb" class="crumb" aria-label="Breadcrumb"></nav></div>
+  <nav aria-label="Main"><span class="hdr-links" id="hdr-links"><a style="--i:0" href="mailto:walkerajack@gmail.com" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Email</a><a style="--i:1" href="https://www.linkedin.com/in/jack-walker-b20035321/" target="_blank" rel="noopener" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a3.5 3.5 0 0 0 5 0l4-4a3.5 3.5 0 0 0-5-5l-2 2"/><path d="M14 10a3.5 3.5 0 0 0-5 0l-4 4a3.5 3.5 0 0 0 5 5l2-2"/></svg>LinkedIn</a><a style="--i:2" href="https://www.instagram.com/trailwlk.r/" target="_blank" rel="noopener" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="12" cy="12" r="3.8"/><circle cx="17" cy="7" r="1" fill="currentColor" stroke="none"/></svg>Instagram</a><a style="--i:3" href="https://docs.google.com/document/d/1W2idFMJRs5636LlhtmxSSqJZcpYce-FCKtDAANgGB-8/preview" target="_blank" rel="noopener" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6"/></svg>Résumé</a></span><a href="#" data-nav="work">Home</a><a href="#beyond-ux" data-nav="other">Beyond UX</a><a href="#about" data-nav="about">About</a><span class="nav-tools"><button id="mode" type="button" aria-label="Switch color theme"></button><button id="cur-toggle" type="button" hidden></button></span></nav>
 </div></header>
 <main id="app" class="wrap"></main>
 <dialog id="lb" aria-label="Image preview"><img alt=""><p></p></dialog>
@@ -1096,7 +1123,31 @@ function mountProto(path) {
    images shrink to a slim strip that stays pinned under the header. The selected card decides
    what shows below. The cards' box keeps its full height in the layout and is pinned with a
    negative offset, so the content below never jumps while they shrink. */
-const buxPanel = o => `<div class="piece bux-piece sec-${o.id}"><h2>${esc(o.title)}</h2><p class="col" style="color:var(--muted)">${esc(o.lede)}</p>${o.blocks.map(block).join("")}</div>`;
+const CHEV = '<svg class="proj-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+function buxPanel(o) {
+  // Split the section into its projects: everything after each heading block belongs to it
+  const groups = [{ head: null, blocks: [] }];
+  for (const b of o.blocks) { if (b.h) groups.push({ head: b, blocks: [] }); else groups[groups.length - 1].blocks.push(b); }
+  const intro = groups[0].blocks.map(block).join(""), projs = groups.slice(1);
+  const list = projs.map((g, i) => `
+    <section class="proj${i ? " closed" : ""}">
+      <h3 class="sub-h"><button class="proj-toggle" type="button" aria-expanded="${!i}" aria-controls="proj-${o.id}-${i}"><span class="proj-title">${esc(g.head.h)}</span>${CHEV}</button></h3>
+      ${g.head.p ? `<p class="col sub-p">${esc(g.head.p)}</p>` : ""}
+      <div class="proj-body" id="proj-${o.id}-${i}"><div class="proj-clip"><div class="proj-inner">${g.blocks.map(block).join("")}</div></div></div>
+    </section>`).join("");
+  return `<div class="piece bux-piece sec-${o.id}"><h2>${esc(o.title)}</h2><p class="col" style="color:var(--muted)">${esc(o.lede)}</p>${intro}
+    ${projs.length > 1 ? `<div class="proj-tools"><button class="proj-all" type="button">Expand all</button></div>` : ""}
+    <div class="projs">${list}</div></div>`;
+}
+function setProj(sec, open) {
+  sec.classList.toggle("closed", !open);
+  sec.querySelector(".proj-toggle").setAttribute("aria-expanded", open);
+}
+function syncProjAll(root) {
+  const btn = root.querySelector(".proj-all"); if (!btn) return;
+  const anyClosed = !!root.querySelector(".proj.closed");
+  btn.textContent = anyClosed ? "Expand all" : "Collapse all";
+}
 function viewOther(sel) {
   const cur = OTHER.find(o => o.id === sel) || OTHER[0];
   return `<section class="intro bux-intro">
@@ -1111,6 +1162,32 @@ function viewOther(sel) {
       </button>`).join("")}
     </div>
     <section class="bux-panel" id="bux-panel" role="tabpanel" aria-labelledby="tab-${cur.id}">${buxPanel(cur)}</section>`;
+}
+let homeLinks = null;
+function initHomeLinks() {
+  if (homeLinks) { removeEventListener("scroll", homeLinks.on); removeEventListener("resize", homeLinks.on); homeLinks = null; }
+  const q = document.querySelector(".intro .qlinks"), hl = document.getElementById("hdr-links");
+  document.body.classList.toggle("on-home", !!q);
+  if (!q || !hl) return;
+  const hb = () => document.querySelector(".top").getBoundingClientRect().bottom;
+  let raf = 0, last = -1;
+  const update = () => {
+    raf = 0;
+    // 0 while the pills sit well below the header, 1 once they've slid up under it
+    const shown = getComputedStyle(hl).display !== "none"; // the nav links only exist on wide screens
+    const p = shown ? Math.min(1, Math.max(0, (hb() + 90 - q.getBoundingClientRect().top) / 100)) : 0;
+    if (Math.abs(p - last) < .002) return; last = p;
+    q.style.opacity = (1 - p).toFixed(3);
+    q.style.transform = `translateY(${(-12 * p).toFixed(1)}px)`;
+    hl.style.setProperty("--hp", p.toFixed(3));
+    hl.classList.toggle("off", p < .02);
+    hl.querySelectorAll("a").forEach(a => a.tabIndex = p > .5 ? 0 : -1);
+  };
+  const on = () => { if (!raf) raf = requestAnimationFrame(update); };
+  addEventListener("scroll", on, { passive: true });
+  addEventListener("resize", on);
+  homeLinks = { on };
+  update();
 }
 let bux = null;
 function initBux() {
@@ -1391,6 +1468,7 @@ function render() {
   initNameFx();
   if (p && p.proto) mountProto(p.proto);
   initBux();
+  initHomeLinks();
 }
 
 document.body.classList.toggle("draft-off", !DRAFT);
@@ -1398,6 +1476,10 @@ document.addEventListener("click", e => {
   const zi = e.target.closest("figure .img.fit img");
   if (zi) { const lb = $("#lb"); const li = lb.querySelector("img"); li.src = zi.src; li.alt = zi.alt || ""; lb.querySelector("p").textContent = zi.closest("figure")?.querySelector("figcaption")?.textContent || ""; document.body.classList.add("lb-open"); lb.showModal(); return; }
   if (e.target.closest("#lb")) { $("#lb").close(); return; }
+  const tg = e.target.closest(".proj-toggle");
+  if (tg) { const sec = tg.closest(".proj"); setProj(sec, sec.classList.contains("closed")); syncProjAll(sec.closest(".bux-piece")); return; }
+  const all = e.target.closest(".proj-all");
+  if (all) { const root = all.closest(".bux-piece"), open = !!root.querySelector(".proj.closed"); root.querySelectorAll(".proj").forEach(x => setProj(x, open)); syncProjAll(root); return; }
   const sec = e.target.closest("[data-sec]");
   if (sec) { selectBux(sec.dataset.sec); return; }
   const j = e.target.closest("[data-jump]");
