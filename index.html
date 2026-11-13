@@ -210,12 +210,12 @@ figure .img.fit img { cursor: zoom-in; }
 .figs.narrow { --n: 1; max-width: 560px; margin-inline: auto; width: 100%; }
 .figs.spread { --n: 1; max-width: 1040px; margin-inline: auto; width: 100%; }
 .figs.spread .img { border: 1px solid var(--line); }
-.piece-h { font-size: 17px; font-weight: 700; line-height: 1.35; margin: 36px 0 0; }
+.piece-h { font-size: 18px; font-weight: 700; line-height: 1.35; margin: 44px 0 0; }
 .piece-p { color: var(--muted); margin-top: -12px; font-size: 16.5px; }
 .sec-graphic-design { gap: 28px; }
 .sec-graphic-design .figs { gap: 32px; }
-.sec-graphic-design .sub-h { margin-top: 88px; font-size: 22px; }
-.sec-graphic-design .sub-h:first-of-type { margin-top: 24px; }
+
+
 .sec-graphic-design figcaption { margin-top: 4px; }
 .pull { margin: 8px 0 24px; padding: 4px 0 4px 20px; border-left: 3px solid var(--link); display: grid; gap: 8px; }
 .pull p { font-size: 20px; line-height: 1.5; }
@@ -244,20 +244,29 @@ figure .img.fit img { cursor: zoom-in; }
 .piece { margin-top: 80px; padding-top: 32px; border-top: 1px solid var(--line); display: grid; gap: 20px; scroll-margin-top: 80px; }
 .piece > h2 { font-size: 30px; }
 .bux-intro { padding-bottom: 0; }
-.bux-cards { --p: 0; --img-min: 44px; position: sticky; z-index: 4; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; align-items: end; margin-top: 24px; padding: 8px 0 14px; background: var(--bg); }
+.bux-cards { --p: 0; position: sticky; z-index: 4; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; align-items: end; margin-top: 24px; padding: 8px 0 14px; background: var(--bg); }
 .bux-cards::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--line); opacity: var(--p); }
-.bux-card { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; text-align: left; display: flex; flex-direction: column; justify-content: flex-end; min-width: 0; cursor: pointer; }
-.bux-img { display: block; height: calc(var(--img-h, 300px) - (var(--img-h, 300px) - var(--img-min)) * var(--p)); border-radius: calc(10px - 3px * var(--p)); overflow: hidden; border: 1px solid var(--line); background: var(--wash); outline: 2px solid transparent; outline-offset: calc(4px - 1px * var(--p)); transition: outline-color .2s; }
+.bux-card { position: relative; isolation: isolate; font: inherit; color: inherit; background: none; border: 0; margin: 0; text-align: left; display: flex; flex-direction: column; justify-content: flex-end; min-width: 0; cursor: pointer; padding: calc(11px * var(--p)) calc(16px * var(--p)); border-radius: 10px; }
+.bux-card::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); opacity: var(--p); transition: border-color .2s, background-color .2s; }
+.bux-card:hover::before { border-color: var(--link); }
+.bux-card.on::before { border-color: var(--link); background: color-mix(in srgb, var(--link) 9%, var(--bg)); }
+.bux-img { display: block; height: calc(var(--img-h, 300px) * (1 - var(--p))); opacity: calc(1 - var(--p) * 1.5); border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: var(--wash); outline: 2px solid transparent; outline-offset: 4px; transition: outline-color .2s; }
+.bux-cards.stuck .bux-img { visibility: hidden; }
 .bux-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s ease; }
 .bux-card:hover .bux-img img { transform: scale(1.035); }
-.bux-t { font-size: calc(19px - 3px * var(--p)); font-weight: 700; line-height: 1.25; margin-top: calc(10px - 3px * var(--p)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color .15s; }
+.bux-t { font-size: calc(19px - 2px * var(--p)); font-weight: 700; line-height: 1.25; margin-top: calc(10px * (1 - var(--p))); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color .15s; }
 .bux-m { font-size: 15px; color: var(--muted); line-height: 1.4; height: calc(42px * (1 - var(--p))); margin-top: calc(4px * (1 - var(--p))); opacity: calc(1 - var(--p) * 2.2); overflow: hidden; }
 .bux-card:hover .bux-t, .bux-card.on .bux-t { color: var(--link); }
-.bux-card.on .bux-img { outline-color: var(--link); }
+.bux-card.on .bux-img { outline-color: color-mix(in srgb, var(--link) calc(100% - var(--p) * 100%), transparent); }
 .bux-card:focus-visible { outline: none; }
 .bux-card:focus-visible .bux-img { outline-color: var(--link); outline-style: dashed; }
 .bux-panel { margin-top: 56px; }
-.bux-piece { margin-top: 0; padding-top: 0; border-top: 0; }
+.bux-piece { margin-top: 0; padding-top: 0; border-top: 0; counter-reset: sub; }
+.bux-piece > h2 { font-size: clamp(32px, 4vw, 44px); font-weight: 800; letter-spacing: -0.02em; }
+.bux-piece .sub-h { counter-increment: sub; margin-top: 104px; padding-top: 32px; border-top: 1px solid var(--line); font-size: clamp(26px, 3vw, 32px); font-weight: 800; letter-spacing: -0.015em; line-height: 1.15; }
+.bux-piece .sub-h::before { content: counter(sub, decimal-leading-zero); display: block; margin-bottom: 12px; font-size: 14px; font-weight: 700; letter-spacing: .06em; color: var(--link); }
+.bux-piece .sub-h:first-of-type { margin-top: 48px; }
+.bux-piece .sub-p { font-size: 17px; margin-top: -8px; max-width: 62ch; }
 .toc { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 8px; }
 
 /* About */
@@ -265,16 +274,18 @@ figure .img.fit img { cursor: zoom-in; }
 .about .photo { border-radius: 10px; overflow: hidden; background: var(--wash); aspect-ratio: 1; }
 .about .photo img { width: 100%; height: 100%; object-fit: cover; }
 .about h1 { font-size: clamp(30px, 4vw, 44px); font-weight: 800; letter-spacing: -0.02em; }
-.about .lead { font-size: 20px; line-height: 1.55; max-width: 46ch; margin-top: 18px; font-weight: 350; }
-.cv { display: grid; gap: 48px; margin-top: 72px; }
-.cv h2 { font-size: 22px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.about .lead { font-size: 20px; line-height: 1.55; max-width: 46ch; margin-top: 18px; }
+.cv { display: grid; gap: 72px; margin-top: 80px; }
+.cv h2 { font-size: 28px; font-weight: 800; letter-spacing: -0.01em; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
 .row { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 4px 32px; padding-block: 20px; border-bottom: 1px solid var(--line); }
-.row .when { color: var(--muted); font-size: 15px; padding-top: 3px; font-variant-numeric: tabular-nums; }
-.row h3 { font-size: 19px; }
-.row .org { color: var(--muted); font-size: 16px; }
-.row ul { margin: 10px 0 0; padding-left: 20px; display: grid; gap: 4px; font-size: 17px; max-width: 64ch; }
-.contact { display: grid; gap: 6px; }
-.contact .mail { font-size: clamp(22px, 3vw, 30px); font-weight: 600; user-select: all; overflow-wrap: anywhere; }
+.row .when { color: var(--muted); font-size: 15px; padding-top: 2px; font-variant-numeric: tabular-nums; }
+.row h3 { font-size: 18px; line-height: 1.35; }
+.row .org { color: var(--muted); font-size: 15px; margin-top: 2px; }
+.row .val { font-size: 17px; line-height: 1.55; }
+.row ul { margin: 12px 0 0; padding-left: 20px; display: grid; gap: 6px; font-size: 17px; max-width: 64ch; }
+.contact { display: grid; gap: 16px; padding-top: 24px; justify-items: start; }
+.contact .mail { font-size: 22px; font-weight: 600; user-select: all; overflow-wrap: anywhere; }
+.qlink.copy { font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
 .btn { font: inherit; font-size: 15px; padding: 7px 14px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; justify-self: start; }
 .btn:hover { border-color: var(--link); }
 
@@ -326,7 +337,9 @@ footer { border-top: 1px solid var(--line); }
   .figs.posters, .figs.steps, .figs.pair { --n: 2 !important; }
   .figs.lead { grid-template-columns: 1fr; }
   .pull p { font-size: 18px; }
-  .bux-cards { gap: 10px; --img-min: 36px; }
+  .bux-cards { gap: 8px; }
+  .bux-card { padding: calc(9px * var(--p)) calc(9px * var(--p)); }
+  .bux-piece .sub-h { margin-top: 80px; }
   .bux-t { font-size: calc(13px - 1px * var(--p)); white-space: normal; line-height: 1.2; min-height: 2.4em; }
   .bux-m { display: none; }
   .bux-panel { margin-top: 40px; }
@@ -576,9 +589,9 @@ const CV = {
     { when: "2019 to 2023", title: "Volunteer, North Texas", org: "85 service hours with Feed My Starving Children, CCA Food Pantry, Hope Supply and Honor Flight" }
   ],
   skills: [
-    { when: "Methods", title: "Wireframing, prototyping, design systems, user testing, A/B testing, design handoff" },
-    { when: "Tools", title: "Figma, Illustrator, Photoshop, InDesign, Lightroom, Adobe XD, After Effects, Rhino, KeyShot, HTML, CSS, JavaScript" },
-    { when: "Certifications", title: "Adobe Certified Professional, Creative Cloud · Adobe Illustrator · Microsoft Office Specialist: Word, Excel, PowerPoint" }
+    { plain: true, when: "Methods", title: "Wireframing, prototyping, design systems, user testing, A/B testing, design handoff" },
+    { plain: true, when: "Tools", title: "Figma, Illustrator, Photoshop, InDesign, Lightroom, Adobe XD, After Effects, Rhino, KeyShot, HTML, CSS, JavaScript" },
+    { plain: true, when: "Certifications", title: "Adobe Certified Professional, Creative Cloud · Adobe Illustrator · Microsoft Office Specialist: Word, Excel, PowerPoint" }
   ]
 };
 
@@ -1111,6 +1124,7 @@ function initBux() {
     const p = Math.min(1, Math.max(0, (headerBottom() - c.getBoundingClientRect().top) / st.D));
     if (Math.abs(p - st.p) < .001) return;
     st.p = p; c.style.setProperty("--p", p.toFixed(3));
+    c.classList.toggle("stuck", p > .97);
   };
   const measure = () => {
     if (!c.isConnected) return;
@@ -1153,6 +1167,7 @@ function selectBux(id, focusTab) {
 }
 
 function row(r) {
+  if (r.plain) return `<div class="row"><div class="when">${esc(r.when)}</div><p class="val">${esc(r.title)}</p></div>`;
   return `<div class="row"><div class="when">${esc(r.when)}</div><div><h3>${esc(r.title)}</h3>${r.org ? `<div class="org">${esc(r.org)}</div>` : ""}${r.bullets ? `<ul>${r.bullets.map(b => `<li>${esc(b)}</li>`).join("")}</ul>` : ""}</div></div>`;
 }
 function viewAbout() {
@@ -1170,11 +1185,14 @@ function viewAbout() {
       <section><h2>Skills</h2>${CV.skills.map(row).join("")}</section>
       <section><h2>Leadership &amp; service</h2>${CV.service.map(row).join("")}</section>
       <section id="contact"><h2>Contact</h2>
-        <div class="contact" style="padding-top:20px">
+        <div class="contact">
           <span class="mail" id="mail">${EMAIL}</span>
-          <button class="btn" type="button" id="copy">Copy email</button>
-          <a href="${LINKEDIN}" target="_blank" rel="noopener" style="margin-top:8px">LinkedIn</a>
-          ${DRAFT ? todo("A PDF of your UX Designer resume, so I can link it here.") : ""}
+          <div class="qlinks">
+            <button class="qlink copy" type="button" id="copy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>Copy email</span></button>
+          <a class="qlink" href="${LINKEDIN}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a3.5 3.5 0 0 0 5 0l4-4a3.5 3.5 0 0 0-5-5l-2 2"/><path d="M14 10a3.5 3.5 0 0 0-5 0l-4 4a3.5 3.5 0 0 0 5 5l2-2"/></svg>LinkedIn</a>
+          <a class="qlink" href="${INSTAGRAM}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="12" cy="12" r="3.8"/><circle cx="17" cy="7" r="1" fill="currentColor" stroke="none"/></svg>Instagram</a>
+          <span class="qlink qsplit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/><path d="M9 12h6M9 16h6"/></svg><a href="${RESUME_VIEW}" target="_blank" rel="noopener">Résumé</a><i>·</i><a href="${RESUME_PDF}" target="_blank" rel="noopener">PDF</a></span>
+          </div>
         </div>
       </section>
     </div>`;
@@ -1358,7 +1376,7 @@ function render() {
   if (portraitWidget) { portraitWidget.destroy(); portraitWidget = null; }
   $("#app").innerHTML = html;
   document.querySelectorAll("[data-nav]").forEach(a => { if (a.dataset.nav === nav) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
-  document.title = p ? `${p.title} · Jack Walker` : "Jack Walker Portfolio";
+  document.title = p ? `${p.title} · Jack Walker` : "Jack Walker's Portfolio";
   const crumb = document.getElementById("crumb");
   if (crumb) crumb.innerHTML = p ? `<a href="#projects">UX Projects</a><i aria-hidden="true">/</i><b aria-current="page">${esc(p.title)}</b>`
     : isBux ? '<b aria-current="page">Beyond UX</b>' : id === "about" ? '<b aria-current="page">About</b>' : "";
@@ -1384,8 +1402,10 @@ document.addEventListener("click", e => {
   if (sec) { selectBux(sec.dataset.sec); return; }
   const j = e.target.closest("[data-jump]");
   if (j) { e.preventDefault(); document.getElementById("o-" + j.dataset.jump)?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }
-  if (e.target.id === "copy") {
-    const done = () => { e.target.textContent = "Copied"; setTimeout(() => (e.target.textContent = "Copy email"), 1600); };
+  const cp = e.target.closest("#copy");
+  if (cp) {
+    const lbl = cp.querySelector("span") || cp;
+    const done = () => { lbl.textContent = "Copied"; setTimeout(() => (lbl.textContent = "Copy email"), 1600); };
     const sel = () => { const r = document.createRange(); r.selectNodeContents($("#mail")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
     try { navigator.clipboard.writeText(EMAIL).then(done, sel); } catch { sel(); }
   }
