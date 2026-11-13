@@ -84,6 +84,11 @@ main { padding-block: 56px 96px; }
 /* Home */
 .intro { display: grid; gap: 16px; padding-bottom: 56px; }
 .intro h1 { font-size: clamp(30px, 4vw, 44px); font-weight: 800; letter-spacing: -0.02em; max-width: 22ch; }
+.intro h1.big-name { font-size: clamp(46px, 7.2vw, 88px); letter-spacing: -0.03em; line-height: 1.02; max-width: none; }
+.big-name span { display: inline-block; white-space: pre; }
+.big-name span.scr { color: var(--muted); }
+.big-name span.scr.acc { color: var(--link); }
+.intro p.intro-sub { font-size: clamp(20px, 2.2vw, 26px); font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
 .intro p { color: var(--muted); font-size: 19px; max-width: 56ch; }
 .intro.has-portrait { grid-template-columns: minmax(0, 1fr) 320px; align-items: center; column-gap: 64px; }
 .intro-text { display: grid; gap: 16px; }
@@ -833,7 +838,8 @@ function card(p) {
 function viewHome() {
   return `<section class="intro has-portrait">
       <div class="intro-text">
-        <h1>Jack Walker designs mobile and web products.</h1>
+        <h1 class="big-name" id="big-name" aria-label="Jack Walker">Jack Walker</h1>
+        <p class="intro-sub">Designing mobile and web products.</p>
         <p>I'm a UX designer finishing my BFA in UX Design at SCAD in May 2027. Most recently I redesigned title production software as a UX/UI design intern at Stewart Title.</p>
         <div class="qlinks">
           <a class="qlink" href="mailto:${EMAIL}"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Email</a>
@@ -903,6 +909,63 @@ function viewAbout() {
     </div>`;
 }
 
+/* Name sweep: every few seconds a band of ASCII glyphs washes across
+   the big name and resolves back — kin to the portrait's intro wave. */
+function initNameFx() {
+  const h = document.getElementById("big-name");
+  if (!h || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const CH = "#%@*+=~;:·";
+  const spans = [...h.textContent].map(c => {
+    const s = document.createElement("span");
+    s.textContent = c;
+    s.dataset.c = c;
+    return s;
+  });
+  h.textContent = "";
+  spans.forEach(s => h.appendChild(s));
+  const lock = () => {
+    spans.forEach(s => { s.style.width = ""; });
+    const ws = spans.map(s => s.getBoundingClientRect().width);
+    spans.forEach((s, i) => { s.style.width = ws[i] + "px"; s.style.textAlign = "center"; });
+  };
+  const ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+  ready.then(() => { if (h.isConnected) lock(); });
+  let rsT;
+  const onRs = () => {
+    if (!h.isConnected) { removeEventListener("resize", onRs); return; }
+    clearTimeout(rsT); rsT = setTimeout(lock, 150);
+  };
+  addEventListener("resize", onRs);
+  const reset = () => spans.forEach(s => { s.textContent = s.dataset.c; s.classList.remove("scr", "acc"); });
+  const sweep = () => {
+    const n = spans.length, band = 3.2, dur = 950, t0 = performance.now();
+    const frame = now => {
+      if (!h.isConnected) return;
+      const k = (now - t0) / dur;
+      const pos = k * (n + band * 2) - band;
+      spans.forEach((s, i) => {
+        const d = pos - i;
+        if (d > 0 && d < band) {
+          s.textContent = CH[(Math.random() * CH.length) | 0];
+          s.classList.add("scr");
+          s.classList.toggle("acc", Math.random() < .12);
+        } else if (s.textContent !== s.dataset.c || s.classList.contains("scr")) {
+          s.textContent = s.dataset.c;
+          s.classList.remove("scr", "acc");
+        }
+      });
+      if (k < 1) requestAnimationFrame(frame); else reset();
+    };
+    requestAnimationFrame(frame);
+  };
+  const loop = () => {
+    if (!h.isConnected) return;
+    sweep();
+    setTimeout(loop, 5200 + Math.random() * 3800);
+  };
+  setTimeout(loop, 1200);
+}
+
 function render() {
   const id = location.hash.replace(/^#/, "");
   const p = ALL.find(x => x.id === id);
@@ -920,6 +983,7 @@ function render() {
   window.scrollTo(0, 0);
   const pel = document.getElementById("portrait");
   if (pel) portraitWidget = new AsciiReveal(pel, ASSETS["jack-walker-headshot"], ASCII_CFG);
+  initNameFx();
 }
 
 document.body.classList.toggle("draft-off", !DRAFT);
