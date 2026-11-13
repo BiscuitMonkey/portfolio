@@ -228,6 +228,28 @@ figure .img.fit img { cursor: zoom-in; }
 /* Other work */
 .piece { margin-top: 80px; padding-top: 32px; border-top: 1px solid var(--line); display: grid; gap: 20px; scroll-margin-top: 80px; }
 .piece > h2 { font-size: 30px; }
+.bux-intro { padding-bottom: 0; }
+.bux-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; margin-top: 32px; }
+.bux-card { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; text-align: left; display: grid; gap: 10px; align-content: start; cursor: pointer; }
+.bux-img { display: block; aspect-ratio: 4 / 5; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: var(--wash); outline: 2px solid transparent; outline-offset: 4px; transition: outline-color .2s; }
+.bux-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s ease; }
+.bux-card:hover .bux-img img { transform: scale(1.035); }
+.bux-t { font-size: 19px; font-weight: 700; line-height: 1.25; transition: color .15s; }
+.bux-m { font-size: 15px; color: var(--muted); line-height: 1.4; }
+.bux-card:hover .bux-t, .bux-card.on .bux-t { color: var(--link); }
+.bux-card.on .bux-img { outline-color: var(--link); }
+.bux-card:focus-visible { outline: none; }
+.bux-card:focus-visible .bux-img { outline-color: var(--link); outline-style: dashed; }
+.bux-bar { position: fixed; left: 0; right: 0; top: calc(env(safe-area-inset-top, 0px) + 60px); z-index: 4; padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); background: var(--bg); border-bottom: 1px solid var(--line); transform: translateY(-105%); opacity: 0; pointer-events: none; transition: transform .28s ease, opacity .2s; }
+.bux-bar.show { transform: none; opacity: 1; pointer-events: auto; }
+.bux-bar .wrap { display: flex; gap: 8px; padding-block: 10px; overflow-x: auto; scrollbar-width: none; }
+.bux-thumb { width: 24px; height: 24px; border-radius: 50%; overflow: hidden; flex: none; background: var(--wash); }
+.bux-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.bux-tab { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-size: 15px; font-weight: 600; white-space: nowrap; padding: 5px 14px 5px 5px; border-radius: 999px; border: 1px solid var(--line); background: none; color: var(--muted); cursor: pointer; transition: color .15s, border-color .15s; }
+.bux-tab:hover { color: var(--link); }
+.bux-tab.on { color: var(--link); border-color: var(--link); }
+.bux-panel { margin-top: 56px; }
+.bux-piece { margin-top: 0; padding-top: 0; border-top: 0; }
 .toc { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 8px; }
 
 /* About */
@@ -294,6 +316,13 @@ footer { border-top: 1px solid var(--line); }
   .figs.dials { --n: 3 !important; }
   .phones, .phones.two { --n: 2 !important; }
   .figs.posters, .figs.steps, .figs.pair { --n: 2 !important; }
+  .bux-cards { gap: 10px; margin-top: 24px; }
+  .bux-img { aspect-ratio: 3 / 4; border-radius: 8px; outline-offset: 3px; }
+  .bux-t { font-size: 13px; }
+  .bux-m { display: none; }
+  .bux-tab { font-size: 13.5px; padding: 4px 11px 4px 4px; gap: 6px; }
+  .bux-thumb { width: 22px; height: 22px; }
+  .bux-panel { margin-top: 40px; }
   .cs-body { gap: 56px; margin-top: 56px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
@@ -448,7 +477,7 @@ const MORE = [
 ];
 
 const OTHER = [
-  { id: "graphic-design", title: "Graphic design", lede: "Posters, illustration and type work, made for classmates, clients and myself.",
+  { id: "graphic-design", tab: "Graphic design", cover: "gd-chloris", blurb: "Posters, illustration and type", title: "Graphic design", lede: "Posters, illustration and type work, made for classmates, clients and myself.",
     blocks: [
       { h: "Student film posters", p: "Posters for films made by fellow SCAD students." },
       { figs: [["gd-mntpr", "Max Needs to Pay Rent, 2025"], ["gd-focus", "Focus Goggles, 2025"], ["gd-nina2", "NINA, poster 02, 2024"], ["gd-nina1", "NINA, poster 01, 2024"]], kind: "posters" },
@@ -461,7 +490,7 @@ const OTHER = [
       { figs: [["gd-hwy-poster", "Highway Gothic poster"], ["gd-type", "Highway Gothic editorial"]] },
       { p: "Farmers market posters: a design challenge built only from typographic elements, with the rules loosening each round." },
       { figs: [["gd-farm1", "1. No color, one font size"], ["gd-farm2", "2. No color, multiple sizes"], ["gd-farm3", "3. Color, limited shapes"], ["gd-farm4", "4. No limits"]], kind: "posters" } ] },
-  { id: "fridge-research", title: "The Ideal Fridge", lede: "A team research study into how people use their refrigerators, published as a printed magazine. I designed the front and back covers.",
+  { id: "fridge-research", tab: "Research", cover: "fr-front", blurb: "The Ideal Fridge study", title: "The Ideal Fridge", lede: "A team research study into how people use their refrigerators, published as a printed magazine. I designed the front and back covers.",
     blocks: [
       { figs: [["fr-hero", "The finished magazine"]], n: 1 },
       { p: "We started with secondary research, then ran our own studies in four stages." },
@@ -478,7 +507,7 @@ const OTHER = [
       { figs: [["fr-front", "Front cover, designed by me"], ["fr-back", "Back cover, designed by me"]] },
       { figs: [["fr-p12", "Pages 1 and 2"], ["fr-p34", "Pages 3 and 4"], ["fr-p56", "Pages 5 and 6"]], n: 3 },
       { figs: [["fr-mock", "Printed mockups"]], n: 1 } ] },
-  { id: "print-work", title: "Print work", lede: "Designs I turned into physical pieces, drawn in Illustrator and sublimation printed.",
+  { id: "print-work", tab: "Print work", cover: "pw-front", blurb: "Apparel, stickers and coasters", title: "Print work", lede: "Designs I turned into physical pieces, drawn in Illustrator and sublimation printed.",
     blocks: [
       { h: "BMW crewneck" },
       { figs: [["pw-front", "Front"], ["pw-back", "Back"], ["pw-bmw-ai", "Artwork, designed in Illustrator"]], n: 3 },
@@ -486,7 +515,7 @@ const OTHER = [
       { figs: [["pw-sticker", "The printed sticker"], ["pw-sticker-ai", "Artwork, designed in Illustrator"]] },
       { h: "Born To Lead coaster", p: "Designed and batch produced for teachers and principals in the LISD school district in Texas. I also gave a speech on how its graphic design program shaped my future." },
       { figs: [["pw-coaster", "The finished coaster"], ["pw-coaster-ai", "Artwork, designed in Illustrator"]] } ] },
-  { id: "industrial-design", title: "Industrial design", lede: "3D modeling in Rhino and KeyShot, and hands-on prototyping in the workshop.",
+  { id: "industrial-design", tab: "Industrial design", cover: "lamp-13b", blurb: "3D modeling and workshop builds", title: "Industrial design", lede: "3D modeling in Rhino and KeyShot, and hands-on prototyping in the workshop.",
     blocks: [
       { h: "GPU model and render", p: "A 3D model of a GeForce RTX 3070 Ti graphics card, modeled in Rhino and rendered in KeyShot." },
       { figs: [["id-gpu2", "Render"], ["id-gpu3", "Render"], ["id-gpu1", "Exploded view"], ["id-gpu4", "Detail"], ["id-gpu5", "Render"], ["id-gpu6", "Orthographic views"]], n: 3 },
@@ -1010,13 +1039,52 @@ function mountProto(path) {
     .catch(() => { if (slot.isConnected) slot.textContent = "The prototype couldn’t load here."; });
 }
 
-function viewOther() {
-  return `<section class="intro" style="padding-bottom:0">
+/* Beyond UX: four section cards. They start large; once scrolled past they collapse into a
+   slim tab bar pinned under the header. The selected card decides what shows below. */
+const buxPanel = o => `<div class="piece bux-piece"><h2>${esc(o.title)}</h2><p class="col" style="color:var(--muted)">${esc(o.lede)}</p>${o.blocks.map(block).join("")}</div>`;
+function viewOther(sel) {
+  const cur = OTHER.find(o => o.id === sel) || OTHER[0];
+  return `<section class="intro bux-intro">
       <h1>Beyond UX</h1>
       <p>Work outside UX design that shapes how I design: illustration, print, research and 3D.</p>
-      <div class="toc">${OTHER.map(o => `<a href="#beyond-ux" data-jump="${o.id}">${esc(o.title)}</a>`).join("")}</div>
     </section>
-    ${OTHER.map(o => `<section class="piece" id="o-${o.id}"><h2>${esc(o.title)}</h2><p class="col" style="color:var(--muted)">${esc(o.lede)}</p>${o.blocks.map(block).join("")}</section>`).join("")}`;
+    <div class="bux-cards" role="tablist" aria-label="Beyond UX sections">${OTHER.map(o => `
+      <button class="bux-card${o === cur ? " on" : ""}" type="button" role="tab" id="tab-${o.id}" data-sec="${o.id}" aria-selected="${o === cur}" aria-controls="bux-panel" tabindex="${o === cur ? 0 : -1}">
+        <span class="bux-img">${media(o.cover, "", true)}</span>
+        <span class="bux-t">${esc(o.tab)}</span>
+        <span class="bux-m">${esc(o.blurb)}</span>
+      </button>`).join("")}
+    </div>
+    <div class="bux-bar" aria-hidden="true"><div class="wrap">${OTHER.map(o => `<button class="bux-tab${o === cur ? " on" : ""}" type="button" tabindex="-1" data-sec="${o.id}"><span class="bux-thumb">${media(o.cover, "", true)}</span>${esc(o.tab)}</button>`).join("")}</div></div>
+    <section class="bux-panel" id="bux-panel" role="tabpanel" aria-labelledby="tab-${cur.id}">${buxPanel(cur)}</section>`;
+}
+let buxObs = null;
+function initBux() {
+  if (buxObs) { buxObs.disconnect(); buxObs = null; }
+  const cards = document.querySelector(".bux-cards"), bar = document.querySelector(".bux-bar");
+  if (!cards || !bar) return;
+  // Show the slim bar once the big cards have scrolled up under the header
+  buxObs = new IntersectionObserver(([e]) => bar.classList.toggle("show", !e.isIntersecting && e.boundingClientRect.top < 0), { rootMargin: "-124px 0px 0px 0px" });
+  buxObs.observe(cards);
+}
+function selectBux(id, focusTab) {
+  const o = OTHER.find(x => x.id === id), panel = document.getElementById("bux-panel");
+  if (!o || !panel) return;
+  panel.innerHTML = buxPanel(o);
+  panel.setAttribute("aria-labelledby", "tab-" + id);
+  document.querySelectorAll("[data-sec]").forEach(b => {
+    const on = b.dataset.sec === id;
+    b.classList.toggle("on", on);
+    if (b.getAttribute("role") === "tab") { b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1; if (on && focusTab) b.focus(); }
+  });
+  const strip = document.querySelector(".bux-bar .wrap"), tab = strip && strip.querySelector(".bux-tab.on");
+  if (tab) { const r = tab.getBoundingClientRect(), sr = strip.getBoundingClientRect();
+    if (r.left < sr.left || r.right > sr.right) strip.scrollLeft += r.left - sr.left - 8; }
+  history.replaceState(null, "", "#beyond-ux/" + id);
+  lastId = "beyond-ux/" + id;
+  // If we're already scrolled into the content, jump to the top of the new section (just under the bar)
+  const top = panel.getBoundingClientRect().top, under = 60 + 62;
+  if (top < under) window.scrollTo(0, window.scrollY + top - under - 8);
 }
 
 function row(r) {
@@ -1212,12 +1280,14 @@ function initNameFx() {
 let lastId = "";
 function render() {
   const id = location.hash.replace(/^#/, "");
+  const [base, sub] = id.split("/");
+  const isBux = base === "beyond-ux" || id === "other-work";
   const p = ALL.find(x => x.id === id);
   const cameFrom = ALL.find(x => x.id === lastId);
   lastId = id;
   let html, nav = "work";
   if (p) { html = viewCase(p); nav = ""; }
-  else if (id === "beyond-ux" || id === "other-work") { html = viewOther(); nav = "other"; }
+  else if (isBux) { html = viewOther(sub); nav = "other"; }
   else if (id === "about") { html = viewAbout(); nav = "about"; }
   else html = viewHome();
   if (portraitWidget) { portraitWidget.destroy(); portraitWidget = null; }
@@ -1226,9 +1296,9 @@ function render() {
   document.title = p ? `${p.title} · Jack Walker` : "Jack Walker Portfolio";
   const crumb = document.getElementById("crumb");
   if (crumb) crumb.innerHTML = p ? `<a href="#projects">UX Projects</a><i aria-hidden="true">/</i><b aria-current="page">${esc(p.title)}</b>`
-    : (id === "beyond-ux" || id === "other-work") ? '<b aria-current="page">Beyond UX</b>' : id === "about" ? '<b aria-current="page">About</b>' : "";
+    : isBux ? '<b aria-current="page">Beyond UX</b>' : id === "about" ? '<b aria-current="page">About</b>' : "";
   // Coming back home lands you where you left off: on the project you opened, or the project grid.
-  const home = !p && !["beyond-ux", "other-work", "about"].includes(id);
+  const home = !p && !isBux && id !== "about";
   const card = home && cameFrom ? document.querySelector(`.card[href="#${cameFrom.id}"]`) : null;
   if (card) card.scrollIntoView({ block: "center" });
   else if (id === "projects") document.getElementById("projects").scrollIntoView({ block: "start" });
@@ -1237,6 +1307,7 @@ function render() {
   if (pel) portraitWidget = new AsciiReveal(pel, ASSETS["jack-walker-headshot"], ASCII_CFG);
   initNameFx();
   if (p && p.proto) mountProto(p.proto);
+  initBux();
 }
 
 document.body.classList.toggle("draft-off", !DRAFT);
@@ -1244,6 +1315,8 @@ document.addEventListener("click", e => {
   const zi = e.target.closest("figure .img.fit img");
   if (zi) { const lb = $("#lb"); const li = lb.querySelector("img"); li.src = zi.src; li.alt = zi.alt || ""; lb.querySelector("p").textContent = zi.closest("figure")?.querySelector("figcaption")?.textContent || ""; document.body.classList.add("lb-open"); lb.showModal(); return; }
   if (e.target.closest("#lb")) { $("#lb").close(); return; }
+  const sec = e.target.closest("[data-sec]");
+  if (sec) { selectBux(sec.dataset.sec); return; }
   const j = e.target.closest("[data-jump]");
   if (j) { e.preventDefault(); document.getElementById("o-" + j.dataset.jump)?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }
   if (e.target.id === "copy") {
@@ -1251,6 +1324,14 @@ document.addEventListener("click", e => {
     const sel = () => { const r = document.createRange(); r.selectNodeContents($("#mail")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
     try { navigator.clipboard.writeText(EMAIL).then(done, sel); } catch { sel(); }
   }
+});
+document.addEventListener("keydown", e => {
+  const t = e.target.closest && e.target.closest(".bux-card");
+  if (!t || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
+  e.preventDefault();
+  const i = OTHER.findIndex(o => o.id === t.dataset.sec), n = OTHER.length;
+  const j = e.key === "Home" ? 0 : e.key === "End" ? n - 1 : (i + (e.key === "ArrowRight" ? 1 : -1) + n) % n;
+  selectBux(OTHER[j].id, true);
 });
 /* Custom cursor: ink dot + trailing ring with link / zoom / brush states */
 (function () {
