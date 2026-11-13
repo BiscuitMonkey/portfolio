@@ -301,7 +301,7 @@ footer { border-top: 1px solid var(--line); }
 
 <header class="top"><div class="wrap">
   <div class="brand"><a class="name" href="#">Jack Walker</a><nav id="crumb" class="crumb" aria-label="Breadcrumb"></nav></div>
-  <nav aria-label="Main"><a href="#" data-nav="work">Home</a><a href="#beyond-ux" data-nav="other">Beyond UX</a><a href="#about" data-nav="about">About</a><span class="nav-tools"><button id="cur-toggle" type="button" hidden></button><button id="mode" type="button" aria-label="Switch color theme"></button></span></nav>
+  <nav aria-label="Main"><a href="#" data-nav="work">Home</a><a href="#beyond-ux" data-nav="other">Beyond UX</a><a href="#about" data-nav="about">About</a><span class="nav-tools"><button id="mode" type="button" aria-label="Switch color theme"></button><button id="cur-toggle" type="button" hidden></button></span></nav>
 </div></header>
 <main id="app" class="wrap"></main>
 <dialog id="lb" aria-label="Image preview"><img alt=""><p></p></dialog>
@@ -541,7 +541,7 @@ class AsciiReveal {
     this.field = document.createElement("canvas"); this.fctx = this.field.getContext("2d", { willReadFrequently: true });
     this.t1 = document.createElement("canvas"); this.t1ctx = this.t1.getContext("2d", { willReadFrequently: true });
     this.t2 = document.createElement("canvas"); this.t2ctx = this.t2.getContext("2d", { willReadFrequently: true });
-    this.photo = document.createElement("canvas"); this.frameN = 0;
+    this.photo = document.createElement("canvas"); this.frameN = 0; this.skipN = 0;
     el.appendChild(this.ascii); el.appendChild(this.ov); el.appendChild(this.rev);
     this.pointer = { x: 0, y: 0, inside: false }; this.cur = { x: 0, y: 0 };
     this.hasCur = false; this.trail = []; this.blobs = [];
@@ -765,6 +765,9 @@ class AsciiReveal {
     const tick = (now) => {
       if (this.dead || !this.visible) { this.running = false; return; }
       const t = now / 1000;
+      // When no one is interacting, only the slow ambient pools move: run the heavy work at half rate.
+      const lively = this.pointer.inside || now - this.introT0 < 2200 || now - (this.touchT || -1e9) < 3000;
+      if (!lively && (++this.skipN & 1)) { this.parallaxStep(); requestAnimationFrame(tick); return; }
       if (this.pointer.inside) {
         if (!this.hasCur) { this.cur.x = this.pointer.x; this.cur.y = this.pointer.y; this.hasCur = true; this.brushGrow = 0; }
         const px = this.cur.x, py = this.cur.y;
@@ -850,19 +853,23 @@ class AsciiReveal {
       rc.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
       rc.globalCompositeOperation = "source-over";
       if (!this.reduced && (++this.frameN & 1)) this.drawOverlay(now, t);
-      if (this.opts.parallax && !this.reduced) {
-        this.par.nx += (this.par.tx - this.par.nx) * .05;
-        this.par.ny += (this.par.ty - this.par.ny) * .05;
-        const nx = this.par.nx, ny = this.par.ny;
-        const tilt = this.opts.parallaxTilt, shift = this.opts.parallaxShift;
-        this.el.style.transform = "perspective(900px) rotateX(" + (-ny * tilt).toFixed(2) + "deg) rotateY(" + (nx * tilt).toFixed(2) + "deg)";
-        this.ascii.style.transform = "translate(" + (-nx * shift * .45).toFixed(1) + "px," + (-ny * shift * .45).toFixed(1) + "px) scale(1.05)";
-        this.ov.style.transform = this.ascii.style.transform;
-        this.rev.style.transform = "translate(" + (-nx * shift).toFixed(1) + "px," + (-ny * shift).toFixed(1) + "px) scale(1.05)";
-      }
+      this.parallaxStep();
       requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
+  }
+  parallaxStep() {
+    if (!this.opts.parallax || this.reduced) return;
+    const dx = this.par.tx - this.par.nx, dy = this.par.ty - this.par.ny;
+    if (Math.abs(dx) < .0005 && Math.abs(dy) < .0005 && this.parDone) return; // settled: no style writes
+    this.parDone = true;
+    this.par.nx += dx * .05; this.par.ny += dy * .05;
+    const nx = this.par.nx, ny = this.par.ny;
+    const tilt = this.opts.parallaxTilt, shift = this.opts.parallaxShift;
+    this.el.style.transform = "perspective(900px) rotateX(" + (-ny * tilt).toFixed(2) + "deg) rotateY(" + (nx * tilt).toFixed(2) + "deg)";
+    this.ascii.style.transform = "translate(" + (-nx * shift * .45).toFixed(1) + "px," + (-ny * shift * .45).toFixed(1) + "px) scale(1.05)";
+    this.ov.style.transform = this.ascii.style.transform;
+    this.rev.style.transform = "translate(" + (-nx * shift).toFixed(1) + "px," + (-ny * shift).toFixed(1) + "px) scale(1.05)";
   }
   bindEvents() {
     const el = this.el;
@@ -875,7 +882,8 @@ class AsciiReveal {
       if (!this.source) return;
       const touch = e.changedTouches[0]; if (!touch) return;
       const r = el.getBoundingClientRect();
-      this.stamp(touch.clientX - r.left, touch.clientY - r.top, this.opts.lensRadius * 1.6, performance.now());
+      this.touchT = performance.now();
+      this.stamp(touch.clientX - r.left, touch.clientY - r.top, this.opts.lensRadius * 1.6, this.touchT);
       this.startLoop();
     }, { passive: false });
   }
@@ -1309,6 +1317,42 @@ document.addEventListener("click", e => {
   });
   const lb = $("#lb");
   if (lb) lb.addEventListener("close", () => document.body.classList.remove("lb-open"));
+})();
+/* Diagnostics: add ?perf to the URL (before the #) to see frame rate and, for every
+   dropped frame, whether this page's code was busy at that moment or the page was idle
+   (then the stall came from the browser, an extension, the GPU or the computer). */
+(function () {
+  if (!new URLSearchParams(location.search).has("perf")) return;
+  const box = document.createElement("div");
+  box.id = "perf-box";
+  box.style.cssText = "position:fixed;left:12px;bottom:12px;z-index:200;width:330px;max-height:60vh;overflow:auto;background:rgba(14,15,16,.92);color:#E8E9EB;font:12px/1.45 ui-monospace,Menlo,Consolas,monospace;padding:10px 12px;border-radius:10px;pointer-events:auto;cursor:auto";
+  document.body.appendChild(box);
+  const busy = []; // { start, end, what }
+  const watch = (type, map) => { try { new PerformanceObserver(l => l.getEntries().forEach(e => busy.push(map(e)))).observe({ type, buffered: true }); return true; } catch (e) { return false; } };
+  const loaf = watch("long-animation-frame", e => {
+    const top = (e.scripts || []).slice().sort((a, b) => b.duration - a.duration)[0];
+    const fn = top ? (top.sourceFunctionName || top.invoker || "script") : (e.renderStart ? "style/layout/paint" : "work");
+    return { start: e.startTime, end: e.startTime + e.duration, what: fn + (top ? " " + Math.round(top.duration) + "ms" : "") };
+  });
+  if (!loaf) watch("longtask", e => ({ start: e.startTime, end: e.startTime + e.duration, what: "script" }));
+  const hitches = []; let last = 0, frames = 0, fps = 0, t0 = performance.now(), worst = 0;
+  const loop = t => {
+    if (last) { const gap = t - last; if (gap > 50) hitches.push({ start: last, end: t, gap }); worst = Math.max(worst, gap); }
+    last = t; frames++;
+    if (t - t0 >= 1000) { fps = Math.round(frames * 1000 / (t - t0)); frames = 0; t0 = t; }
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+  document.addEventListener("visibilitychange", () => { last = 0; }); // background tabs pause on purpose
+  setInterval(() => {
+    const rows = hitches.slice(-10).reverse().map(h => {
+      const b = busy.filter(x => x.start < h.end && x.end > h.start);
+      const site = b.length ? "<span style='color:#F0B35A'>site busy</span> · " + b.map(x => x.what).join(", ") : "<span style='color:#7FD1A6'>page idle</span> · browser/GPU/system";
+      return Math.round(h.gap) + "ms " + site;
+    });
+    const anim = [portraitWidget && portraitWidget.running ? "portrait" : "", document.body.classList.contains("has-cursor") ? "cursor" : ""].filter(Boolean).join(", ") || "none";
+    box.innerHTML = "<b>Performance</b> · " + fps + " fps · worst frame " + Math.round(worst) + "ms<br>animations: " + anim + "<br>dropped frames (&gt;50ms): " + hitches.length + "<br>" + (rows.length ? rows.join("<br>") : "<span style='opacity:.6'>none yet</span>");
+  }, 500);
 })();
 /* Light/dark toggle in the nav. Follows the system until the visitor chooses. */
 (function () {
