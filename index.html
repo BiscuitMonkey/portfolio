@@ -85,8 +85,8 @@ main { padding-block: 56px 96px; }
 .intro { display: grid; gap: 16px; padding-bottom: 56px; }
 .intro h1 { font-size: clamp(30px, 4vw, 44px); font-weight: 800; letter-spacing: -0.02em; max-width: 22ch; }
 .intro h1.big-name { font-size: clamp(46px, 7.2vw, 88px); letter-spacing: -0.03em; line-height: 1.02; max-width: none; }
-.big-name span { display: inline-block; white-space: pre; }
-.big-name span.ghost { color: transparent; }
+.nm-text { display: inline-block; mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat; mask-composite: intersect; -webkit-mask-composite: source-in; }
+.nm-text span { display: inline-block; white-space: pre; }
 .intro p.intro-sub { font-size: clamp(20px, 2.2vw, 26px); font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
 .intro p { color: var(--muted); font-size: 19px; max-width: 56ch; }
 .intro.has-portrait { grid-template-columns: minmax(0, 1fr) 320px; align-items: center; column-gap: 64px; }
@@ -915,105 +915,153 @@ function initNameFx() {
   if (!h || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const DENS = " .:;=+*#%@";
   const CELL = 6; // px — glyphs stay tiny relative to the 88px letters
-  const spans = [...h.textContent].map(c => {
+  const name = h.textContent;
+  h.textContent = "";
+  const wrap = document.createElement("span");
+  wrap.className = "nm-text";
+  const spans = [...name].map(c => {
     const s = document.createElement("span");
     s.textContent = c;
     s.dataset.c = c;
+    wrap.appendChild(s);
     return s;
   });
-  h.textContent = "";
-  spans.forEach(s => h.appendChild(s));
+  h.appendChild(wrap);
   h.style.position = "relative";
   const cv = document.createElement("canvas");
   cv.style.cssText = "position:absolute;inset:0;pointer-events:none";
   cv.setAttribute("aria-hidden", "true");
   h.appendChild(cv);
   const ctx = cv.getContext("2d");
-  let geom = null;
-  const lock = () => {
-    spans.forEach(s => { s.style.width = ""; });
-    const ws = spans.map(s => s.getBoundingClientRect().width);
-    spans.forEach((s, i) => { s.style.width = ws[i] + "px"; s.style.textAlign = "center"; });
-    const hr = h.getBoundingClientRect();
+  let G = null;
+
+  /* Sample the rendered name once into a grid of ASCII cells. */
+  const build = () => {
+    const hr = h.getBoundingClientRect(), wr = wrap.getBoundingClientRect();
     const dpr = Math.min(devicePixelRatio || 1, 2);
-    cv.width = Math.max(2, hr.width * dpr); cv.height = Math.max(2, hr.height * dpr);
-    cv.style.width = hr.width + "px"; cv.style.height = hr.height + "px";
-    // sample the real letterforms into an offscreen alpha map
+    const W = Math.ceil(hr.width), H = Math.ceil(hr.height);
+    cv.width = Math.max(2, W * dpr); cv.height = Math.max(2, H * dpr);
+    cv.style.width = W + "px"; cv.style.height = H + "px";
     const src = document.createElement("canvas");
-    src.width = Math.max(2, Math.ceil(hr.width)); src.height = Math.max(2, Math.ceil(hr.height));
+    src.width = Math.max(2, W); src.height = Math.max(2, H);
     const sc = src.getContext("2d", { willReadFrequently: true });
     const st = getComputedStyle(h);
     sc.font = st.fontWeight + " " + st.fontSize + " " + st.fontFamily;
     sc.textBaseline = "alphabetic";
     sc.fillStyle = "#000";
-    const letters = spans.map(s => {
+    spans.forEach(s => {
       const r = s.getBoundingClientRect();
-      return { x: r.left - hr.left, y: r.top - hr.top, w: r.width, h: r.height };
-    });
-    spans.forEach((s, i) => {
-      // read the real baseline from layout rather than font metrics
       const probe = document.createElement("i");
       probe.style.cssText = "display:inline-block;width:0;height:0;vertical-align:baseline";
       s.appendChild(probe);
-      const baseY = probe.getBoundingClientRect().top - hr.top;
+      const by = probe.getBoundingClientRect().top - hr.top;
       probe.remove();
-      const m = sc.measureText(s.dataset.c);
-      sc.fillText(s.dataset.c, letters[i].x + (letters[i].w - m.width) / 2, baseY);
+      sc.fillText(s.dataset.c, r.left - hr.left, by);
     });
-    geom = { dpr, letters, srcW: src.width, srcH: src.height, data: sc.getImageData(0, 0, src.width, src.height).data };
+    const data = sc.getImageData(0, 0, src.width, src.height).data;
+    const cells = [];
+    for (let y = 0; y < H; y += CELL) for (let x = 0; x < W; x += CELL) {
+      const px = Math.min(src.width - 1, (x + CELL / 2) | 0);
+      const py = Math.min(src.height - 1, (y + CELL / 2) | 0);
+      const a = data[(py * src.width + px) * 4 + 3] / 255;
+      if (a < .16) continue;
+      cells.push({ x, y, a, k: ((Math.sin((x * 73 + y * 151) * .0137) * 43758.5453) % 1 + 1) % 1 });
+    }
+    G = { dpr, W, H, ox: wr.left - hr.left, oy: wr.top - hr.top, cells };
   };
+
+  const easeIO = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  const smooth = t => t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t);
+  const HALF = 60, FEATH = 110, DUR = 1700; // sweep band core, crossfade, duration
+  const R = 64, RF = 46;                    // hover lens radius, crossfade
+  const hov = { in: false, x: 0, y: 0, cx: 0, cy: 0, s: 0 };
+  let sweepT0 = -1, running = false, ink = "#161917", acc = "#007F3F";
+  const readColors = () => {
+    const st = getComputedStyle(document.documentElement);
+    ink = st.getPropertyValue("--ink").trim() || ink;
+    acc = st.getPropertyValue("--link").trim() || acc;
+  };
+  const clearFx = () => {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    wrap.style.maskImage = ""; wrap.style.webkitMaskImage = "";
+  };
+
+  const frame = now => {
+    if (!h.isConnected || !G) { running = false; return; }
+    let sx = null;
+    if (sweepT0 >= 0) {
+      const k = (now - sweepT0) / DUR;
+      if (k >= 1) sweepT0 = -1;
+      else sx = -HALF - FEATH + easeIO(k) * (G.W + 2 * (HALF + FEATH));
+    }
+    hov.s += ((hov.in ? 1 : 0) - hov.s) * .12;
+    if (hov.in) { hov.cx += (hov.x - hov.cx) * .2; hov.cy += (hov.y - hov.cy) * .2; }
+    const lens = hov.s > .01;
+    if (sx === null && !lens) { running = false; clearFx(); return; }
+
+    // Solid type: hidden where the ASCII shows, crossfading through the feather.
+    const ox = G.ox, oy = G.oy;
+    const L1 = sx === null ? "linear-gradient(#000,#000)" :
+      `linear-gradient(90deg, #000 ${sx - HALF - FEATH - ox}px, transparent ${sx - HALF - ox}px, transparent ${sx + HALF - ox}px, #000 ${sx + HALF + FEATH - ox}px)`;
+    const L2 = !lens ? "linear-gradient(#000,#000)" :
+      `radial-gradient(circle at ${hov.cx - ox}px ${hov.cy - oy}px, transparent ${R * hov.s}px, #000 ${(R + RF) * hov.s}px)`;
+    const m = L1 + ", " + L2;
+    wrap.style.maskImage = m; wrap.style.webkitMaskImage = m;
+
+    // ASCII layer, weighted by the same band and lens.
+    ctx.setTransform(G.dpr, 0, 0, G.dpr, 0, 0);
+    ctx.clearRect(0, 0, G.W, G.H);
+    ctx.font = "700 " + CELL + "px ui-monospace, Menlo, Consolas, monospace";
+    ctx.textBaseline = "top";
+    const tick = Math.floor(now / 80), n = DENS.length - 1;
+    for (const c of G.cells) {
+      const mx = c.x + CELL / 2, my = c.y + CELL / 2;
+      let w = 0;
+      if (sx !== null) w = 1 - smooth((Math.abs(mx - sx) - HALF) / FEATH);
+      if (lens) w = Math.max(w, 1 - smooth((Math.hypot(mx - hov.cx, my - hov.cy) - R * hov.s) / (RF * hov.s)));
+      if (w < .02) continue;
+      const idx = Math.max(1, Math.min(n, Math.round(c.a * n) + (((c.k * 97 + tick) | 0) % 3) - 1));
+      const jit = (1 - w) * 3;
+      ctx.globalAlpha = w * (.55 + .45 * c.a);
+      ctx.fillStyle = ((c.k * 31 + tick * .25) % 1) > .9 ? acc : ink;
+      ctx.fillText(DENS[idx], c.x + (c.k - .5) * 2 * jit, c.y + (((c.k * 7) % 1) - .5) * 2 * jit);
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(frame);
+  };
+  const start = () => {
+    if (running || !G) return;
+    running = true;
+    readColors();
+    requestAnimationFrame(frame);
+  };
+  const sweep = () => { sweepT0 = performance.now(); readColors(); start(); };
+
+  const rel = e => { const r = h.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  h.addEventListener("pointerenter", e => {
+    if (e.pointerType === "touch") return;
+    const [x, y] = rel(e);
+    hov.in = true; hov.x = x; hov.y = y;
+    if (hov.s < .01) { hov.cx = x; hov.cy = y; }
+    start();
+  });
+  h.addEventListener("pointermove", e => {
+    if (e.pointerType === "touch") return;
+    const [x, y] = rel(e);
+    hov.x = x; hov.y = y;
+  });
+  h.addEventListener("pointerleave", () => { hov.in = false; });
+  h.addEventListener("pointerdown", e => { if (e.pointerType === "touch") sweep(); });
+
   const ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
-  ready.then(() => { if (h.isConnected) lock(); });
+  ready.then(() => { if (h.isConnected) build(); });
   let rsT;
   const onRs = () => {
     if (!h.isConnected) { removeEventListener("resize", onRs); return; }
-    clearTimeout(rsT); rsT = setTimeout(lock, 150);
+    clearTimeout(rsT); rsT = setTimeout(build, 150);
   };
   addEventListener("resize", onRs);
-  const reset = () => {
-    spans.forEach(s => s.classList.remove("ghost"));
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, cv.width, cv.height);
-  };
-  const sweep = () => {
-    if (!geom) return;
-    const n = spans.length, band = 3.4, dur = 1150, t0 = performance.now();
-    const st = getComputedStyle(document.documentElement);
-    const ink = st.getPropertyValue("--ink").trim() || "#161917";
-    const acc = st.getPropertyValue("--link").trim() || "#007F3F";
-    const frame = now => {
-      if (!h.isConnected) return;
-      const k = (now - t0) / dur;
-      const pos = k * (n + band * 2) - band;
-      ctx.setTransform(geom.dpr, 0, 0, geom.dpr, 0, 0);
-      ctx.clearRect(0, 0, geom.srcW, geom.srcH);
-      ctx.font = "700 " + CELL + "px ui-monospace, Menlo, Consolas, monospace";
-      ctx.textBaseline = "top";
-      spans.forEach((s, i) => {
-        const d = pos - i;
-        const inBand = d > 0 && d < band;
-        s.classList.toggle("ghost", inBand);
-        if (!inBand) return;
-        const L = geom.letters[i];
-        const edge = Math.min(1, Math.min(d, band - d) / (band * .35));
-        const jit = (1 - edge) * 4;
-        const cols = Math.ceil(L.w / CELL), rows = Math.ceil(L.h / CELL);
-        for (let cy = 0; cy < rows; cy++) for (let cx = 0; cx < cols; cx++) {
-          const px = Math.min(geom.srcW - 1, Math.max(0, (L.x + cx * CELL + CELL / 2) | 0));
-          const py = Math.min(geom.srcH - 1, Math.max(0, (L.y + cy * CELL + CELL / 2) | 0));
-          const a = geom.data[(py * geom.srcW + px) * 4 + 3];
-          if (a < 40) continue;
-          const idx = Math.max(1, Math.min(DENS.length - 1, Math.round((a / 255) * (DENS.length - 1) + (Math.random() * 2 - 1))));
-          ctx.fillStyle = Math.random() < .1 ? acc : ink;
-          ctx.globalAlpha = (.55 + .45 * (a / 255)) * (.3 + .7 * edge);
-          ctx.fillText(DENS[idx], L.x + cx * CELL + (Math.random() * 2 - 1) * jit, L.y + cy * CELL + (Math.random() * 2 - 1) * jit);
-        }
-      });
-      ctx.globalAlpha = 1;
-      if (k < 1) requestAnimationFrame(frame); else reset();
-    };
-    requestAnimationFrame(frame);
-  };
   const loop = () => {
     if (!h.isConnected) return;
     sweep();
@@ -1079,7 +1127,7 @@ document.addEventListener("click", e => {
     const t = e.target;
     if (!t.closest) return;
     let mode = "", g = "";
-    if (t.closest(".ascii-reveal")) mode = "brush";
+    if (t.closest(".ascii-reveal, .big-name")) mode = "brush";
     else if (t.closest("figure .img.fit")) { mode = "zoom"; g = "+"; }
     else if (t.closest("a, button, summary, [data-jump]")) mode = "link";
     cur.classList.toggle("link", mode === "link");
