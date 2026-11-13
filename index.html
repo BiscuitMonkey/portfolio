@@ -68,6 +68,9 @@ img, video { display: block; max-width: 100%; }
 .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
 .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 60px; }
 .top .name { font-weight: 700; font-size: 18px; color: var(--ink); text-decoration: none; }
+.brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.crumb { color: var(--muted); font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.crumb:not(:empty)::before { content: "/"; margin-right: 8px; }
 .top nav { display: flex; gap: 24px; }
 .top nav a { color: var(--muted); text-decoration: none; font-size: 16px; font-weight: 500; }
 .top nav a:hover { color: var(--link); }
@@ -242,6 +245,7 @@ footer { border-top: 1px solid var(--line); }
   body { font-size: 17px; }
   main { padding-block: 36px 72px; }
   .top nav { gap: 16px; }
+  .crumb { display: none; }
   .figs { --n: 1 !important; }
   .figs.strip { --n: 3 !important; }
   .figs.dials { --n: 3 !important; }
@@ -252,7 +256,7 @@ footer { border-top: 1px solid var(--line); }
 </style>
 
 <header class="top"><div class="wrap">
-  <a class="name" href="#">Jack Walker</a>
+  <div class="brand"><a class="name" href="#">Jack Walker</a><span id="crumb" class="crumb" aria-current="page"></span></div>
   <nav aria-label="Main"><a href="#" data-nav="work">Home</a><a href="#other-work" data-nav="other">Other Work</a><a href="#about" data-nav="about">About</a><button id="mode" type="button" aria-label="Switch color theme"></button></nav>
 </div></header>
 <main id="app" class="wrap"></main>
@@ -911,6 +915,8 @@ function render() {
   $("#app").innerHTML = html;
   document.querySelectorAll("[data-nav]").forEach(a => { if (a.dataset.nav === nav) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
   document.title = p ? `${p.title} · Jack Walker` : "Jack Walker Portfolio";
+  const crumb = document.getElementById("crumb");
+  if (crumb) crumb.textContent = p ? p.title : id === "other-work" ? "Other Work" : id === "about" ? "About" : "";
   window.scrollTo(0, 0);
   const pel = document.getElementById("portrait");
   if (pel) portraitWidget = new AsciiReveal(pel, ASSETS["jack-walker-headshot"], ASCII_CFG);
