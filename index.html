@@ -86,8 +86,7 @@ main { padding-block: 56px 96px; }
 .intro h1 { font-size: clamp(30px, 4vw, 44px); font-weight: 800; letter-spacing: -0.02em; max-width: 22ch; }
 .intro h1.big-name { font-size: clamp(46px, 7.2vw, 88px); letter-spacing: -0.03em; line-height: 1.02; max-width: none; }
 .big-name span { display: inline-block; white-space: pre; }
-.big-name span.scr { color: var(--muted); }
-.big-name span.scr.acc { color: var(--link); }
+.big-name span.ghost { color: transparent; }
 .intro p.intro-sub { font-size: clamp(20px, 2.2vw, 26px); font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
 .intro p { color: var(--muted); font-size: 19px; max-width: 56ch; }
 .intro.has-portrait { grid-template-columns: minmax(0, 1fr) 320px; align-items: center; column-gap: 64px; }
@@ -914,7 +913,8 @@ function viewAbout() {
 function initNameFx() {
   const h = document.getElementById("big-name");
   if (!h || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const CH = "#%@*+=~;:·";
+  const DENS = " .:;=+*#%@";
+  const CELL = 6; // px — glyphs stay tiny relative to the 88px letters
   const spans = [...h.textContent].map(c => {
     const s = document.createElement("span");
     s.textContent = c;
@@ -923,10 +923,44 @@ function initNameFx() {
   });
   h.textContent = "";
   spans.forEach(s => h.appendChild(s));
+  h.style.position = "relative";
+  const cv = document.createElement("canvas");
+  cv.style.cssText = "position:absolute;inset:0;pointer-events:none";
+  cv.setAttribute("aria-hidden", "true");
+  h.appendChild(cv);
+  const ctx = cv.getContext("2d");
+  let geom = null;
   const lock = () => {
     spans.forEach(s => { s.style.width = ""; });
     const ws = spans.map(s => s.getBoundingClientRect().width);
     spans.forEach((s, i) => { s.style.width = ws[i] + "px"; s.style.textAlign = "center"; });
+    const hr = h.getBoundingClientRect();
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    cv.width = Math.max(2, hr.width * dpr); cv.height = Math.max(2, hr.height * dpr);
+    cv.style.width = hr.width + "px"; cv.style.height = hr.height + "px";
+    // sample the real letterforms into an offscreen alpha map
+    const src = document.createElement("canvas");
+    src.width = Math.max(2, Math.ceil(hr.width)); src.height = Math.max(2, Math.ceil(hr.height));
+    const sc = src.getContext("2d", { willReadFrequently: true });
+    const st = getComputedStyle(h);
+    sc.font = st.fontWeight + " " + st.fontSize + " " + st.fontFamily;
+    sc.textBaseline = "alphabetic";
+    sc.fillStyle = "#000";
+    const letters = spans.map(s => {
+      const r = s.getBoundingClientRect();
+      return { x: r.left - hr.left, y: r.top - hr.top, w: r.width, h: r.height };
+    });
+    spans.forEach((s, i) => {
+      // read the real baseline from layout rather than font metrics
+      const probe = document.createElement("i");
+      probe.style.cssText = "display:inline-block;width:0;height:0;vertical-align:baseline";
+      s.appendChild(probe);
+      const baseY = probe.getBoundingClientRect().top - hr.top;
+      probe.remove();
+      const m = sc.measureText(s.dataset.c);
+      sc.fillText(s.dataset.c, letters[i].x + (letters[i].w - m.width) / 2, baseY);
+    });
+    geom = { dpr, letters, srcW: src.width, srcH: src.height, data: sc.getImageData(0, 0, src.width, src.height).data };
   };
   const ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
   ready.then(() => { if (h.isConnected) lock(); });
@@ -936,24 +970,46 @@ function initNameFx() {
     clearTimeout(rsT); rsT = setTimeout(lock, 150);
   };
   addEventListener("resize", onRs);
-  const reset = () => spans.forEach(s => { s.textContent = s.dataset.c; s.classList.remove("scr", "acc"); });
+  const reset = () => {
+    spans.forEach(s => s.classList.remove("ghost"));
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, cv.width, cv.height);
+  };
   const sweep = () => {
-    const n = spans.length, band = 3.2, dur = 950, t0 = performance.now();
+    if (!geom) return;
+    const n = spans.length, band = 3.4, dur = 1150, t0 = performance.now();
+    const st = getComputedStyle(document.documentElement);
+    const ink = st.getPropertyValue("--ink").trim() || "#161917";
+    const acc = st.getPropertyValue("--link").trim() || "#007F3F";
     const frame = now => {
       if (!h.isConnected) return;
       const k = (now - t0) / dur;
       const pos = k * (n + band * 2) - band;
+      ctx.setTransform(geom.dpr, 0, 0, geom.dpr, 0, 0);
+      ctx.clearRect(0, 0, geom.srcW, geom.srcH);
+      ctx.font = "700 " + CELL + "px ui-monospace, Menlo, Consolas, monospace";
+      ctx.textBaseline = "top";
       spans.forEach((s, i) => {
         const d = pos - i;
-        if (d > 0 && d < band) {
-          s.textContent = CH[(Math.random() * CH.length) | 0];
-          s.classList.add("scr");
-          s.classList.toggle("acc", Math.random() < .12);
-        } else if (s.textContent !== s.dataset.c || s.classList.contains("scr")) {
-          s.textContent = s.dataset.c;
-          s.classList.remove("scr", "acc");
+        const inBand = d > 0 && d < band;
+        s.classList.toggle("ghost", inBand);
+        if (!inBand) return;
+        const L = geom.letters[i];
+        const edge = Math.min(1, Math.min(d, band - d) / (band * .35));
+        const jit = (1 - edge) * 4;
+        const cols = Math.ceil(L.w / CELL), rows = Math.ceil(L.h / CELL);
+        for (let cy = 0; cy < rows; cy++) for (let cx = 0; cx < cols; cx++) {
+          const px = Math.min(geom.srcW - 1, Math.max(0, (L.x + cx * CELL + CELL / 2) | 0));
+          const py = Math.min(geom.srcH - 1, Math.max(0, (L.y + cy * CELL + CELL / 2) | 0));
+          const a = geom.data[(py * geom.srcW + px) * 4 + 3];
+          if (a < 40) continue;
+          const idx = Math.max(1, Math.min(DENS.length - 1, Math.round((a / 255) * (DENS.length - 1) + (Math.random() * 2 - 1))));
+          ctx.fillStyle = Math.random() < .1 ? acc : ink;
+          ctx.globalAlpha = (.55 + .45 * (a / 255)) * (.3 + .7 * edge);
+          ctx.fillText(DENS[idx], L.x + cx * CELL + (Math.random() * 2 - 1) * jit, L.y + cy * CELL + (Math.random() * 2 - 1) * jit);
         }
       });
+      ctx.globalAlpha = 1;
       if (k < 1) requestAnimationFrame(frame); else reset();
     };
     requestAnimationFrame(frame);
