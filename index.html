@@ -68,7 +68,8 @@ img, video { display: block; max-width: 100%; }
 /* Header */
 .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
 .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 60px; }
-.top .name { font-weight: 700; font-size: 18px; color: var(--ink); text-decoration: none; }
+.top .name { font-weight: 700; font-size: 18px; color: var(--ink); text-decoration: none; transition: color .15s; }
+.top .name:hover, .top .name:focus-visible { color: var(--link); }
 .brand { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
 .crumb { color: var(--muted); font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .crumb:not(:empty)::before { content: "/"; margin-right: 8px; }
@@ -191,6 +192,12 @@ figure .img.fit img { cursor: zoom-in; }
 .phones.two { --n: 2; max-width: 520px; margin-inline: auto; width: 100%; }
 .dials { --n: 3; max-width: 660px; margin-inline: auto; width: 100%; }
 .bare .img { background: transparent; border-radius: 0; }
+.figs.posters { --n: 4; }
+.figs.steps { --n: 4; gap: 12px; }
+.steps figcaption { font-size: 13.5px; }
+.figs.pair { --n: 2; max-width: 760px; margin-inline: auto; width: 100%; }
+.sub-h { font-size: 20px; font-weight: 700; margin: 28px 0 0; }
+.sub-p { color: var(--muted); margin-top: -8px; }
 
 .nums { display: flex; flex-wrap: wrap; gap: 16px 40px; }
 .nums b { display: block; font-size: 34px; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
@@ -271,6 +278,7 @@ footer { border-top: 1px solid var(--line); }
   .figs.strip { --n: 3 !important; }
   .figs.dials { --n: 3 !important; }
   .phones, .phones.two { --n: 2 !important; }
+  .figs.posters, .figs.steps, .figs.pair { --n: 2 !important; }
   .cs-body { gap: 56px; margin-top: 56px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
@@ -278,7 +286,7 @@ footer { border-top: 1px solid var(--line); }
 
 <header class="top"><div class="wrap">
   <div class="brand"><a class="name" href="#">Jack Walker</a><span id="crumb" class="crumb" aria-current="page"></span></div>
-  <nav aria-label="Main"><a href="#" data-nav="work">Home</a><a href="#other-work" data-nav="other">Other Work</a><a href="#about" data-nav="about">About</a><button id="mode" type="button" aria-label="Switch color theme"></button></nav>
+  <nav aria-label="Main"><a href="#" data-nav="work">Home</a><a href="#beyond-ux" data-nav="other">Beyond UX</a><a href="#about" data-nav="about">About</a><button id="mode" type="button" aria-label="Switch color theme"></button></nav>
 </div></header>
 <main id="app" class="wrap"></main>
 <dialog id="lb" aria-label="Image preview"><img alt=""><p></p></dialog>
@@ -299,7 +307,7 @@ footer { border-top: 1px solid var(--line); }
   <div class="f-col">
     <h3>Site</h3>
     <a href="#">Home</a>
-    <a href="#other-work">Other Work</a>
+    <a href="#beyond-ux">Beyond UX</a>
     <a href="#about">About</a>
     <a href="https://docs.google.com/document/d/1W2idFMJRs5636LlhtmxSSqJZcpYce-FCKtDAANgGB-8/export?format=pdf" target="_blank" rel="noopener">Résumé (PDF)</a>
   </div>
@@ -310,7 +318,7 @@ footer { border-top: 1px solid var(--line); }
 <script>
 /* Draft notes (yellow boxes) mark what Jack still needs to supply. Set to false to hide them all. */
 const DRAFT = true;
-const ASSETS = {"cover-quarters": "assets/cover-quarters.webp", "cover-stewart-title": "assets/cover-stewart-title.png", "cover-amazon-music": "assets/cover-amazon-music.webp", "cover-savannah-parking": "assets/cover-savannah-parking.webp", "cover-national-park-service": "assets/cover-national-park-service.webp", "cover-nest-thermostat": "assets/cover-nest-thermostat.webp", "nps-topo": "assets/nps-topo.webp", "nps-real": "assets/nps-real.webp", "nps-nat": "assets/nps-nat.webp", "nps-con": "assets/nps-con.webp", "nps-color": "assets/nps-color.webp", "nps-type": "assets/nps-type.webp", "nps-layout": "assets/nps-layout.webp", "nps-mirage": "assets/nps-mirage.webp", "nps-sunday": "assets/nps-sunday.png", "nps-hikeon": "assets/nps-hikeon.webp", "nps-palette": "assets/nps-palette.webp", "nps-typefaces": "assets/nps-typefaces.webp", "nps-shapes": "assets/nps-shapes.webp", "nps-illus": "assets/nps-illus.webp", "nps-components": "assets/nps-components.webp", "nps-flow": "assets/nps-flow.webp", "nest-lookbook": "assets/nest-lookbook.webp", "nest-poster": "assets/nest-poster.webp", "nest-summary": "assets/nest-summary.webp", "nest-sg1": "assets/nest-sg1.png", "nest-sg2": "assets/nest-sg2.png", "nest-sg3": "assets/nest-sg3.png", "nest-sg4": "assets/nest-sg4.png", "nest-sg5": "assets/nest-sg5.png", "nest-sg6": "assets/nest-sg6.png", "nest-eco": "assets/nest-eco.png", "nest-cool": "assets/nest-cool.webp", "nest-heat": "assets/nest-heat.webp", "nest-home": "assets/nest-home.png", "nest-schedule": "assets/nest-schedule.png", "fr-hero": "assets/fr-hero.webp", "fr-obs1": "assets/fr-obs1.webp", "fr-obs2": "assets/fr-obs2.webp", "fr-stake": "assets/fr-stake.png", "fr-screener": "assets/fr-screener.png", "fr-questions": "assets/fr-questions.png", "fr-insights": "assets/fr-insights.png", "fr-workshop": "assets/fr-workshop.webp", "fr-kit": "assets/fr-kit.webp", "fr-data": "assets/fr-data.webp", "fr-aff1": "assets/fr-aff1.webp", "fr-aff2": "assets/fr-aff2.webp", "fr-front": "assets/fr-front.webp", "fr-back": "assets/fr-back.webp", "fr-p12": "assets/fr-p12.webp", "fr-p34": "assets/fr-p34.webp", "fr-p56": "assets/fr-p56.webp", "fr-mock": "assets/fr-mock.webp", "gd-chloris": "assets/gd-chloris.webp", "gd-film": "assets/gd-film.png", "gd-type": "assets/gd-type.webp", "pw-back": "assets/pw-back.webp", "pw-front": "assets/pw-front.webp", "pw-sticker": "assets/pw-sticker.webp", "pw-sticker-ai": "assets/pw-sticker-ai.webp", "pw-coaster": "assets/pw-coaster.webp", "pw-coaster-ai": "assets/pw-coaster-ai.webp", "id-model": "assets/id-model.webp", "id-proto": "assets/id-proto.webp", "nps-landing": "assets/nps-landing.mp4", "nps-alaska": "assets/nps-alaska.mp4", "nps-denali": "assets/nps-denali.mp4", "jack-walker-headshot": "assets/jack-walker-headshot.webp"};
+const ASSETS = {"cover-quarters": "assets/cover-quarters.webp", "cover-stewart-title": "assets/cover-stewart-title.png", "cover-amazon-music": "assets/cover-amazon-music.webp", "cover-savannah-parking": "assets/cover-savannah-parking.webp", "cover-national-park-service": "assets/cover-national-park-service.webp", "cover-nest-thermostat": "assets/cover-nest-thermostat.webp", "nps-topo": "assets/nps-topo.webp", "nps-real": "assets/nps-real.webp", "nps-nat": "assets/nps-nat.webp", "nps-con": "assets/nps-con.webp", "nps-color": "assets/nps-color.webp", "nps-type": "assets/nps-type.webp", "nps-layout": "assets/nps-layout.webp", "nps-mirage": "assets/nps-mirage.webp", "nps-sunday": "assets/nps-sunday.png", "nps-hikeon": "assets/nps-hikeon.webp", "nps-palette": "assets/nps-palette.webp", "nps-typefaces": "assets/nps-typefaces.webp", "nps-shapes": "assets/nps-shapes.webp", "nps-illus": "assets/nps-illus.webp", "nps-components": "assets/nps-components.webp", "nps-flow": "assets/nps-flow.webp", "nest-lookbook": "assets/nest-lookbook.webp", "nest-poster": "assets/nest-poster.webp", "nest-summary": "assets/nest-summary.webp", "nest-sg1": "assets/nest-sg1.png", "nest-sg2": "assets/nest-sg2.png", "nest-sg3": "assets/nest-sg3.png", "nest-sg4": "assets/nest-sg4.png", "nest-sg5": "assets/nest-sg5.png", "nest-sg6": "assets/nest-sg6.png", "nest-eco": "assets/nest-eco.png", "nest-cool": "assets/nest-cool.webp", "nest-heat": "assets/nest-heat.webp", "nest-home": "assets/nest-home.png", "nest-schedule": "assets/nest-schedule.png", "fr-hero": "assets/fr-hero.webp", "fr-obs1": "assets/fr-obs1.webp", "fr-obs2": "assets/fr-obs2.webp", "fr-stake": "assets/fr-stake.png", "fr-screener": "assets/fr-screener.png", "fr-questions": "assets/fr-questions.png", "fr-insights": "assets/fr-insights.png", "fr-workshop": "assets/fr-workshop.webp", "fr-kit": "assets/fr-kit.webp", "fr-data": "assets/fr-data.webp", "fr-aff1": "assets/fr-aff1.webp", "fr-aff2": "assets/fr-aff2.webp", "fr-front": "assets/fr-front.webp", "fr-back": "assets/fr-back.webp", "fr-p12": "assets/fr-p12.webp", "fr-p34": "assets/fr-p34.webp", "fr-p56": "assets/fr-p56.webp", "fr-mock": "assets/fr-mock.webp", "gd-chloris": "assets/gd-chloris.webp", "gd-film": "assets/gd-film.png", "gd-type": "assets/gd-type.webp", "pw-back": "assets/pw-back.webp", "pw-front": "assets/pw-front.webp", "pw-sticker": "assets/pw-sticker.webp", "pw-sticker-ai": "assets/pw-sticker-ai.webp", "pw-coaster": "assets/pw-coaster.webp", "pw-coaster-ai": "assets/pw-coaster-ai.webp", "id-model": "assets/id-model.webp", "id-proto": "assets/id-proto.webp", "nps-landing": "assets/nps-landing.mp4", "nps-alaska": "assets/nps-alaska.mp4", "nps-denali": "assets/nps-denali.mp4", "jack-walker-headshot": "assets/jack-walker-headshot.webp", "gd-bigbend1": "assets/gd-bigbend1.webp", "gd-bigbend2": "assets/gd-bigbend2.webp", "gd-brand": "assets/gd-brand.webp", "gd-chloris2": "assets/gd-chloris2.webp", "gd-chloris3": "assets/gd-chloris3.webp", "gd-escape": "assets/gd-escape.webp", "gd-farm1": "assets/gd-farm1.webp", "gd-farm2": "assets/gd-farm2.webp", "gd-farm3": "assets/gd-farm3.webp", "gd-farm4": "assets/gd-farm4.webp", "gd-focus": "assets/gd-focus.webp", "gd-hwy-poster": "assets/gd-hwy-poster.webp", "gd-mntpr": "assets/gd-mntpr.webp", "gd-nina1": "assets/gd-nina1.webp", "gd-nina2": "assets/gd-nina2.webp", "gd-tsa": "assets/gd-tsa.webp", "id-gpu1": "assets/id-gpu1.webp", "id-gpu2": "assets/id-gpu2.webp", "id-gpu3": "assets/id-gpu3.webp", "id-gpu4": "assets/id-gpu4.webp", "id-gpu5": "assets/id-gpu5.webp", "id-gpu6": "assets/id-gpu6.webp", "lamp-01": "assets/lamp-01.webp", "lamp-02": "assets/lamp-02.webp", "lamp-03": "assets/lamp-03.webp", "lamp-04": "assets/lamp-04.webp", "lamp-05": "assets/lamp-05.webp", "lamp-06": "assets/lamp-06.webp", "lamp-07": "assets/lamp-07.webp", "lamp-08": "assets/lamp-08.webp", "lamp-09": "assets/lamp-09.webp", "lamp-10": "assets/lamp-10.webp", "lamp-11": "assets/lamp-11.webp", "lamp-12": "assets/lamp-12.webp", "lamp-13a": "assets/lamp-13a.webp", "lamp-13b": "assets/lamp-13b.webp", "pw-bmw-ai": "assets/pw-bmw-ai.webp"};
 const EMAIL = "walkerajack@gmail.com";
 const LINKEDIN = "https://www.linkedin.com/in/jack-walker-b20035321/";
 const INSTAGRAM = "https://www.instagram.com/trailwlk.r/";
@@ -425,23 +433,51 @@ const MORE = [
 ];
 
 const OTHER = [
-  { id: "graphic-design", title: "Graphic design", lede: "Illustration, posters and type work.",
+  { id: "graphic-design", title: "Graphic design", lede: "Posters, illustration and type work, made for classmates, clients and myself.",
     blocks: [
-      { figs: [["gd-chloris", "Chloris' Madonna, digital illustration, 2025"], ["gd-film", "Poster for the SCAD student film Max Needs to Pay Rent"]] },
-      { figs: [["gd-type", "Editorial on the Highway Gothic typeface"]], n: 1 } ] },
+      { h: "Student film posters", p: "Posters for films made by fellow SCAD students." },
+      { figs: [["gd-mntpr", "Max Needs to Pay Rent, 2025"], ["gd-focus", "Focus Goggles, 2025"], ["gd-nina2", "NINA, poster 02, 2024"], ["gd-nina1", "NINA, poster 01, 2024"]], kind: "posters" },
+      { h: "Personal work" },
+      { figs: [["gd-chloris", "Chloris' Madonna, 2025"], ["gd-chloris2", "Chloris' Madonna, variation"], ["gd-chloris3", "Chloris' Madonna, variation"]], n: 3 },
+      { figs: [["gd-escape", "ESCAPE WILL MAKE ME GOD, 2025. Characters from Bungie's Marathon."]], n: 1 },
+      { figs: [["gd-bigbend2", "Big Bend National Park 02, 2025"], ["gd-bigbend1", "Big Bend National Park 01, 2024"], ["gd-tsa", "Teacher Student Association T-shirt, 2023"]], n: 3 },
+      { figs: [["gd-brand", "Personal brand logo and identity, 2025"]], n: 1 },
+      { h: "Typography studies" },
+      { figs: [["gd-hwy-poster", "Highway Gothic poster"], ["gd-type", "Highway Gothic editorial"]] },
+      { p: "Farmers market posters: a design challenge built only from typographic elements, with the rules loosening each round." },
+      { figs: [["gd-farm1", "1. No color, one font size"], ["gd-farm2", "2. No color, multiple sizes"], ["gd-farm3", "3. Color, limited shapes"], ["gd-farm4", "4. No limits"]], kind: "posters" } ] },
   { id: "fridge-research", title: "The Ideal Fridge", lede: "A team research study into how people use their refrigerators, published as a printed magazine. I designed the front and back covers.",
     blocks: [
       { figs: [["fr-hero", "The finished magazine"]], n: 1 },
-      { p: "We observed people at dinner time, interviewed a wide range of participants and ran a sensory workshop, then grouped what we found into ten core insights." },
-      { nums: [["1000+", "Unique insights"], ["10", "Core insights"]] },
-      { figs: [["fr-front", "Front cover, designed by me"], ["fr-back", "Back cover, designed by me"]] } ] },
-  { id: "print-work", title: "Print work", lede: "Designs made into physical pieces in Illustrator and sublimation printing.",
+      { p: "We started with secondary research, then ran our own studies in four stages." },
+      { h: "Observation", p: "Each of us watched a participant use their fridge in the hour around dinner, when fridges get the most use." },
+      { figs: [["fr-obs1", "Insights on helpful features"], ["fr-obs2", "Insights on compact space"]] },
+      { h: "Screener and interviews", p: "A screener found interview candidates across a wide range of demographics." },
+      { figs: [["fr-stake", "Stakeholder map"], ["fr-screener", "Screener outcomes"], ["fr-questions", "Introductory interview questions"], ["fr-insights", "Key insights from each interview"]] },
+      { h: "Sensory cue workshop", p: "A four-part workshop on what draws people to a fridge: the ideal interior, how they organize it, and how it should feel, physically and emotionally." },
+      { figs: [["fr-workshop", "Participants in the workshop"], ["fr-kit", "Stimulus kit"], ["fr-data", "Example of the data collected"]], n: 3 },
+      { h: "Affinitization", p: "We grouped everything we found into patterns, then into ten core insights." },
+      { nums: [["1000+", "Unique insights"], ["114", "Tertiary data points"], ["29", "Secondary data points"], ["10", "Core insights"]] },
+      { figs: [["fr-aff2", "Affinity mapping"], ["fr-aff1", "Sorted insights"]] },
+      { h: "The magazine" },
+      { figs: [["fr-front", "Front cover, designed by me"], ["fr-back", "Back cover, designed by me"]] },
+      { figs: [["fr-p12", "Pages 1 and 2"], ["fr-p34", "Pages 3 and 4"], ["fr-p56", "Pages 5 and 6"]], n: 3 },
+      { figs: [["fr-mock", "Printed mockups"]], n: 1 } ] },
+  { id: "print-work", title: "Print work", lede: "Designs I turned into physical pieces, drawn in Illustrator and sublimation printed.",
     blocks: [
-      { figs: [["pw-front", "BMW crewneck, front"], ["pw-back", "BMW crewneck, back"]] },
-      { figs: [["pw-sticker", "Save the Trees sticker, for a Design for Good campaign"], ["pw-coaster", "Born To Lead coaster for LISD teachers and principals"]] } ] },
-  { id: "industrial-design", title: "Industrial design", lede: "3D modeling in Rhino and KeyShot, plus prototyping in the workshop.",
+      { h: "BMW crewneck" },
+      { figs: [["pw-front", "Front"], ["pw-back", "Back"], ["pw-bmw-ai", "Artwork, designed in Illustrator"]], n: 3 },
+      { h: "Save the Trees sticker", p: "Made for a Design for Good campaign, highlighting deforestation in the Amazon and around the world." },
+      { figs: [["pw-sticker", "The printed sticker"], ["pw-sticker-ai", "Artwork, designed in Illustrator"]] },
+      { h: "Born To Lead coaster", p: "Designed and batch produced for teachers and principals in the LISD school district in Texas. I also gave a speech on how its graphic design program shaped my future." },
+      { figs: [["pw-coaster", "The finished coaster"], ["pw-coaster-ai", "Artwork, designed in Illustrator"]] } ] },
+  { id: "industrial-design", title: "Industrial design", lede: "3D modeling in Rhino and KeyShot, and hands-on prototyping in the workshop.",
     blocks: [
-      { figs: [["id-model", "Modeled in Rhino"], ["id-proto", "Workshop prototyping"]] } ] }
+      { h: "GPU model and render", p: "A 3D model of a GeForce RTX 3070 Ti graphics card, modeled in Rhino and rendered in KeyShot." },
+      { figs: [["id-gpu2", "Render"], ["id-gpu3", "Render"], ["id-gpu1", "Exploded view"], ["id-gpu4", "Detail"], ["id-gpu5", "Render"], ["id-gpu6", "Orthographic views"]], n: 3 },
+      { h: "Lamp, start to finish", p: "A lamp built in the wood shop with a planer, lathe, table saw, band saw, miter saw and vacuum former." },
+      { figs: [["lamp-01", "1. The original wood"], ["lamp-02", "2. Split into five pieces"], ["lamp-03", "3. Glued, ready for the lathe"], ["lamp-04", "4. Before the lathe"], ["lamp-05", "5. On the lathe"], ["lamp-06", "6. The finished mold"], ["lamp-07", "7. Vacuum-formed plastic"], ["lamp-08", "8. Mold with both pieces"], ["lamp-09", "9. Pieces glued together"], ["lamp-10", "10. Bondo and primer"], ["lamp-11", "11. Painting"], ["lamp-12", "12. Laser-cut stand"]], kind: "steps" },
+      { figs: [["lamp-13a", "The finished lamp"], ["lamp-13b", "The finished lamp, lit"]], kind: "pair" } ] }
 ];
 
 const CV = {
@@ -453,9 +489,14 @@ const CV = {
   education: [
     { when: "2023 to May 2027", title: "Savannah College of Art & Design", org: "BFA, UX Design · GPA 3.81 · Dean's Honor List" }
   ],
+  service: [
+    { when: "2019 to 2023", title: "Young Men's Service League", org: "Castle Hills, TX", bullets: ["Communications Committee, 2022 to 2023", "Meetings Committee Leader, 2019 to 2022"] },
+    { when: "2019 to 2023", title: "Volunteer, North Texas", org: "85 service hours with Feed My Starving Children, CCA Food Pantry, Hope Supply and Honor Flight" }
+  ],
   skills: [
     { when: "Methods", title: "Wireframing, prototyping, design systems, user testing, A/B testing, design handoff" },
-    { when: "Tools", title: "Figma, Illustrator (certified), Photoshop, InDesign, Adobe XD, Rhino, KeyShot, HTML, CSS, JavaScript" }
+    { when: "Tools", title: "Figma, Illustrator, Photoshop, InDesign, Lightroom, Adobe XD, After Effects, Rhino, KeyShot, HTML, CSS, JavaScript" },
+    { when: "Certifications", title: "Adobe Certified Professional, Creative Cloud · Adobe Illustrator · Microsoft Office Specialist: Word, Excel, PowerPoint" }
   ]
 };
 
@@ -827,6 +868,7 @@ function figs(list, n, kind) {
 }
 const todo = t => `<p class="todo"><b>To add:</b> ${esc(t)}</p>`;
 function block(b) {
+  if (b.h) return `<h3 class="sub-h">${esc(b.h)}</h3>` + (b.p ? `<p class="col sub-p">${esc(b.p)}</p>` : "");
   if (b.p) return `<p class="col">${esc(b.p)}</p>`;
   if (b.list) return `<ul class="col">${b.list.map(i => `<li>${esc(i)}</li>`).join("")}</ul>`;
   if (b.todo) return `<div class="col">${todo(b.todo)}</div>`;
@@ -863,7 +905,7 @@ function viewHome() {
     </section>
     <section class="featured"><h2>UX Projects</h2><div class="cards">${FEATURED.map(card).join("")}</div></section>
     <section class="more"><h2>More work</h2><div class="cards">${MORE.map(card).join("")}
-      <a class="card" href="#other-work"><div class="shot">${media("gd-type", "")}</div><h2>Other Work</h2><p>Graphic design, research, print and industrial design.</p><span class="meta">2023 to 2026</span></a>
+      <a class="card" href="#beyond-ux"><div class="shot">${media("gd-type", "")}</div><h2>Beyond UX</h2><p>Graphic design, research, print and industrial design.</p><span class="meta">2023 to 2026</span></a>
     </div></section>`;
 }
 
@@ -926,9 +968,9 @@ function mountProto(path) {
 
 function viewOther() {
   return `<section class="intro" style="padding-bottom:0">
-      <h1>Other Work</h1>
+      <h1>Beyond UX</h1>
       <p>Work outside UX design that shapes how I design: illustration, print, research and 3D.</p>
-      <div class="toc">${OTHER.map(o => `<a href="#other-work" data-jump="${o.id}">${esc(o.title)}</a>`).join("")}</div>
+      <div class="toc">${OTHER.map(o => `<a href="#beyond-ux" data-jump="${o.id}">${esc(o.title)}</a>`).join("")}</div>
     </section>
     ${OTHER.map(o => `<section class="piece" id="o-${o.id}"><h2>${esc(o.title)}</h2><p class="col" style="color:var(--muted)">${esc(o.lede)}</p>${o.blocks.map(block).join("")}</section>`).join("")}`;
 }
@@ -949,6 +991,7 @@ function viewAbout() {
       <section><h2>Experience</h2>${CV.experience.map(row).join("")}</section>
       <section><h2>Education</h2>${CV.education.map(row).join("")}</section>
       <section><h2>Skills</h2>${CV.skills.map(row).join("")}</section>
+      <section><h2>Leadership &amp; service</h2>${CV.service.map(row).join("")}</section>
       <section id="contact"><h2>Contact</h2>
         <div class="contact" style="padding-top:20px">
           <span class="mail" id="mail">${EMAIL}</span>
@@ -1127,7 +1170,7 @@ function render() {
   const p = ALL.find(x => x.id === id);
   let html, nav = "work";
   if (p) html = viewCase(p);
-  else if (id === "other-work") { html = viewOther(); nav = "other"; }
+  else if (id === "beyond-ux" || id === "other-work") { html = viewOther(); nav = "other"; }
   else if (id === "about") { html = viewAbout(); nav = "about"; }
   else html = viewHome();
   if (portraitWidget) { portraitWidget.destroy(); portraitWidget = null; }
@@ -1135,7 +1178,7 @@ function render() {
   document.querySelectorAll("[data-nav]").forEach(a => { if (a.dataset.nav === nav) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
   document.title = p ? `${p.title} · Jack Walker` : "Jack Walker Portfolio";
   const crumb = document.getElementById("crumb");
-  if (crumb) crumb.textContent = p ? p.title : id === "other-work" ? "Other Work" : id === "about" ? "About" : "";
+  if (crumb) crumb.textContent = p ? p.title : (id === "beyond-ux" || id === "other-work") ? "Beyond UX" : id === "about" ? "About" : "";
   window.scrollTo(0, 0);
   const pel = document.getElementById("portrait");
   if (pel) portraitWidget = new AsciiReveal(pel, ASSETS["jack-walker-headshot"], ASCII_CFG);
