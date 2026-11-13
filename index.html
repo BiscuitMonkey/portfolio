@@ -33,16 +33,17 @@
   --ascii-invert: 1;
   --cur-fill: #161616;
   --cur-edge: rgba(255, 255, 255, .9);
+  --proto-shadow: rgba(22, 24, 29, .2);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #121212; --ink: #ECECEC; --muted: #A3A3A3; --line: #2B2B2B; --wash: #1B1B1B; --link: #35C280;
-    --todo-bg: #2A2414; --todo-ink: #F0D68A; --todo-line: #6B5A26; --ascii-rgb: 236, 237, 239; --ascii-invert: 0; --cur-fill: #FFFFFF; --cur-edge: rgba(10, 11, 12, .7); color-scheme: dark;
+    --todo-bg: #2A2414; --todo-ink: #F0D68A; --todo-line: #6B5A26; --ascii-rgb: 236, 237, 239; --ascii-invert: 0; --cur-fill: #FFFFFF; --cur-edge: rgba(10, 11, 12, .7); --proto-shadow: rgba(0, 0, 0, 0); color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #121212; --ink: #ECECEC; --muted: #A3A3A3; --line: #2B2B2B; --wash: #1B1B1B; --link: #35C280;
-  --todo-bg: #2A2414; --todo-ink: #F0D68A; --todo-line: #6B5A26; --ascii-rgb: 236, 237, 239; --ascii-invert: 0; --cur-fill: #FFFFFF; --cur-edge: rgba(10, 11, 12, .7); color-scheme: dark;
+  --todo-bg: #2A2414; --todo-ink: #F0D68A; --todo-line: #6B5A26; --ascii-rgb: 236, 237, 239; --ascii-invert: 0; --cur-fill: #FFFFFF; --cur-edge: rgba(10, 11, 12, .7); --proto-shadow: rgba(0, 0, 0, 0); color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -157,6 +158,14 @@ main { padding-block: 56px 96px; }
 .hero img { width: 100%; height: auto; }
 
 .cs-body { display: grid; gap: 72px; margin-top: 72px; }
+
+/* Case study with a live prototype: phone pinned left, story scrolls right */
+.cs-split { display: grid; grid-template-columns: clamp(340px, 31vw, 440px) minmax(0, 1fr); gap: 0 clamp(32px, 4vw, 64px); align-items: start; }
+.proto-col { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 72px); height: calc(100vh - 96px); height: calc(100dvh - 96px); display: flex; flex-direction: column; gap: 8px; }
+.proto-col iframe { flex: 1; min-height: 0; width: 100%; border: 0; display: block; background: transparent; filter: drop-shadow(0 16px 26px var(--proto-shadow)); }
+.proto-msg { flex: 1; display: grid; place-items: center; text-align: center; padding: 24px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); font-size: 15px; }
+.proto-cap { font-size: 14px; font-weight: 500; color: var(--muted); text-align: center; }
+.cs-main { min-width: 0; }
 .sec { display: grid; gap: 20px; }
 .sec > .col { display: grid; gap: 16px; }
 .sec h2 { font-size: 28px; letter-spacing: -0.01em; }
@@ -239,6 +248,12 @@ footer { border-top: 1px solid var(--line); }
   .about .photo { max-width: 220px; }
   .row { grid-template-columns: 1fr; }
   .figs.strip { --n: 3; }
+  .cs-split { display: flex; flex-direction: column; }
+  .cs-main { display: contents; }
+  .cs-main > * { order: 3; }
+  .cs-main > .back, .cs-main > .cs-head { order: 1; }
+  .proto-col { order: 2; position: static; height: min(760px, 86vh); margin-top: 32px; }
+  .proto-col iframe { border-radius: 24px; }
   .intro.has-portrait { grid-template-columns: 1fr; }
   .portrait-wrap { justify-items: start; }
   .ascii-reveal { max-width: 260px; }
@@ -248,7 +263,9 @@ footer { border-top: 1px solid var(--line); }
 @media (max-width: 560px) {
   body { font-size: 17px; }
   main { padding-block: 36px 72px; }
-  .top nav { gap: 16px; }
+  .top nav { gap: 12px; align-items: center; }
+  .top nav a { font-size: 14.5px; white-space: nowrap; }
+  .top .name { white-space: nowrap; font-size: 17px; }
   .crumb { display: none; }
   .figs { --n: 1 !important; }
   .figs.strip { --n: 3 !important; }
@@ -304,7 +321,7 @@ const RESUME_PDF = "https://docs.google.com/document/d/1W2idFMJRs5636LlhtmxSSqJZ
    Block types: p, list, todo, figs [key, caption][] with n (columns) and kind ("phones"),
    decision {h, p, todo, figs}, nums [value, label][] */
 const FEATURED = [
-  { id: "quarters", title: "Quarters", highlight: true, summary: "An iPhone app and smart fridge magnet that help roommates split rent and chores.",
+  { id: "quarters", title: "Quarters", highlight: true, proto: "quarters-prototype.html", summary: "An iPhone app and smart fridge magnet that help roommates split rent and chores.",
     meta: "Project lead · Fall 2026", hero: "cover-quarters",
     facts: { Role: "Project lead", Team: "SCAD team", Timeline: "Fall 2026", Tools: "Figma" },
     sections: [
@@ -859,7 +876,7 @@ function viewHome() {
 
 function viewCase(p) {
   const i = ALL.indexOf(p), next = ALL[(i + 1) % ALL.length];
-  return `<article>
+  const inner = `
     <a class="back" href="#">&larr; All work</a>
     <header class="cs-head">
       <h1>${esc(p.title)}${p.sub ? ` <span>${esc(p.sub)}</span>` : ""}</h1>
@@ -868,8 +885,50 @@ function viewCase(p) {
     <dl class="facts">${Object.entries(p.facts).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
     <div class="hero">${media(p.hero, p.title + " cover", true)}</div>
     <div class="cs-body">${p.sections.map(s => `<section class="sec"><h2>${esc(s.h)}</h2>${s.blocks.map(block).join("")}</section>`).join("")}</div>
-    <nav class="next" aria-label="Next project"><span>Next project</span><a href="#${next.id}">${esc(next.title)} &rarr;</a></nav>
+    <nav class="next" aria-label="Next project"><span>Next project</span><a href="#${next.id}">${esc(next.title)} &rarr;</a></nav>`;
+  if (!p.proto) return `<article>${inner}</article>`;
+  return `<article class="cs-split">
+    <aside class="proto-col" aria-label="${esc(p.title)} interactive prototype">
+      <div class="proto-msg" id="proto-slot">Loading the prototype…</div>
+      <p class="proto-cap">Interactive prototype · click through any screen</p>
+    </aside>
+    <div class="cs-main">${inner}</div>
   </article>`;
+}
+
+/* Live prototypes run in an iframe built from the fetched file, matching the page's light/dark
+   scheme so the frame stays transparent instead of getting an opaque backdrop. */
+const protoCache = {};
+function pageScheme() {
+  return document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+}
+function syncProtoScheme() {
+  const f = document.getElementById("proto");
+  try { if (f && f.contentDocument) f.contentDocument.documentElement.style.setProperty("color-scheme", pageScheme(), "important"); } catch (e) {}
+}
+function mountProto(path) {
+  const slot = document.getElementById("proto-slot");
+  if (!slot) return;
+  const put = html => {
+    if (!slot.isConnected) return;
+    const f = document.createElement("iframe");
+    f.id = "proto";
+    f.title = "Quarters interactive prototype";
+    f.srcdoc = html.replace("</head>", "<style>:root{color-scheme:" + pageScheme() + "!important}html,body{background:transparent!important}#app{color-scheme:light;box-shadow:0 0 0 11px #16181D,0 0 0 12px #3A3E46!important}</style></head>");
+    f.addEventListener("load", () => {
+      syncProtoScheme();
+      try {
+        const c = document.getElementById("cur");
+        f.contentDocument.addEventListener("pointermove", () => { if (c) c.classList.add("off"); }, { passive: true });
+      } catch (e) {}
+    });
+    slot.replaceWith(f);
+  };
+  if (protoCache[path]) return put(protoCache[path]);
+  fetch(path)
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+    .then(t => { protoCache[path] = t; put(t); })
+    .catch(() => { if (slot.isConnected) slot.textContent = "The prototype couldn’t load here."; });
 }
 
 function viewOther() {
@@ -1088,6 +1147,7 @@ function render() {
   const pel = document.getElementById("portrait");
   if (pel) portraitWidget = new AsciiReveal(pel, ASSETS["jack-walker-headshot"], ASCII_CFG);
   initNameFx();
+  if (p && p.proto) mountProto(p.proto);
 }
 
 document.body.classList.toggle("draft-off", !DRAFT);
@@ -1122,6 +1182,7 @@ document.addEventListener("click", e => {
   addEventListener("pointerdown", () => cur.classList.add("down"), true);
   addEventListener("pointerup", () => cur.classList.remove("down"), true);
   document.documentElement.addEventListener("pointerleave", () => cur.classList.add("off"));
+  document.addEventListener("pointerout", e => { if (!e.relatedTarget) cur.classList.add("off"); });
   addEventListener("blur", () => cur.classList.add("off"));
   document.addEventListener("pointerover", e => {
     const t = e.target;
@@ -1160,13 +1221,14 @@ document.addEventListener("click", e => {
     btn.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
   };
   icon();
-  if (mq.addEventListener) mq.addEventListener("change", icon);
+  if (mq.addEventListener) { mq.addEventListener("change", icon); mq.addEventListener("change", syncProtoScheme); }
   btn.addEventListener("click", () => {
     const next = effective() === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
     try { localStorage.setItem("theme", next); } catch (e) {}
     icon();
     if (typeof portraitWidget !== "undefined" && portraitWidget && portraitWidget.source) portraitWidget.resize();
+    syncProtoScheme();
   });
 })();
 addEventListener("hashchange", render);
