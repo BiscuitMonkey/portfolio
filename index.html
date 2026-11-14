@@ -174,6 +174,31 @@ main { padding-block: 56px 96px; }
 .more .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 24px; }
 .more .card h2 { font-size: 19px; }
 .more .card p { font-size: 16px; }
+.peaks { margin-top: 88px; padding-top: 32px; border-top: 1px solid var(--line); display: grid; gap: 28px; }
+.peaks > h2 { font-size: 20px; }
+.peak-list { display: grid; gap: 20px; }
+.peak { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 36px; align-items: center; padding: 28px 32px; border: 1px solid var(--line); border-radius: 12px; background: var(--wash); }
+.peak-info { display: grid; gap: 6px; justify-items: start; }
+.peak-info h3 { font-size: 24px; font-weight: 800; letter-spacing: -0.01em; }
+.peak-info p { font-size: 15px; color: var(--muted); line-height: 1.45; }
+.peak-info .peak-elev { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.peak-status { display: inline-flex; align-items: center; gap: 6px; margin: 2px 0 4px; padding: 3px 11px 3px 8px; border-radius: 999px; font-size: 13px; font-weight: 700; color: var(--link); }
+.done .peak-status { background: color-mix(in srgb, var(--link) 14%, transparent); }
+.prog .peak-status { border: 1px dashed var(--link); }
+.peak-status svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.peak-status i { width: 7px; height: 7px; border-radius: 50%; background: var(--link); animation: peakPulse 1.8s ease-in-out infinite; }
+.peak-art { container-type: inline-size; min-width: 0; }
+.peak-art pre { margin: 0; font: 600 11px/1.18 ui-monospace, Menlo, Consolas, monospace; font-size: clamp(7px, calc(100cqw / 64 / .61), 15px); color: var(--muted); white-space: pre; overflow: hidden; }
+.peak-art .tx { opacity: .45; }
+.peak-art .rg, .peak-art .tr { color: var(--ink); }
+.peak-art .tr { transition: color .25s ease; }
+.peaks.on .peak-art .tr { color: var(--link); transition-delay: calc(var(--d) * 24ms); }
+.peak-art .me { display: inline-block; color: var(--link); opacity: 0; transform: scale(.3); transition: opacity .3s ease, transform .45s cubic-bezier(.2, .9, .3, 1.4); }
+.peaks.on .peak-art .me { opacity: 1; transform: none; transition-delay: calc(var(--d) * 24ms + 120ms); }
+.peaks.on .prog .peak-art .me { animation: peakBob 2.4s ease-in-out 2.4s infinite; }
+@keyframes peakPulse { 50% { opacity: .35; } }
+@keyframes peakBob { 50% { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .peak-status i, .peaks.on .prog .peak-art .me { animation: none; } }
 
 /* Case study */
 .back { display: inline-flex; align-items: center; gap: 8px; justify-self: start; width: max-content; padding: 8px 16px 8px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); text-decoration: none; font-size: 15px; font-weight: 600; transition: color .15s, border-color .15s; }
@@ -372,6 +397,7 @@ footer { border-top: 1px solid var(--line); }
   .figs.dials { --n: 3 !important; }
   .phones, .phones.two { --n: 2 !important; }
   .figs.posters, .figs.steps, .figs.pair { --n: 2 !important; }
+  .peak { grid-template-columns: 1fr; gap: 18px; padding: 20px; }
   .figs.lead { grid-template-columns: 1fr; }
   .pull p { font-size: 18px; }
   .bux-cards { gap: 8px; }
@@ -641,7 +667,7 @@ const CV = {
 const ASCII_CFG = {
   cell: 5, charset: " .`':,;-~=+*#%@", contrast: 1.3,
   lensRadius: 60, trailLinger: 2.6, taper: 1.7, goo: 14,
-  ambient: true, ambientStrength: .9, ambientBlobs: 4, ambientRadius: [50, 100],
+  ambient: true, ambientStrength: .9, ambientBlobs: 5, ambientRadius: [50, 100],
   parallax: true, parallaxTilt: 2, parallaxShift: 8, wobbleAmount: .05
 };
 /* Field alpha → photo alpha. A wide smoothstep ramp (instead of a hard
@@ -670,10 +696,14 @@ class AsciiReveal {
     this.hasCur = false; this.trail = []; this.blobs = [];
     if (opts.ambient && !this.reduced) {
       const rnd = () => Math.random() * Math.PI * 2;
-      for (let i = 0; i < opts.ambientBlobs; i++) this.blobs.push({
-        fx: .12 + Math.random() * .1, px: rnd(), fy: .12 + Math.random() * .1, py: rnd(),
-        fr: .1 + Math.random() * .08, pr: rnd(), fa1: .18 + Math.random() * .12, fa2: .28 + Math.random() * .15,
-        pa1: i === 0 ? Math.PI / 2 : rnd(), pa2: i === 0 ? Math.PI / 2 : rnd(), lastDisc: null });
+      // Lava-lamp wax: each blob rises and sinks through the frame on its own slow cycle,
+      // sways sideways, breathes in size and stretches along its motion; the blur merges them.
+      const n = opts.ambientBlobs;
+      for (let i = 0; i < n; i++) this.blobs.push({
+        xb: .18 + .64 * (i / Math.max(1, n - 1)) + (Math.random() - .5) * .1,
+        fy: .08 + Math.random() * .05, py: i === 0 ? Math.PI * .3 : rnd(),
+        fx: .05 + Math.random() * .05, px: rnd(), ax: .1 + Math.random() * .08,
+        fr: .09 + Math.random() * .07, pr: rnd(), seed: rnd() });
     }
     this.par = { nx: 0, ny: 0, tx: 0, ty: 0 }; this.onWinMove = null;
     if (opts.parallax && !this.reduced) {
@@ -817,8 +847,8 @@ class AsciiReveal {
     const introAge = now - this.introT0, introSpan = 1500, introFade = 520;
     const intro = introAge < introSpan + introFade;
     // Repeating sweep: the opening effect as a soft band that passes over every few seconds
-    const SWEEP = 2600;
-    if (!this.nextSweep) this.nextSweep = this.introT0 + introSpan + introFade + 5000 + Math.random() * 3000;
+    const SWEEP = 3600;
+    if (!this.nextSweep) this.nextSweep = this.introT0 + introSpan + introFade + 9000 + Math.random() * 4000;
     if (!this.sweepT0 && now >= this.nextSweep) {
       if (this.pointer.inside) this.nextSweep = now + 1500; // don't fight the visitor's cursor
       else this.sweepT0 = now;
@@ -826,7 +856,7 @@ class AsciiReveal {
     let front = null;
     if (this.sweepT0) {
       const k = (now - this.sweepT0) / SWEEP;
-      if (k >= 1) { this.sweepT0 = 0; this.nextSweep = now + 6500 + Math.random() * 4000; }
+      if (k >= 1) { this.sweepT0 = 0; this.nextSweep = now + 11000 + Math.random() * 5000; }
       else front = -.3 + (-(Math.cos(Math.PI * k) - 1) / 2) * 1.6;
     }
     const cx = this.cur.x, cy = this.cur.y, inside = this.pointer.inside;
@@ -887,12 +917,12 @@ class AsciiReveal {
     if (this.trail.length > 800) this.trail.shift();
     return d;
   }
-  blobPath(m, x, y, r, seed, t) {
+  blobPath(m, x, y, r, seed, t, sy = 1) {
     const wob = this.opts.wobbleAmount, PTS = 22, vx = [], vy = [];
     for (let i = 0; i < PTS; i++) {
       const a = (i / PTS) * Math.PI * 2;
       const k = 1 + wob * Math.sin(2 * a + seed + t * .3) + wob * .5 * Math.sin(3 * a - t * .22 + seed * 1.7);
-      vx.push(x + Math.cos(a) * r * k); vy.push(y + Math.sin(a) * r * k);
+      vx.push(x + Math.cos(a) * r * k / sy); vy.push(y + Math.sin(a) * r * k * sy);
     }
     let mx = (vx[PTS - 1] + vx[0]) / 2, my = (vy[PTS - 1] + vy[0]) / 2;
     m.moveTo(mx, my);
@@ -935,20 +965,6 @@ class AsciiReveal {
         }
       } else this.hasCur = false;
       this.trail = this.trail.filter(d => now - d.born < linger);
-      for (const b of this.blobs) {
-        const x = this.w * (.5 + .44 * Math.sin(t * b.fx + b.px));
-        const y = this.h * (.5 + .44 * Math.sin(t * b.fy + b.py));
-        const rMin = this.opts.ambientRadius[0], rMax = this.opts.ambientRadius[1];
-        const rBase = rMin + (rMax - rMin) * (.5 + .5 * Math.sin(t * b.fr + b.pr));
-        const v = (.5 + .5 * Math.sin(t * b.fa1 + b.pa1)) * (.5 + .5 * Math.sin(t * b.fa2 + b.pa2));
-        const grow = (v - .22) / .78;
-        if (grow <= 0) { b.lastDisc = null; continue; }
-        const rr = rBase * Math.min(1, grow * 1.4) * this.opts.ambientStrength;
-        if (rr < 2) { b.lastDisc = null; continue; }
-        const ld = b.lastDisc, alive = ld && this.trail.indexOf(ld) !== -1;
-        if (alive && Math.hypot(x - ld.x, y - ld.y) < 2.5) { ld.born = now; ld.x = x; ld.y = y; ld.r = rr; }
-        else b.lastDisc = this.stamp(x, y, rr, now);
-      }
       const f = this.sctx, fs = this.fscale;
       f.setTransform(fs, 0, 0, fs, 0, 0);
       f.clearRect(0, 0, this.w, this.h);
@@ -967,6 +983,19 @@ class AsciiReveal {
         f.beginPath(); this.blobPath(f, dd[0].x, dd[0].y, dd[1], dd[0].seed, t); f.fill();
       }
       f.globalAlpha = 1;
+      if (this.blobs.length) { // lava-lamp wax, drawn fresh each frame (no lingering stamps)
+        const rMin = this.opts.ambientRadius[0] * .78, rMax = this.opts.ambientRadius[1] * .66;
+        f.beginPath();
+        for (const b of this.blobs) {
+          const ph = t * b.fy + b.py;
+          const y = this.h * (.5 + .56 * Math.sin(ph));             // rises and sinks, just slipping past the edges
+          const x = this.w * (b.xb + b.ax * Math.sin(t * b.fx + b.px));
+          const r = (rMin + (rMax - rMin) * (.5 + .5 * Math.sin(t * b.fr + b.pr))) * this.opts.ambientStrength;
+          const sy = 1 + .38 * Math.abs(Math.cos(ph));                // stretches while it's moving fastest
+          this.blobPath(f, x, y, r, b.seed, t, sy);
+        }
+        f.fill();
+      }
       const fw = this.field.width, fh = this.field.height, t1 = this.t1, t2 = this.t2, fc = this.fctx;
       fc.setTransform(1, 0, 0, 1, 0, 0);
       fc.clearRect(0, 0, fw, fh);
@@ -1085,6 +1114,55 @@ function card(p) {
   </a>`;
 }
 
+/* Peaks: side profiles traced from Jack's sketches as (x, height) points, 0-1.
+   "at" is how far along the profile Jack is (the green dot). */
+const PEAKS = [
+  { name: "Guadalupe Peak", done: false, where: "Guadalupe Mountains National Park, Texas", elev: "8,751 ft", at: .48,
+    profile: [[0, .04], [.05, .12], [.11, .22], [.16, .19], [.23, .36], [.29, .32], [.36, .5], [.41, .46], [.47, .66], [.52, .77], [.56, .85], [.59, .81], [.64, .97], [.67, .9], [.72, .89], [.73, .72], [.79, .73], [.81, .61], [.88, .59], [.9, .48], [.93, .28], [.96, .1], [1, .02]] },
+  { name: "Emory Peak", done: true, where: "Big Bend National Park, Texas", elev: "7,825 ft", at: .76,
+    profile: [[0, .03], [.07, .1], [.16, .22], [.25, .31], [.34, .4], [.43, .5], [.52, .58], [.6, .68], [.67, .8], [.72, .9], [.76, .98], [.8, .86], [.84, .7], [.88, .52], [.92, .33], [.96, .15], [1, .05]] }
+];
+function peakArt(pk) {
+  const W = 64, H = 16, TX = ".:;-=+*";
+  const hAt = x => { const P = pk.profile; for (let i = 1; i < P.length; i++) if (x <= P[i][0]) { const [x0, y0] = P[i - 1], [x1, y1] = P[i]; return y0 + (y1 - y0) * ((x - x0) / (x1 - x0 || 1)); } return P[P.length - 1][1]; };
+  const r = []; for (let c = 0; c < W; c++) r.push((H - 1) - Math.round(hAt(c / (W - 1)) * (H - 3)));
+  const G = Array.from({ length: H }, () => Array.from({ length: W }, () => ({ ch: " ", k: "" })));
+  const pc = Math.round(pk.at * (W - 1));
+  for (let c = 0; c < W; c++) {
+    const prev = c ? r[c - 1] : r[c], next = c < W - 1 ? r[c + 1] : r[c];
+    G[r[c]][c] = { ch: next < prev ? "/" : next > prev ? "\\" : "_", k: c <= pc ? "tr" : "rg" };
+    if (c < W - 1 && r[c + 1] - r[c] >= 2) for (let y = r[c] + 1; y < r[c + 1]; y++) G[y][c + 1] = { ch: "|", k: c + 1 <= pc ? "tr" : "rg" };
+    if (c < W - 1 && r[c] - r[c + 1] >= 2) for (let y = r[c + 1] + 1; y < r[c]; y++) G[y][c] = { ch: "|", k: c <= pc ? "tr" : "rg" };
+    for (let y = r[c] + 1; y < H; y++) if (G[y][c].ch === " ") {
+      const d = y - r[c], hsh = ((Math.sin((c * 31 + y * 17) * 12.9898) * 43758.5453) % 1 + 1) % 1;
+      G[y][c] = { ch: d === 1 ? (hsh > .5 ? "." : " ") : TX[Math.min(TX.length - 1, Math.floor(d * .45 + hsh * 2))], k: "tx" };
+    }
+  }
+  G[r[pc] - 1][pc] = { ch: "●", k: "me" };
+  // Emit rows, merging runs of the same class; trail cells carry their column so they light up in order
+  return G.map(row => { let out = "", run = "", k0 = null;
+    const flush = () => { if (run) out += k0 ? `<span class="${k0}">${esc(run)}</span>` : esc(run); run = ""; };
+    row.forEach((cell, c) => {
+      if (cell.k === "tr" || cell.k === "me") { flush(); k0 = null; out += `<span class="${cell.k}" style="--d:${c}">${esc(cell.ch)}</span>`; return; }
+      if (cell.k !== k0) { flush(); k0 = cell.k; } run += cell.ch; });
+    flush(); return out; }).join("\n");
+}
+const peakRow = pk => `<article class="peak ${pk.done ? "done" : "prog"}">
+    <div class="peak-info">
+      <h3>${esc(pk.name)}</h3>
+      <span class="peak-status">${pk.done ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Complete' : '<i aria-hidden="true"></i>In progress'}</span>
+      <p>${esc(pk.where)}</p>
+      <p class="peak-elev">${esc(pk.elev)}</p>
+    </div>
+    <div class="peak-art" role="img" aria-label="${esc(pk.name)} side profile, ${pk.done ? "trail complete to the summit" : "trail in progress"}"><pre>${peakArt(pk)}</pre></div>
+  </article>`;
+function initPeaks() {
+  const sec = document.querySelector(".peaks");
+  if (!sec) return;
+  if (!("IntersectionObserver" in window)) { sec.classList.add("on"); return; }
+  const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { sec.classList.add("on"); io.disconnect(); } }, { threshold: .25 });
+  io.observe(sec);
+}
 function viewHome() {
   return `<section class="intro has-portrait">
       <div class="intro-text">
@@ -1105,7 +1183,8 @@ function viewHome() {
     <section class="featured" id="projects"><h2>UX Projects</h2><div class="cards">${FEATURED.map(card).join("")}</div></section>
     <section class="more"><h2>More work</h2><div class="cards">${MORE.map(card).join("")}
       <a class="card" href="#beyond-ux"><div class="shot">${media("gd-type", "")}</div><h2>Beyond UX</h2><p>Graphic design, research, print and industrial design.</p><span class="meta">2023 to 2026</span></a>
-    </div></section>`;
+    </div></section>
+    <section class="peaks" id="peaks"><h2>Peaks I've summited</h2><div class="peak-list">${PEAKS.map(peakRow).join("")}</div></section>`;
 }
 
 function viewCase(p) {
@@ -1515,6 +1594,7 @@ function render() {
   if (p && p.proto) mountProto(p.proto);
   initBux();
   initHomeLinks();
+  initPeaks();
 }
 
 document.body.classList.toggle("draft-off", !DRAFT);
