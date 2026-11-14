@@ -298,7 +298,7 @@ figure .img.fit img { cursor: zoom-in; }
 .bux-card::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); opacity: var(--p); transition: border-color .2s, background-color .2s; }
 .bux-card:hover::before { border-color: var(--link); }
 .bux-card.on::before { border-color: var(--link); background: color-mix(in srgb, var(--link) 9%, var(--bg)); }
-.bux-img { display: block; height: calc(var(--img-h, 300px) * (1 - var(--p))); opacity: calc(1 - var(--p) * 1.5); border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: var(--wash); outline: 2px solid transparent; outline-offset: 4px; transition: outline-color .2s; }
+.bux-img { display: block; height: calc(var(--img-h, 300px) * (1 - var(--p) * var(--p))); opacity: calc(1 - max(0, var(--p) - .5) * 2); border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: var(--wash); outline: 2px solid transparent; outline-offset: 4px; transition: outline-color .2s; }
 .bux-cards.stuck .bux-img { visibility: hidden; }
 .bux-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s ease; }
 .bux-card:hover .bux-img img { transform: scale(1.035); }
@@ -682,7 +682,7 @@ const REVEAL_LUT = new Uint8ClampedArray(256).map((_, a) => Math.round(255 * smo
    steady cruise, gentle ramp out. Both read it every frame, so their speeds are identical. */
 const SWEEP = { t0: -1, x0: 0, dur: 1, nameLeft: 0, portLeft: 0, A: 0, G: 0, B: 0, gapStart: 0, gapEnd: 0 };
 const SWEEP_SPEED = .32, SWEEP_RAMP = .14, SWEEP_CORE = 46, SWEEP_FADE = 52; // band: fully-ASCII half-width, then a short fade (px)
-const SWEEP_GAP = .2; // where neither the name nor the photo shows the band, it moves 5x faster
+const SWEEP_GAP = .04; // where neither the name nor the photo shows the band, it moves 25x faster
 // Screen x of the band now, or null when no sweep is running
 function sweepX(now) {
   if (SWEEP.t0 < 0) return null;
@@ -710,8 +710,8 @@ function startSweep(nameEl) {
   SWEEP.portSpan = pr ? [pr.left, pr.right + .35 * pr.height] : [0, 0];
   SWEEP.x0 = nr.left - pad - 90;
   const end = Math.max(nr.right + pad + 60, pr ? pr.right + .35 * pr.height + pad + 60 : 0);
-  SWEEP.gapStart = Math.min(end, nr.right + 40);                              // name's strength has reached 0
-  SWEEP.gapEnd = Math.max(SWEEP.gapStart, pr ? pr.left - 40 : SWEEP.gapStart); // photo's strength starts rising
+  SWEEP.gapStart = Math.min(end, nr.right + 22);                              // name's strength has all but faded
+  SWEEP.gapEnd = Math.max(SWEEP.gapStart, pr ? pr.left - 22 : SWEEP.gapStart); // photo's strength is just starting
   SWEEP.A = SWEEP.gapStart - SWEEP.x0; SWEEP.G = SWEEP.gapEnd - SWEEP.gapStart; SWEEP.B = end - SWEEP.gapEnd;
   SWEEP.dur = (SWEEP.A + SWEEP.G * SWEEP_GAP + SWEEP.B) / SWEEP_SPEED / (1 - SWEEP_RAMP); // cruise speed = SWEEP_SPEED
   SWEEP.t0 = performance.now();
