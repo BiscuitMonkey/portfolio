@@ -1593,7 +1593,7 @@ function initNameFx() {
   const h = document.getElementById("big-name");
   if (!h || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const DENS = " .:;=+*#%@";
-  const CELL = 6; // px — glyphs stay tiny relative to the 88px letters
+  const CELL = 6, GLYPH = 7.6, GOFF = (CELL - GLYPH) / 2; // px: glyphs stay small relative to the 88px letters, drawn slightly over-size
   const name = h.textContent;
   h.textContent = "";
   const wrap = document.createElement("span");
@@ -1672,9 +1672,7 @@ function initNameFx() {
     const X = sweepX(now);
     const sx = X === null ? null : X - SWEEP.nameLeft; // shared band, in this heading's pixels
     const bs = X === null ? 0 : sweepStrength(X, SWEEP.nameSpan[0], SWEEP.nameSpan[1]); // grows in, eases off
-    // light mode keeps a faint ghost of the letters under the glyphs (like the headshot's faint photo) so the pass reads dark
-    const ghost = light ? .24 : 0;
-    const core = HALF * bs, hole = `rgba(0,0,0,${(1 - bs * (1 - ghost)).toFixed(3)})`;
+    const core = HALF * bs, hole = `rgba(0,0,0,${(1 - bs).toFixed(3)})`;
     hov.s += ((hov.in ? 1 : 0) - hov.s) * .12;
     if (hov.in) { hov.cx += (hov.x - hov.cx) * .2; hov.cy += (hov.y - hov.cy) * .2; }
     const lens = hov.s > .01;
@@ -1685,14 +1683,14 @@ function initNameFx() {
     const L1 = sx === null ? "linear-gradient(#000,#000)" :
       `linear-gradient(90deg, #000 ${sx - core - FEATH - ox}px, ${hole} ${sx - core - ox}px, ${hole} ${sx + core - ox}px, #000 ${sx + core + FEATH - ox}px)`;
     const L2 = !lens ? "linear-gradient(#000,#000)" :
-      `radial-gradient(circle at ${hov.cx - ox}px ${hov.cy - oy}px, rgba(0,0,0,${(1 - hov.s * (1 - ghost)).toFixed(3)}) ${R * hov.s}px, #000 ${(R + RF) * hov.s}px)`;
+      `radial-gradient(circle at ${hov.cx - ox}px ${hov.cy - oy}px, transparent ${R * hov.s}px, #000 ${(R + RF) * hov.s}px)`;
     const m = L1 + ", " + L2;
     wrap.style.maskImage = m; wrap.style.webkitMaskImage = m;
 
     // ASCII layer, weighted by the same band and lens.
     ctx.setTransform(G.dpr, 0, 0, G.dpr, 0, 0);
     ctx.clearRect(0, 0, G.W, G.H);
-    ctx.font = (light ? "800 " : "700 ") + CELL + "px ui-monospace, Menlo, Consolas, monospace";
+    ctx.font = (light ? "800 " : "700 ") + GLYPH + "px ui-monospace, Menlo, Consolas, monospace"; // glyphs a touch larger than their cell: less white between them
     ctx.textBaseline = "top";
     const tick = Math.floor(now / 110), n = DENS.length - 1, bias = light ? 2 : 0; // light mode: denser, darker glyphs
     for (const c of G.cells) {
@@ -1707,7 +1705,7 @@ function initNameFx() {
       const jit = (1 - w) * 2;
       ctx.globalAlpha = light ? w : w * (.78 + .22 * c.a);
       ctx.fillStyle = ((c.k * 31 + tick * .25) % 1) > .9 ? acc : ink;
-      ctx.fillText(DENS[idx], c.x + (c.k - .5) * 2 * jit, c.y + (((c.k * 7) % 1) - .5) * 2 * jit);
+      ctx.fillText(DENS[idx], c.x + GOFF + (c.k - .5) * 2 * jit, c.y + GOFF + (((c.k * 7) % 1) - .5) * 2 * jit);
     }
     ctx.globalAlpha = 1;
     requestAnimationFrame(frame);
