@@ -190,7 +190,7 @@ main { padding-block: 56px 96px; }
 .peak-art { container-type: inline-size; min-width: 0; }
 .peak-art pre { margin: 0; font: 600 11px/1.18 ui-monospace, Menlo, Consolas, monospace; font-size: clamp(7px, calc(100cqw / 64 / .61), 15px); color: var(--muted); white-space: pre; overflow: hidden; }
 .peak-art .tx { opacity: .45; }
-.peak-art .rg, .peak-art .tr, .peak-art .tw { color: var(--ink); }
+.peak-art .rg, .peak-art .tr { color: var(--ink); }
 .peak-art .tr { transition: color .25s ease; }
 .peaks.on .peak-art .tr { color: var(--link); transition-delay: calc(var(--d) * 24ms); }
 .peak-art .me { display: inline-block; color: var(--link); opacity: 0; transform: scale(.3); transition: opacity .3s ease, transform .45s cubic-bezier(.2, .9, .3, 1.4); }
@@ -1187,8 +1187,8 @@ const PEAKS = [
     // A gentle start out of Chisos Basin, switchbacks to Pinnacles Pass, a short dip to the junction, then the spur and summit scramble
     trail: [[0, 5400], [.8, 5650], [1.5, 5950], [2.2, 6300], [2.8, 6700], [3.3, 7000], [3.5, 6960], [3.7, 7010], [4.3, 7200], [4.8, 7480], [5.05, 7700], [5.2, 7825]],
     far: [[.12, 7350], [.3, 6800], [.55, 6150], [1, 5400]] },
-  { name: "Huckleberry Peak", done: true, photos: [], where: "Glacier National Park, Montana", elev: "6,593 ft", tower: true,
-    // No switchbacks: a long, steady forest climb to the south ridge around mile 4.5, a dip along it, then open slopes to the lookout
+  { name: "Huckleberry Peak", done: true, photos: [], where: "Glacier National Park, Montana", elev: "6,593 ft",
+    // No switchbacks: a long, steady forest climb to the south ridge around mile 4.5, a dip along it, then open slopes to the summit
     trail: [[0, 3878], [.5, 4050], [1, 4300], [1.5, 4550], [2, 4800], [2.5, 5050], [3, 5300], [3.5, 5550], [4, 5800], [4.5, 6050], [4.8, 5980], [5.1, 6100], [5.5, 6320], [5.8, 6490], [6, 6593]],
     far: [[.2, 6250], [.45, 5550], [.7, 4800], [1, 4000]] }
 ];
@@ -1202,7 +1202,6 @@ function peakArt(pk) {
   const ftAt = c => c <= sc ? lerpPts(pk.trail, Math.max(0, (c - PK_X0) / MI_COL)) : lerpPts(far, (c - sc) / (W - 1 - sc));
   const r = []; for (let c = 0; c < W; c++) r.push(Math.max(0, Math.min(H - 1, (H - 1) - Math.round((ftAt(c) - base) / FT_ROW))));
   const pc = pk.done ? sc : Math.round(PK_X0 + (pk.atMi || 0) * MI_COL);
-  if (pk.tower) for (let c = sc - 1; c <= sc + 1; c++) r[c] = r[sc]; // the lookout sits on a levelled summit
   const G = Array.from({ length: H }, () => Array.from({ length: W }, () => ({ ch: " ", k: "" })));
   for (let c = 0; c < W; c++) {
     const prev = c ? r[c - 1] : r[c], next = c < W - 1 ? r[c + 1] : r[c];
@@ -1216,10 +1215,6 @@ function peakArt(pk) {
     }
   }
   G[r[pc] - 1][pc] = { ch: "●", k: "me" };
-  if (pk.tower) { // fire lookout on the summit, with Jack's dot up in the cab
-    const T = [" ^ ", "[●]", "/ \\"], top = r[pc] - T.length;
-    T.forEach((line, j) => [...line].forEach((ch, k) => { G[top + j][pc - 1 + k] = ch === "●" ? { ch, k: "me" } : ch === " " ? { ch, k: "" } : { ch, k: "tw" }; }));
-  }
   // Emit rows, merging runs of the same class; trail cells carry their column so they light up in order
   return G.map(row => { let out = "", run = "", k0 = null;
     const flush = () => { if (run) out += k0 ? `<span class="${k0}">${esc(run)}</span>` : esc(run); run = ""; };
@@ -1255,7 +1250,7 @@ const peakRow = pk => `<article class="peak ${pk.done ? "done" : "prog"}">
       <p class="peak-elev">${esc(pk.elev)}</p>
       <p class="peak-trip">${trailMi(pk)} mi up · +${trailGain(pk).toLocaleString("en-US")} ft</p>
     </div>
-    <div class="peak-art" role="img" aria-label="${esc(pk.name)} side profile, ${pk.done ? "trail complete to the summit" : "trail in progress"}${pk.tower ? ", with a fire lookout tower on top" : ""}"><pre>${peakArt(pk)}</pre></div>
+    <div class="peak-art" role="img" aria-label="${esc(pk.name)} side profile, ${pk.done ? "trail complete to the summit" : "trail in progress"}"><pre>${peakArt(pk)}</pre></div>
     ${peakPhotos(pk)}
   </article>`;
 function initPeaks() {
