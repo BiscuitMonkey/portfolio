@@ -690,7 +690,10 @@ class AsciiReveal {
     // Real gaussian blur where the browser supports canvas filters (Chrome, Edge, Firefox);
     // otherwise a finer version of the old shrink-and-enlarge blur.
     this.canBlur = (() => { try { const c = document.createElement("canvas").getContext("2d"); if (!("filter" in c)) return false; c.filter = "blur(2px)"; return c.filter === "blur(2px)"; } catch (e) { return false; } })();
-    this.sweepT0 = 0; this.nextSweep = 0;
+    this.sweepT0 = 0; this.nextSweep = Infinity;
+    // The name's sweep is the clock: pick it up as its band reaches the end of the name
+    this.onNameSweep = e => { if (!this.dead && !this.sweepT0) this.nextSweep = performance.now() + (e.detail && e.detail.handoff || 1700); };
+    document.addEventListener("namesweep", this.onNameSweep);
     el.appendChild(this.ascii); el.appendChild(this.ov); el.appendChild(this.rev);
     this.pointer = { x: 0, y: 0, inside: false }; this.cur = { x: 0, y: 0 };
     this.hasCur = false; this.trail = []; this.blobs = [];
@@ -724,6 +727,7 @@ class AsciiReveal {
     this.ro.disconnect(); this.io.disconnect();
     if (this.scheme.removeEventListener) this.scheme.removeEventListener("change", this.onScheme);
     if (this.onWinMove) removeEventListener("pointermove", this.onWinMove);
+    document.removeEventListener("namesweep", this.onNameSweep);
   }
   theme() {
     const cs = getComputedStyle(document.documentElement);
@@ -848,15 +852,14 @@ class AsciiReveal {
     const intro = introAge < introSpan + introFade;
     // Repeating sweep: the opening effect as a soft band that passes over every few seconds
     const SWEEP = 3600;
-    if (!this.nextSweep) this.nextSweep = this.introT0 + introSpan + introFade + 9000 + Math.random() * 4000;
     if (!this.sweepT0 && now >= this.nextSweep) {
-      if (this.pointer.inside) this.nextSweep = now + 1500; // don't fight the visitor's cursor
+      if (this.pointer.inside || intro) this.nextSweep = Infinity; // skip this pass: don't fight the cursor or the opening
       else this.sweepT0 = now;
     }
     let front = null;
     if (this.sweepT0) {
       const k = (now - this.sweepT0) / SWEEP;
-      if (k >= 1) { this.sweepT0 = 0; this.nextSweep = now + 11000 + Math.random() * 5000; }
+      if (k >= 1) { this.sweepT0 = 0; this.nextSweep = Infinity; }
       else front = -.3 + (-(Math.cos(Math.PI * k) - 1) / 2) * 1.6;
     }
     const cx = this.cur.x, cy = this.cur.y, inside = this.pointer.inside;
@@ -1528,7 +1531,7 @@ function initNameFx() {
     readColors();
     requestAnimationFrame(frame);
   };
-  const sweep = () => { sweepT0 = performance.now(); readColors(); start(); };
+  const sweep = () => { sweepT0 = performance.now(); readColors(); start(); document.dispatchEvent(new CustomEvent("namesweep", { detail: { handoff: DUR * .55 } })); };
 
   const rel = e => { const r = h.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
   h.addEventListener("pointerenter", e => {
@@ -1557,7 +1560,7 @@ function initNameFx() {
   const loop = () => {
     if (!h.isConnected) return;
     sweep();
-    setTimeout(loop, 6800 + Math.random() * 4000);
+    setTimeout(loop, 11000 + Math.random() * 5000);
   };
   setTimeout(loop, 1200);
 }
