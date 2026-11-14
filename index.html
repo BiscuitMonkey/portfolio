@@ -725,20 +725,18 @@ const REVEAL_LUT = new Uint8ClampedArray(256).map((_, a) => Math.round(255 * smo
 /* One sweep shared by the name and the headshot: a single band position in screen pixels,
    travelling left to right from just before the name to just past the photo. Gentle ramp in,
    steady cruise, gentle ramp out. Both read it every frame, so their speeds are identical. */
-const SWEEP = { t0: -1, x0: 0, dur: 1, nameLeft: 0, portLeft: 0, A: 0, G: 0, B: 0, gapStart: 0, gapEnd: 0 };
+const SWEEP = { t0: -1, x0: 0, dur: 1, nameLeft: 0, portLeft: 0, shift: 0, total: 0 };
 const SWEEP_SPEED = .32, SWEEP_RAMP = .14, SWEEP_CORE = 46, SWEEP_FADE = 52; // band: fully-ASCII half-width, then a short fade (px)
-const SWEEP_GAP = .04; // where neither the name nor the photo shows the band, it moves 25x faster
-// Screen x of the band now, or null when no sweep is running
-function sweepX(now) {
+// No gap: the photo's band starts growing in at the same moment the name's band starts easing off,
+// so the sweep hands straight over (a crossfade) instead of travelling across the empty space between them.
+// Screen x of the band now for the name (or, with port, for the photo), or null when no sweep is running
+function sweepX(now, port) {
   if (SWEEP.t0 < 0) return null;
   const k = (now - SWEEP.t0) / SWEEP.dur;
   if (k >= 1) { SWEEP.t0 = -1; return null; }
   const a = SWEEP_RAMP, v = 1 / (1 - a);
   const e = k < a ? v * k * k / (2 * a) : k > 1 - a ? 1 - v * (1 - k) * (1 - k) / (2 * a) : v * (k - a / 2);
-  const d = e * (SWEEP.A + SWEEP.G * SWEEP_GAP + SWEEP.B); // distance along the path, gap counted short
-  if (d < SWEEP.A) return SWEEP.x0 + d;
-  if (d < SWEEP.A + SWEEP.G * SWEEP_GAP) return SWEEP.gapStart + (d - SWEEP.A) / SWEEP_GAP;
-  return SWEEP.gapEnd + (d - SWEEP.A - SWEEP.G * SWEEP_GAP);
+  return SWEEP.x0 + e * SWEEP.total + (port ? SWEEP.shift : 0);
 }
 // How strong the band is at screen x for something spanning [lo, hi]: grows in as it enters, eases off as it leaves,
 // the way the cursor's lens grows and shrinks
@@ -755,10 +753,10 @@ function startSweep(nameEl) {
   SWEEP.portSpan = pr ? [pr.left, pr.right + .35 * pr.height] : [0, 0];
   SWEEP.x0 = nr.left - pad - 90;
   const end = Math.max(nr.right + pad + 60, pr ? pr.right + .35 * pr.height + pad + 60 : 0);
-  SWEEP.gapStart = Math.min(end, nr.right + 22);                              // name's strength has all but faded
-  SWEEP.gapEnd = Math.max(SWEEP.gapStart, pr ? pr.left - 22 : SWEEP.gapStart); // photo's strength is just starting
-  SWEEP.A = SWEEP.gapStart - SWEEP.x0; SWEEP.G = SWEEP.gapEnd - SWEEP.gapStart; SWEEP.B = end - SWEEP.gapEnd;
-  SWEEP.dur = (SWEEP.A + SWEEP.G * SWEEP_GAP + SWEEP.B) / SWEEP_SPEED / (1 - SWEEP_RAMP); // cruise speed = SWEEP_SPEED
+  // sweepStrength: the name eases off from (right - 110), the photo grows in from (left - 40); line those up
+  SWEEP.shift = pr ? Math.max(0, (pr.left - 40) - (nr.right - 110)) : 0;
+  SWEEP.total = Math.max(nr.right + pad + 60, end - SWEEP.shift) - SWEEP.x0;
+  SWEEP.dur = SWEEP.total / SWEEP_SPEED / (1 - SWEEP_RAMP); // cruise speed = SWEEP_SPEED
   SWEEP.t0 = performance.now();
 }
 class AsciiReveal {
@@ -934,7 +932,7 @@ class AsciiReveal {
     const intro = introAge < introSpan + introFade;
     // The shared sweep (started by the name), as a soft slightly-diagonal band in this photo's pixels.
     // Skipped while the visitor's cursor is on the photo or the opening wave is still playing.
-    const X = intro || this.pointer.inside ? null : sweepX(now);
+    const X = intro || this.pointer.inside ? null : sweepX(now, true);
     const front = X === null ? null : X - SWEEP.portLeft;
     const bandS = X === null ? 0 : sweepStrength(X, SWEEP.portSpan[0], SWEEP.portSpan[1]);
     const cx = this.cur.x, cy = this.cur.y, inside = this.pointer.inside;
