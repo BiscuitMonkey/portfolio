@@ -165,6 +165,10 @@ main { padding-block: 56px 96px; }
 .card h2 span { color: var(--muted); font-weight: 500; }
 .card p { color: var(--muted); max-width: 48ch; }
 .card .meta { font-size: 15px; color: var(--muted); font-weight: 500; }
+.card.capstone { grid-column: 1 / -1; align-content: center; justify-items: center; text-align: center; gap: 8px; min-height: 220px; padding: 40px 24px; border: 2px dashed color-mix(in srgb, var(--muted) 45%, transparent); border-radius: 12px; background: repeating-linear-gradient(135deg, transparent 0 14px, color-mix(in srgb, var(--wash) 70%, transparent) 14px 28px); }
+.card.capstone h2 { font-size: 28px; font-weight: 800; color: var(--ink); text-decoration: none; }
+.card.capstone .peak-status { margin: 0; }
+.card.capstone:hover h2 { color: var(--ink); text-decoration: none; }
 .card:hover h2 { color: var(--link); text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
 .card.hl { border: 1.5px solid var(--link); border-radius: 14px; padding: 16px; margin: -16px; }
 .hl-tag { font-weight: 700; color: var(--link); }
@@ -1296,7 +1300,13 @@ function viewHome() {
         <figure class="ascii-reveal" id="portrait" aria-label="Portrait of Jack Walker, revealed as you move across it"></figure>
       </div>
     </section>
-    <section class="featured" id="projects"><h2>UX Projects</h2><div class="cards">${FEATURED.map(card).join("")}</div></section>
+    <section class="featured" id="projects"><h2>UX Projects</h2><div class="cards">${FEATURED.map(card).join("")}
+      <div class="card capstone" aria-label="Capstone, in progress">
+        <h2>Capstone</h2>
+        <span class="peak-status"><b aria-hidden="true">[<i>&gt;</i>]</b> In progress</span>
+        <span class="meta">SCAD BFA UX Design · Coming 2027</span>
+      </div>
+    </div></section>
     <section class="more"><h2>More work</h2><div class="cards">${MORE.map(card).join("")}
       <a class="card" href="#beyond-ux"><div class="shot">${media("gd-type", "")}</div><h2>Beyond UX</h2><p>Graphic design, research, print and industrial design.</p><span class="meta">2023 to 2026</span></a>
     </div></section>
