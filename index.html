@@ -1466,12 +1466,13 @@ function initNameFx() {
       if (a < .16) continue;
       cells.push({ x, y, a, k: ((Math.sin((x * 73 + y * 151) * .0137) * 43758.5453) % 1 + 1) % 1 });
     }
-    G = { dpr, W, H, ox: wr.left - hr.left, oy: wr.top - hr.top, cells };
+    G = { dpr, W, H, ox: wr.left - hr.left, oy: wr.top - hr.top, tw: wr.width, cells };
   };
 
   const easeIO = t => -(Math.cos(Math.PI * t) - 1) / 2; // sine in-out: no sudden rush mid-sweep
   const smooth = t => t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t);
-  const HALF = 56, FEATH = 130, DUR = 3200; // sweep band core, crossfade, duration
+  const HALF = 56, FEATH = 130, SPEED = .16; // band core, crossfade (px), constant speed (px/ms) matching the headshot's sweep
+  let DUR = 3200; // sweep band core, crossfade, duration
   const R = 48, RF = 38;                    // hover lens radius, crossfade
   const hov = { in: false, x: 0, y: 0, cx: 0, cy: 0, s: 0 };
   let sweepT0 = -1, running = false, ink = "#161917", acc = "#007F3F";
@@ -1492,7 +1493,7 @@ function initNameFx() {
     if (sweepT0 >= 0) {
       const k = (now - sweepT0) / DUR;
       if (k >= 1) sweepT0 = -1;
-      else sx = -HALF - FEATH + easeIO(k) * (G.W + 2 * (HALF + FEATH));
+      else sx = G.ox - HALF - FEATH + k * (G.tw + 2 * (HALF + FEATH)); // linear: same speed the whole way, across the name itself
     }
     hov.s += ((hov.in ? 1 : 0) - hov.s) * .12;
     if (hov.in) { hov.cx += (hov.x - hov.cx) * .2; hov.cy += (hov.y - hov.cy) * .2; }
@@ -1535,7 +1536,14 @@ function initNameFx() {
     readColors();
     requestAnimationFrame(frame);
   };
-  const sweep = () => { sweepT0 = performance.now(); readColors(); start(); document.dispatchEvent(new CustomEvent("namesweep", { detail: { handoff: DUR * .55 } })); };
+  const sweep = () => {
+    const total = G ? G.tw + 2 * (HALF + FEATH) : 800;
+    DUR = total / SPEED;
+    sweepT0 = performance.now(); readColors(); start();
+    // Hand off so the headshot's band enters the photo (~1s into its pass) as this band leaves the name
+    const leaves = G ? ((G.tw + HALF + FEATH * 1.5) / total) * DUR : DUR * .8;
+    document.dispatchEvent(new CustomEvent("namesweep", { detail: { handoff: Math.max(0, leaves - 1000) } }));
+  };
 
   const rel = e => { const r = h.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
   h.addEventListener("pointerenter", e => {
