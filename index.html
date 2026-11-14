@@ -189,7 +189,7 @@ main { padding-block: 56px 96px; }
 .peak-art { container-type: inline-size; min-width: 0; }
 .peak-art pre { margin: 0; font: 600 11px/1.18 ui-monospace, Menlo, Consolas, monospace; font-size: clamp(7px, calc(100cqw / 64 / .61), 15px); color: var(--muted); white-space: pre; overflow: hidden; }
 .peak-art .tx { opacity: .45; }
-.peak-art .rg, .peak-art .tr { color: var(--ink); }
+.peak-art .rg, .peak-art .tr, .peak-art .tw { color: var(--ink); }
 .peak-art .tr { transition: color .25s ease; }
 .peaks.on .peak-art .tr { color: var(--link); transition-delay: calc(var(--d) * 24ms); }
 .peak-art .me { display: inline-block; color: var(--link); opacity: 0; transform: scale(.3); transition: opacity .3s ease, transform .45s cubic-bezier(.2, .9, .3, 1.4); }
@@ -1178,7 +1178,9 @@ const PEAKS = [
   { name: "Guadalupe Peak", done: false, photos: [], where: "Guadalupe Mountains National Park, Texas", elev: "8,751 ft", at: .48,
     profile: [[0, .04], [.05, .12], [.11, .22], [.16, .19], [.23, .36], [.29, .32], [.36, .5], [.41, .46], [.47, .66], [.52, .77], [.56, .85], [.59, .81], [.64, .97], [.67, .9], [.72, .89], [.73, .72], [.79, .73], [.81, .61], [.88, .59], [.9, .48], [.93, .28], [.96, .1], [1, .02]] },
   { name: "Emory Peak", done: true, photos: [], where: "Big Bend National Park, Texas", elev: "7,825 ft", at: .76,
-    profile: [[0, .03], [.07, .1], [.16, .22], [.25, .31], [.34, .4], [.43, .5], [.52, .58], [.6, .68], [.67, .8], [.72, .9], [.76, .98], [.8, .86], [.84, .7], [.88, .52], [.92, .33], [.96, .15], [1, .05]] }
+    profile: [[0, .03], [.07, .1], [.16, .22], [.25, .31], [.34, .4], [.43, .5], [.52, .58], [.6, .68], [.67, .8], [.72, .9], [.76, .98], [.8, .86], [.84, .7], [.88, .52], [.92, .33], [.96, .15], [1, .05]] },
+  { name: "Huckleberry Peak", done: true, photos: [], where: "Glacier National Park, Montana", elev: "6,593 ft", at: .725, tower: true,
+    profile: [[0, .03], [.06, .08], [.13, .15], [.2, .2], [.26, .27], [.31, .25], [.37, .33], [.44, .41], [.5, .47], [.55, .52], [.6, .6], [.64, .67], [.67, .72], [.79, .72], [.82, .64], [.86, .52], [.89, .43], [.93, .28], [.97, .12], [1, .04]] }
 ];
 function peakArt(pk) {
   const W = 64, H = 16, TX = ".:;-=+*";
@@ -1198,6 +1200,10 @@ function peakArt(pk) {
     }
   }
   G[r[pc] - 1][pc] = { ch: "●", k: "me" };
+  if (pk.tower) { // fire lookout on the summit, with Jack's dot up in the cab
+    const T = ["   _   ", " _/ \\_ ", " |_●_| ", "  |X|  ", "  /X\\  "], top = r[pc] - T.length;
+    T.forEach((line, j) => [...line].forEach((ch, k) => { if (ch !== " ") G[top + j][pc - 3 + k] = ch === "●" ? { ch, k: "me" } : { ch, k: "tw" }; }));
+  }
   // Emit rows, merging runs of the same class; trail cells carry their column so they light up in order
   return G.map(row => { let out = "", run = "", k0 = null;
     const flush = () => { if (run) out += k0 ? `<span class="${k0}">${esc(run)}</span>` : esc(run); run = ""; };
@@ -1232,7 +1238,7 @@ const peakRow = pk => `<article class="peak ${pk.done ? "done" : "prog"}">
       <p>${esc(pk.where)}</p>
       <p class="peak-elev">${esc(pk.elev)}</p>
     </div>
-    <div class="peak-art" role="img" aria-label="${esc(pk.name)} side profile, ${pk.done ? "trail complete to the summit" : "trail in progress"}"><pre>${peakArt(pk)}</pre></div>
+    <div class="peak-art" role="img" aria-label="${esc(pk.name)} side profile, ${pk.done ? "trail complete to the summit" : "trail in progress"}${pk.tower ? ", with a fire lookout tower on top" : ""}"><pre>${peakArt(pk)}</pre></div>
     ${peakPhotos(pk)}
   </article>`;
 function initPeaks() {
