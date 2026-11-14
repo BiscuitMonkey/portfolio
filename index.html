@@ -127,7 +127,7 @@ main { padding-block: 56px 96px; }
 .ascii-reveal canvas { display: block; width: 100%; height: 100%; }
 .ascii-reveal canvas.reveal { position: absolute; inset: 0; pointer-events: none; }
 .ascii-reveal { box-shadow: var(--sx, 0) calc(var(--sy, 12px) * var(--lift, 0)) calc(34px * var(--lift, 0)) rgba(0, 0, 0, calc(.22 * var(--lift, 0))); }
-.ascii-reveal .glare { position: absolute; inset: 0; pointer-events: none; opacity: var(--lift, 0); mix-blend-mode: overlay;
+.ascii-reveal .glare { position: absolute; inset: 0; pointer-events: none; opacity: var(--shine, 0); mix-blend-mode: overlay;
   background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, .6), rgba(255, 255, 255, .16) 30%, transparent 60%),
     linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, .14) calc(var(--gx, 50%) - 5%), transparent calc(var(--gx, 50%) + 22%)); }
 /* Custom cursor (fine pointers only; enabled by JS) */
@@ -1131,14 +1131,19 @@ class AsciiReveal {
     const th = hov ? 1 : 0, dx = tx - P.nx, dy = ty - P.ny, dh = th - P.h;
     if (Math.abs(dx) < .0005 && Math.abs(dy) < .0005 && Math.abs(dh) < .002 && this.parDone) return; // settled: no style writes
     this.parDone = true;
-    const k = hov ? .14 : .06;
-    P.nx += dx * k; P.ny += dy * k; P.h += dh * .1;
+    // follow the cursor briskly while hovering; settle back slowly and softly once it leaves
+    const k = hov ? .14 : .035;
+    P.nx += dx * k; P.ny += dy * k; P.h += dh * (hov ? .1 : .04);
     const nx = P.nx, ny = P.ny, lift = P.h;
     const tilt = this.opts.parallaxTilt + (this.opts.hoverTilt - this.opts.parallaxTilt) * lift, Z = this.opts.parallaxZoom;
     const sx = (this.el.clientWidth / 2) * (Z - 1), sy = (this.el.clientHeight / 2) * (Z - 1);
     this.el.style.transform = "perspective(800px) rotateX(" + (-ny * tilt).toFixed(2) + "deg) rotateY(" + (nx * tilt).toFixed(2) + "deg) scale(" + (1 + .035 * lift).toFixed(3) + ")";
-    this.el.style.setProperty("--gx", ((nx + 1) * 50).toFixed(1) + "%");
-    this.el.style.setProperty("--gy", ((ny + 1) * 50).toFixed(1) + "%");
+    // Glare comes from the card's angle to a fixed light, not from where the cursor is: the shine slides
+    // toward whichever edge is tilting toward you and brightens the further the card is turned
+    const rX = -ny * tilt, rY = nx * tilt, H = this.opts.hoverTilt, ang = Math.min(1, Math.hypot(rX, rY) / H);
+    this.el.style.setProperty("--gx", (50 - rY / H * 85).toFixed(1) + "%");
+    this.el.style.setProperty("--gy", (50 + rX / H * 85).toFixed(1) + "%");
+    this.el.style.setProperty("--shine", (lift * (.25 + .75 * ang)).toFixed(3));
     this.el.style.setProperty("--lift", lift.toFixed(3));
     this.el.style.setProperty("--sx", (-nx * 14 * lift).toFixed(1) + "px");
     this.el.style.setProperty("--sy", (12 + -ny * 10 * lift).toFixed(1) + "px");
