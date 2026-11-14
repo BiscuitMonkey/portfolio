@@ -231,7 +231,7 @@ main { padding-block: 56px 96px; }
 .pp-empty .pp-card { background: transparent; border: 2px dashed color-mix(in srgb, var(--muted) 45%, transparent); box-shadow: none; }
 .pp-empty .pp-img { background: transparent; }
 .pp-none { grid-auto-flow: row; align-content: center; gap: 10px; font: 600 14px/1.3 var(--font); color: var(--muted); text-align: center; }
-.pp-empty .pp-card figcaption { color: color-mix(in srgb, var(--muted) 75%, transparent); }
+.pp-empty .pp-card { padding-bottom: 36px; }
 .pp-empty .pp-count b, .pp-empty + .pp-count b { color: var(--muted); }
 .peak-art pre { overflow: visible; }
 .peak-art .me { width: 1ch; text-align: center; }
@@ -1270,7 +1270,6 @@ function peakPhotos(pk) {
       <div class="pp-stack pp-empty" role="img" aria-label="No photos yet. Photos will be added after the climb.">
         <figure class="pp-card" style="--pos:0;--rot:-2deg">
           <div class="pp-img"><div class="pp-ph pp-none">${MOUNTAIN_ICON}<span>TBD<span class="pp-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span></span></div></div>
-          <figcaption><span>Not climbed yet</span></figcaption>
         </figure>
       </div>
       <p class="pp-count"><b>0</b> / 0</p>
