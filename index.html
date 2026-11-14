@@ -126,6 +126,10 @@ main { padding-block: 56px 96px; }
 .ascii-reveal { position: relative; width: 100%; max-width: 320px; background: var(--wash); border-radius: 10px; overflow: hidden; cursor: crosshair; }
 .ascii-reveal canvas { display: block; width: 100%; height: 100%; }
 .ascii-reveal canvas.reveal { position: absolute; inset: 0; pointer-events: none; }
+.ascii-reveal { box-shadow: var(--sx, 0) calc(var(--sy, 12px) * var(--lift, 0)) calc(34px * var(--lift, 0)) rgba(0, 0, 0, calc(.22 * var(--lift, 0))); }
+.ascii-reveal .glare { position: absolute; inset: 0; pointer-events: none; opacity: var(--lift, 0); mix-blend-mode: overlay;
+  background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, .6), rgba(255, 255, 255, .16) 30%, transparent 60%),
+    linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, .14) calc(var(--gx, 50%) - 5%), transparent calc(var(--gx, 50%) + 22%)); }
 /* Custom cursor (fine pointers only; enabled by JS) */
 #cur { display: none; }
 .has-cursor #cur { display: block; position: fixed; inset: 0; z-index: 99; pointer-events: none; }
@@ -715,7 +719,7 @@ const ASCII_CFG = {
   cell: 5, charset: " .`':,;-~=+*#%@", contrast: 1.3,
   lensRadius: 54, trailLinger: 2.6, taper: 1.7, goo: 14,
   ambient: true, ambientStrength: .9, ambientBlobs: 5, ambientRadius: [50, 100],
-  parallax: true, parallaxTilt: 2, parallaxShift: 8, wobbleAmount: .05
+  parallax: true, parallaxTilt: 3, hoverTilt: 11, parallaxZoom: 1.08, wobbleAmount: .05
 };
 /* Field alpha → photo alpha. A wide smoothstep ramp (instead of a hard
    threshold) gives the reveal the same feathered crossfade as the name sweep. */
@@ -776,6 +780,7 @@ class AsciiReveal {
     this.canBlur = (() => { try { const c = document.createElement("canvas").getContext("2d"); if (!("filter" in c)) return false; c.filter = "blur(2px)"; return c.filter === "blur(2px)"; } catch (e) { return false; } })();
 
     el.appendChild(this.ascii); el.appendChild(this.ov); el.appendChild(this.rev);
+    this.glare = document.createElement("i"); this.glare.className = "glare"; this.glare.setAttribute("aria-hidden", "true"); el.appendChild(this.glare);
     this.pointer = { x: 0, y: 0, inside: false }; this.cur = { x: 0, y: 0 };
     this.hasCur = false; this.trail = []; this.blobs = [];
     if (opts.ambient && !this.reduced) {
@@ -789,7 +794,7 @@ class AsciiReveal {
         fx: .05 + Math.random() * .05, px: rnd(), ax: .1 + Math.random() * .08,
         fr: .09 + Math.random() * .07, pr: rnd(), seed: rnd() });
     }
-    this.par = { nx: 0, ny: 0, tx: 0, ty: 0 }; this.onWinMove = null;
+    this.par = { nx: 0, ny: 0, tx: 0, ty: 0, h: 0 }; this.onWinMove = null;
     if (opts.parallax && !this.reduced) {
       this.onWinMove = e => { this.par.tx = (e.clientX / innerWidth) * 2 - 1; this.par.ty = (e.clientY / innerHeight) * 2 - 1; };
       addEventListener("pointermove", this.onWinMove, { passive: true });
@@ -1115,16 +1120,29 @@ class AsciiReveal {
     };
     requestAnimationFrame(tick);
   }
+  /* Trading-card tilt: a gentle lean toward the cursor anywhere on the page; hovering the card tilts it
+     much further toward the cursor, lifts it slightly and slides a glare across it. The layers inside are
+     zoomed and shifted so the point under the cursor stays put, which keeps the reveal lined up. */
   parallaxStep() {
     if (!this.opts.parallax || this.reduced) return;
-    const dx = this.par.tx - this.par.nx, dy = this.par.ty - this.par.ny;
-    if (Math.abs(dx) < .0005 && Math.abs(dy) < .0005 && this.parDone) return; // settled: no style writes
+    const hov = this.pointer.inside, P = this.par;
+    let tx = P.tx, ty = P.ty;
+    if (hov) { const w = this.el.clientWidth || 1, h = this.el.clientHeight || 1; tx = Math.max(-1, Math.min(1, this.pointer.x / w * 2 - 1)); ty = Math.max(-1, Math.min(1, this.pointer.y / h * 2 - 1)); }
+    const th = hov ? 1 : 0, dx = tx - P.nx, dy = ty - P.ny, dh = th - P.h;
+    if (Math.abs(dx) < .0005 && Math.abs(dy) < .0005 && Math.abs(dh) < .002 && this.parDone) return; // settled: no style writes
     this.parDone = true;
-    this.par.nx += dx * .05; this.par.ny += dy * .05;
-    const nx = this.par.nx, ny = this.par.ny;
-    const tilt = this.opts.parallaxTilt, shift = this.opts.parallaxShift;
-    this.el.style.transform = "perspective(900px) rotateX(" + (-ny * tilt).toFixed(2) + "deg) rotateY(" + (nx * tilt).toFixed(2) + "deg)";
-    this.ascii.style.transform = "translate(" + (-nx * shift * .45).toFixed(2) + "px," + (-ny * shift * .45).toFixed(2) + "px) scale(1.05)";
+    const k = hov ? .14 : .06;
+    P.nx += dx * k; P.ny += dy * k; P.h += dh * .1;
+    const nx = P.nx, ny = P.ny, lift = P.h;
+    const tilt = this.opts.parallaxTilt + (this.opts.hoverTilt - this.opts.parallaxTilt) * lift, Z = this.opts.parallaxZoom;
+    const sx = (this.el.clientWidth / 2) * (Z - 1), sy = (this.el.clientHeight / 2) * (Z - 1);
+    this.el.style.transform = "perspective(800px) rotateX(" + (-ny * tilt).toFixed(2) + "deg) rotateY(" + (nx * tilt).toFixed(2) + "deg) scale(" + (1 + .035 * lift).toFixed(3) + ")";
+    this.el.style.setProperty("--gx", ((nx + 1) * 50).toFixed(1) + "%");
+    this.el.style.setProperty("--gy", ((ny + 1) * 50).toFixed(1) + "%");
+    this.el.style.setProperty("--lift", lift.toFixed(3));
+    this.el.style.setProperty("--sx", (-nx * 14 * lift).toFixed(1) + "px");
+    this.el.style.setProperty("--sy", (12 + -ny * 10 * lift).toFixed(1) + "px");
+    this.ascii.style.transform = "translate(" + (-nx * sx).toFixed(2) + "px," + (-ny * sy).toFixed(2) + "px) scale(" + Z + ")";
     this.ov.style.transform = this.ascii.style.transform;
     this.rev.style.transform = this.ascii.style.transform; // photo and ASCII move together so the reveal lines up
   }
