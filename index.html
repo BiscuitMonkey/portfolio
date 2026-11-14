@@ -217,11 +217,12 @@ main { padding-block: 56px 96px; }
 .pp-count { font: 600 14px var(--font); font-variant-numeric: tabular-nums; color: var(--muted); }
 .pp-count b { color: var(--link); }
 .peak-art pre { overflow: visible; }
-.peak-art .wp { position: relative; display: inline-block; color: var(--muted); cursor: pointer; opacity: 0; transition: opacity .3s ease, color .2s ease; }
-.peaks.on .peak-art .wp { opacity: .55; transition-delay: calc(var(--d) * 24ms + 200ms), 0s; }
-.peaks.on .peak-art .wp:hover { opacity: 1; color: var(--link); }
-.peaks.on .peak-art .wp.on { opacity: 1; color: var(--link); text-shadow: 0 0 6px color-mix(in srgb, var(--link) 55%, transparent); }
-/* Active waypoint ring; drag or hover along the art to scrub through the photos */
+.peak-art .wp { position: relative; display: inline-block; color: var(--ink); cursor: pointer; opacity: 0; transform: scale(.4); z-index: 1;
+  text-shadow: 0 0 2px var(--wash), 0 0 4px var(--wash), 0 0 6px var(--wash);
+  transition: opacity .3s ease, transform .35s cubic-bezier(.2, .9, .3, 1.4), color .2s ease; }
+.peaks.on .peak-art .wp { opacity: 1; transform: scale(1.45); transition-delay: calc(var(--d) * 24ms + 200ms), calc(var(--d) * 24ms + 200ms), 0s; }
+.peaks.on .peak-art .wp:hover { color: var(--link); transform: scale(1.7); transition-delay: 0s; }
+.peaks.on .peak-art .wp.on { color: var(--link); transform: scale(1.7); transition-delay: 0s; text-shadow: 0 0 2px var(--wash), 0 0 4px var(--wash), 0 0 8px color-mix(in srgb, var(--link) 55%, transparent); }
 .peak-art .wp, .peak-art .me { width: 1ch; text-align: center; }
 .peak-art .wp.on::before { content: ""; position: absolute; left: 50%; top: 50%; width: 1.7em; height: 1.7em; margin: -.85em 0 0 -.85em; border: 1.5px solid var(--link); border-radius: 50%; animation: wpRing 1.8s ease-out infinite; pointer-events: none; }
 @keyframes wpRing { 0% { transform: scale(.5); opacity: .9; } 100% { transform: scale(1.8); opacity: 0; } }
