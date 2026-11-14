@@ -1126,7 +1126,7 @@ class AsciiReveal {
     this.el.style.transform = "perspective(900px) rotateX(" + (-ny * tilt).toFixed(2) + "deg) rotateY(" + (nx * tilt).toFixed(2) + "deg)";
     this.ascii.style.transform = "translate(" + (-nx * shift * .45).toFixed(2) + "px," + (-ny * shift * .45).toFixed(2) + "px) scale(1.05)";
     this.ov.style.transform = this.ascii.style.transform;
-    this.rev.style.transform = "translate(" + (-nx * shift).toFixed(2) + "px," + (-ny * shift).toFixed(2) + "px) scale(1.05)";
+    this.rev.style.transform = this.ascii.style.transform; // photo and ASCII move together so the reveal lines up
   }
   bindEvents() {
     const el = this.el;
