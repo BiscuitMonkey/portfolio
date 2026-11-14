@@ -680,23 +680,40 @@ const REVEAL_LUT = new Uint8ClampedArray(256).map((_, a) => Math.round(255 * smo
 /* One sweep shared by the name and the headshot: a single band position in screen pixels,
    travelling left to right from just before the name to just past the photo. Gentle ramp in,
    steady cruise, gentle ramp out. Both read it every frame, so their speeds are identical. */
-const SWEEP = { t0: -1, x0: 0, x1: 1, dur: 1, nameLeft: 0, portLeft: 0 };
-const SWEEP_SPEED = .32, SWEEP_RAMP = .14, SWEEP_CORE = 46, SWEEP_FADE = 52; // band: fully-ASCII half-width, then a short fade (px) // px per ms at cruise; share of the pass spent ramping at each end
+const SWEEP = { t0: -1, x0: 0, dur: 1, nameLeft: 0, portLeft: 0, A: 0, G: 0, B: 0, gapStart: 0, gapEnd: 0 };
+const SWEEP_SPEED = .32, SWEEP_RAMP = .14, SWEEP_CORE = 46, SWEEP_FADE = 52; // band: fully-ASCII half-width, then a short fade (px)
+const SWEEP_GAP = .2; // where neither the name nor the photo shows the band, it moves 5x faster
+// Screen x of the band now, or null when no sweep is running
 function sweepX(now) {
   if (SWEEP.t0 < 0) return null;
   const k = (now - SWEEP.t0) / SWEEP.dur;
   if (k >= 1) { SWEEP.t0 = -1; return null; }
   const a = SWEEP_RAMP, v = 1 / (1 - a);
   const e = k < a ? v * k * k / (2 * a) : k > 1 - a ? 1 - v * (1 - k) * (1 - k) / (2 * a) : v * (k - a / 2);
-  return SWEEP.x0 + (SWEEP.x1 - SWEEP.x0) * e;
+  const d = e * (SWEEP.A + SWEEP.G * SWEEP_GAP + SWEEP.B); // distance along the path, gap counted short
+  if (d < SWEEP.A) return SWEEP.x0 + d;
+  if (d < SWEEP.A + SWEEP.G * SWEEP_GAP) return SWEEP.gapStart + (d - SWEEP.A) / SWEEP_GAP;
+  return SWEEP.gapEnd + (d - SWEEP.A - SWEEP.G * SWEEP_GAP);
+}
+// How strong the band is at screen x for something spanning [lo, hi]: grows in as it enters, eases off as it leaves,
+// the way the cursor's lens grows and shrinks
+function sweepStrength(x, lo, hi) {
+  const ramp = 150, s = smoothstep01;
+  return s((x - lo + 40) / ramp) * s((hi + 40 - x) / ramp);
 }
 function startSweep(nameEl) {
   const nr = nameEl.querySelector(".nm-text").getBoundingClientRect(), pe = document.getElementById("portrait"), pr = pe && pe.getBoundingClientRect();
+  const pad = SWEEP_CORE + SWEEP_FADE;
   SWEEP.nameLeft = nameEl.getBoundingClientRect().left;
   SWEEP.portLeft = pr ? pr.left : 0;
-  SWEEP.x0 = nr.left - 190;
-  SWEEP.x1 = Math.max(nr.right + 190, pr ? pr.right + .35 * pr.height + 110 : 0);
-  SWEEP.dur = (SWEEP.x1 - SWEEP.x0) / SWEEP_SPEED / (1 - SWEEP_RAMP); // cruise speed = SWEEP_SPEED
+  SWEEP.nameSpan = [nr.left, nr.right];
+  SWEEP.portSpan = pr ? [pr.left, pr.right + .35 * pr.height] : [0, 0];
+  SWEEP.x0 = nr.left - pad - 90;
+  const end = Math.max(nr.right + pad + 60, pr ? pr.right + .35 * pr.height + pad + 60 : 0);
+  SWEEP.gapStart = Math.min(end, nr.right + 40);                              // name's strength has reached 0
+  SWEEP.gapEnd = Math.max(SWEEP.gapStart, pr ? pr.left - 40 : SWEEP.gapStart); // photo's strength starts rising
+  SWEEP.A = SWEEP.gapStart - SWEEP.x0; SWEEP.G = SWEEP.gapEnd - SWEEP.gapStart; SWEEP.B = end - SWEEP.gapEnd;
+  SWEEP.dur = (SWEEP.A + SWEEP.G * SWEEP_GAP + SWEEP.B) / SWEEP_SPEED / (1 - SWEEP_RAMP); // cruise speed = SWEEP_SPEED
   SWEEP.t0 = performance.now();
 }
 class AsciiReveal {
@@ -874,6 +891,7 @@ class AsciiReveal {
     // Skipped while the visitor's cursor is on the photo or the opening wave is still playing.
     const X = intro || this.pointer.inside ? null : sweepX(now);
     const front = X === null ? null : X - SWEEP.portLeft;
+    const bandS = X === null ? 0 : sweepStrength(X, SWEEP.portSpan[0], SWEEP.portSpan[1]);
     const cx = this.cur.x, cy = this.cur.y, inside = this.pointer.inside;
     const lens = this.opts.lensRadius, halo = lens * 1.7;
     const nch = chars.length - 1;
@@ -897,7 +915,7 @@ class AsciiReveal {
         }
         if (front !== null) {
           const proj = pxc + .35 * pyc + (h01 - .5) * 10;
-          const band = 1 - ss((Math.abs(proj - front) - SWEEP_CORE) / SWEEP_FADE);
+          const band = bandS * (1 - ss((Math.abs(proj - front) - SWEEP_CORE * bandS) / SWEEP_FADE));
           if (band > 0) { cover = Math.max(cover, band * .92); w = Math.max(w, band * (.5 + .35 * h01)); }
         }
         // Halo: a gentle stir around the cursor, strongest just outside the lens.
@@ -1500,6 +1518,8 @@ function initNameFx() {
     if (!h.isConnected || !G) { running = false; return; }
     const X = sweepX(now);
     const sx = X === null ? null : X - SWEEP.nameLeft; // shared band, in this heading's pixels
+    const bs = X === null ? 0 : sweepStrength(X, SWEEP.nameSpan[0], SWEEP.nameSpan[1]); // grows in, eases off
+    const core = HALF * bs, hole = `rgba(0,0,0,${(1 - bs).toFixed(3)})`;
     hov.s += ((hov.in ? 1 : 0) - hov.s) * .12;
     if (hov.in) { hov.cx += (hov.x - hov.cx) * .2; hov.cy += (hov.y - hov.cy) * .2; }
     const lens = hov.s > .01;
@@ -1508,7 +1528,7 @@ function initNameFx() {
     // Solid type: hidden where the ASCII shows, crossfading through the feather.
     const ox = G.ox, oy = G.oy;
     const L1 = sx === null ? "linear-gradient(#000,#000)" :
-      `linear-gradient(90deg, #000 ${sx - HALF - FEATH - ox}px, transparent ${sx - HALF - ox}px, transparent ${sx + HALF - ox}px, #000 ${sx + HALF + FEATH - ox}px)`;
+      `linear-gradient(90deg, #000 ${sx - core - FEATH - ox}px, ${hole} ${sx - core - ox}px, ${hole} ${sx + core - ox}px, #000 ${sx + core + FEATH - ox}px)`;
     const L2 = !lens ? "linear-gradient(#000,#000)" :
       `radial-gradient(circle at ${hov.cx - ox}px ${hov.cy - oy}px, transparent ${R * hov.s}px, #000 ${(R + RF) * hov.s}px)`;
     const m = L1 + ", " + L2;
@@ -1523,10 +1543,10 @@ function initNameFx() {
     for (const c of G.cells) {
       const mx = c.x + CELL / 2, my = c.y + CELL / 2;
       let w = 0;
-      if (sx !== null) w = 1 - smooth((Math.abs(mx - sx) - HALF) / FEATH);
+      if (sx !== null) w = bs * (1 - smooth((Math.abs(mx - sx) - core) / FEATH));
       if (lens) w = Math.max(w, 1 - smooth((Math.hypot(mx - hov.cx, my - hov.cy) - R * hov.s) / (RF * hov.s)));
       if (w < .02) continue;
-      const sw = sx !== null ? 1 - smooth((Math.abs(mx - sx) - HALF) / FEATH) : 0; // inside the sweep band
+      const sw = sx !== null ? bs * (1 - smooth((Math.abs(mx - sx) - core) / FEATH)) : 0; // inside the sweep band
       const idx = sw > .25 ? 1 + (((c.k * 997) | 0) + ((now / 70 + c.k * 11) | 0)) % n // scramble like the headshot
         : Math.max(1, Math.min(n, Math.round(c.a * n) + (((c.k * 97 + tick) | 0) % 3) - 1));
       const jit = (1 - w) * 2;
