@@ -126,7 +126,7 @@ main { padding-block: 56px 96px; }
 .ascii-reveal { position: relative; width: 100%; max-width: 320px; background: var(--wash); border-radius: 10px; overflow: hidden; cursor: crosshair; }
 .ascii-reveal canvas { display: block; width: 100%; height: 100%; }
 .ascii-reveal canvas.reveal { position: absolute; inset: 0; pointer-events: none; }
-.ascii-reveal { box-shadow: var(--sx, 0) calc(var(--sy, 12px) * var(--lift, 0)) calc(34px * var(--lift, 0)) rgba(0, 0, 0, calc(.22 * var(--lift, 0))); }
+.ascii-reveal { box-shadow: var(--sx, 0) calc(var(--sy, 12px) * var(--lift, 0)) calc(48px * var(--lift, 0)) rgba(0, 0, 0, calc(.28 * var(--lift, 0))); }
 .ascii-reveal .glare { position: absolute; inset: 0; pointer-events: none; opacity: var(--shine, 0); mix-blend-mode: overlay;
   background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, .6), rgba(255, 255, 255, .16) 30%, transparent 60%),
     linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, .14) calc(var(--gx, 50%) - 5%), transparent calc(var(--gx, 50%) + 22%)); }
@@ -1137,7 +1137,7 @@ class AsciiReveal {
     const nx = P.nx, ny = P.ny, lift = P.h;
     const tilt = this.opts.parallaxTilt + (this.opts.hoverTilt - this.opts.parallaxTilt) * lift, Z = this.opts.parallaxZoom;
     const sx = (this.el.clientWidth / 2) * (Z - 1), sy = (this.el.clientHeight / 2) * (Z - 1);
-    this.el.style.transform = "perspective(800px) rotateX(" + (-ny * tilt).toFixed(2) + "deg) rotateY(" + (nx * tilt).toFixed(2) + "deg) scale(" + (1 + .035 * lift).toFixed(3) + ")";
+    this.el.style.transform = "perspective(800px) rotateX(" + (-ny * tilt).toFixed(2) + "deg) rotateY(" + (nx * tilt).toFixed(2) + "deg) scale(" + (1 + .075 * lift).toFixed(3) + ")";
     // Glare comes from the card's angle to a fixed light, not from where the cursor is: the shine slides
     // toward whichever edge is tilting toward you and brightens the further the card is turned
     const rX = -ny * tilt, rY = nx * tilt, H = this.opts.hoverTilt, ang = Math.min(1, Math.hypot(rX, rY) / H);
@@ -1146,7 +1146,7 @@ class AsciiReveal {
     this.el.style.setProperty("--shine", (lift * (.25 + .75 * ang)).toFixed(3));
     this.el.style.setProperty("--lift", lift.toFixed(3));
     this.el.style.setProperty("--sx", (-nx * 14 * lift).toFixed(1) + "px");
-    this.el.style.setProperty("--sy", (12 + -ny * 10 * lift).toFixed(1) + "px");
+    this.el.style.setProperty("--sy", (20 + -ny * 12 * lift).toFixed(1) + "px");
     this.ascii.style.transform = "translate(" + (-nx * sx).toFixed(2) + "px," + (-ny * sy).toFixed(2) + "px) scale(" + Z + ")";
     this.ov.style.transform = this.ascii.style.transform;
     this.rev.style.transform = this.ascii.style.transform; // photo and ASCII move together so the reveal lines up
