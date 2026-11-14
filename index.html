@@ -659,7 +659,12 @@ class AsciiReveal {
     this.field = document.createElement("canvas"); this.fctx = this.field.getContext("2d", { willReadFrequently: true });
     this.t1 = document.createElement("canvas"); this.t1ctx = this.t1.getContext("2d", { willReadFrequently: true });
     this.t2 = document.createElement("canvas"); this.t2ctx = this.t2.getContext("2d", { willReadFrequently: true });
-    this.photo = document.createElement("canvas"); this.frameN = 0; this.skipN = 0;
+    this.photo = document.createElement("canvas");
+    this.shape = document.createElement("canvas"); this.sctx = this.shape.getContext("2d", { willReadFrequently: true });
+    // Real gaussian blur where the browser supports canvas filters (Chrome, Edge, Firefox);
+    // otherwise a finer version of the old shrink-and-enlarge blur.
+    this.canBlur = (() => { try { const c = document.createElement("canvas").getContext("2d"); if (!("filter" in c)) return false; c.filter = "blur(2px)"; return c.filter === "blur(2px)"; } catch (e) { return false; } })();
+    this.sweepT0 = 0; this.nextSweep = 0;
     el.appendChild(this.ascii); el.appendChild(this.ov); el.appendChild(this.rev);
     this.pointer = { x: 0, y: 0, inside: false }; this.cur = { x: 0, y: 0 };
     this.hasCur = false; this.trail = []; this.blobs = [];
@@ -714,7 +719,9 @@ class AsciiReveal {
     this.fscale = .5;
     this.field.width = Math.max(2, Math.ceil(w * this.fscale));
     this.field.height = Math.max(2, Math.ceil(h * this.fscale));
-    const step = Math.sqrt(Math.max(2, this.opts.goo * this.fscale));
+    this.shape.width = this.field.width; this.shape.height = this.field.height;
+    this.blurPx = Math.max(2, this.opts.goo * this.fscale * .5);
+    const step = this.canBlur ? 2 : Math.sqrt(Math.max(2, this.opts.goo * this.fscale * .6));
     this.t1.width = Math.max(2, Math.ceil(this.field.width / step));
     this.t1.height = Math.max(2, Math.ceil(this.field.height / step));
     this.t2.width = Math.max(2, Math.ceil(this.t1.width / step));
@@ -809,10 +816,23 @@ class AsciiReveal {
     const ink = "rgb(" + this.inkRgb + ")";
     const introAge = now - this.introT0, introSpan = 1500, introFade = 520;
     const intro = introAge < introSpan + introFade;
+    // Repeating sweep: the opening effect as a soft band that passes over every few seconds
+    const SWEEP = 2600;
+    if (!this.nextSweep) this.nextSweep = this.introT0 + introSpan + introFade + 5000 + Math.random() * 3000;
+    if (!this.sweepT0 && now >= this.nextSweep) {
+      if (this.pointer.inside) this.nextSweep = now + 1500; // don't fight the visitor's cursor
+      else this.sweepT0 = now;
+    }
+    let front = null;
+    if (this.sweepT0) {
+      const k = (now - this.sweepT0) / SWEEP;
+      if (k >= 1) { this.sweepT0 = 0; this.nextSweep = now + 6500 + Math.random() * 4000; }
+      else front = -.3 + (-(Math.cos(Math.PI * k) - 1) / 2) * 1.6;
+    }
     const cx = this.cur.x, cy = this.cur.y, inside = this.pointer.inside;
     const lens = this.opts.lensRadius, halo = lens * 1.7;
     const nch = chars.length - 1;
-    const tick = Math.floor(now / 110);
+    const tickF = now / 110;
     const ss = smoothstep01;
     for (let y = 0; y < g.rows; y++) {
       for (let x = 0; x < g.cols; x++) {
@@ -830,6 +850,11 @@ class AsciiReveal {
           cover = 1 - ss((introAge - delay) / introFade);
           w = Math.max(w, cover * (.45 + .25 * h01));
         }
+        if (front !== null) {
+          const d = (x / g.cols) * .55 + (y / g.rows) * .45 + (h01 - .5) * .06;
+          const band = 1 - ss(Math.abs(d - front) / .17);
+          if (band > 0) { cover = Math.max(cover, band * .92); w = Math.max(w, band * (.5 + .35 * h01)); }
+        }
         // Halo: a gentle stir around the cursor, strongest just outside the lens.
         if (inside && ph < .98) {
           const d = Math.hypot(pxc - cx, pyc - cy);
@@ -843,10 +868,14 @@ class AsciiReveal {
           w = .5 * Math.sin(((tw - .97) / .03) * Math.PI);
           if (w < .03) continue;
         }
-        const idx = Math.max(1, Math.min(nch, Math.round(lum * nch) + (((h01 * 97 + tick) | 0) % 3) - 1));
+        // Each glyph shimmers on its own offset beat, so changes ripple instead of the whole image ticking at once
+        const tk = (tickF + h01 * 7) | 0;
+        let idx = Math.max(1, Math.min(nch, Math.round(lum * nch) + (((h01 * 97 + tk) | 0) % 3) - 1));
+        // Inside the opening wave / sweep band the glyphs scramble (each on its own beat), so the pass reads as decoding
+        if (cover > .25) idx = 1 + (((h01 * 997) | 0) + ((now / 70 + h01 * 11) | 0)) % nch;
         const jit = (1 - w) * 1.6;
         o.globalAlpha = w;
-        o.fillStyle = (ph > .15 && ph < .85 && h01 > .94) ? this.accentColor : ink;
+        o.fillStyle = ((ph > .15 && ph < .85) || cover > .5) && h01 > .94 ? this.accentColor : ink;
         o.fillText(chars[idx], x * cell + (h01 - .5) * 2 * jit, y * cell + (((h01 * 7) % 1) - .5) * 2 * jit);
       }
     }
@@ -883,9 +912,6 @@ class AsciiReveal {
     const tick = (now) => {
       if (this.dead || !this.visible) { this.running = false; return; }
       const t = now / 1000;
-      // When no one is interacting, only the slow ambient pools move: run the heavy work at half rate.
-      const lively = this.pointer.inside || now - this.introT0 < 2200 || now - (this.touchT || -1e9) < 3000;
-      if (!lively && (++this.skipN & 1)) { this.parallaxStep(); requestAnimationFrame(tick); return; }
       if (this.pointer.inside) {
         if (!this.hasCur) { this.cur.x = this.pointer.x; this.cur.y = this.pointer.y; this.hasCur = true; this.brushGrow = 0; }
         const px = this.cur.x, py = this.cur.y;
@@ -923,7 +949,7 @@ class AsciiReveal {
         if (alive && Math.hypot(x - ld.x, y - ld.y) < 2.5) { ld.born = now; ld.x = x; ld.y = y; ld.r = rr; }
         else b.lastDisc = this.stamp(x, y, rr, now);
       }
-      const f = this.fctx, fs = this.fscale;
+      const f = this.sctx, fs = this.fscale;
       f.setTransform(fs, 0, 0, fs, 0, 0);
       f.clearRect(0, 0, this.w, this.h);
       f.fillStyle = "#fff"; f.globalAlpha = 1; f.beginPath();
@@ -941,17 +967,25 @@ class AsciiReveal {
         f.beginPath(); this.blobPath(f, dd[0].x, dd[0].y, dd[1], dd[0].seed, t); f.fill();
       }
       f.globalAlpha = 1;
-      const fw = this.field.width, fh = this.field.height, t1 = this.t1, t2 = this.t2;
-      this.t1ctx.clearRect(0, 0, t1.width, t1.height);
-      this.t1ctx.drawImage(this.field, 0, 0, t1.width, t1.height);
-      this.t2ctx.clearRect(0, 0, t2.width, t2.height);
-      this.t2ctx.drawImage(t1, 0, 0, t2.width, t2.height);
-      this.t1ctx.clearRect(0, 0, t1.width, t1.height);
-      this.t1ctx.drawImage(t2, 0, 0, t1.width, t1.height);
-      f.setTransform(1, 0, 0, 1, 0, 0);
-      f.clearRect(0, 0, fw, fh);
-      f.drawImage(t1, 0, 0, fw, fh);
-      const id = f.getImageData(0, 0, fw, fh), pix = id.data;
+      const fw = this.field.width, fh = this.field.height, t1 = this.t1, t2 = this.t2, fc = this.fctx;
+      fc.setTransform(1, 0, 0, 1, 0, 0);
+      fc.clearRect(0, 0, fw, fh);
+      if (this.canBlur) {
+        // One sub-pixel-accurate gaussian pass: the goo edge glides instead of stepping
+        fc.filter = "blur(" + this.blurPx.toFixed(2) + "px)";
+        fc.drawImage(this.shape, 0, 0);
+        fc.filter = "none";
+      } else {
+        this.t1ctx.clearRect(0, 0, t1.width, t1.height);
+        this.t1ctx.drawImage(this.shape, 0, 0, t1.width, t1.height);
+        this.t2ctx.clearRect(0, 0, t2.width, t2.height);
+        this.t2ctx.drawImage(t1, 0, 0, t2.width, t2.height);
+        this.t1ctx.clearRect(0, 0, t1.width, t1.height);
+        this.t1ctx.drawImage(t2, 0, 0, t1.width, t1.height);
+        fc.drawImage(t1, 0, 0, fw, fh);
+      }
+      const f2 = fc;
+      const id = f2.getImageData(0, 0, fw, fh), pix = id.data;
       if (!this.alphaPre || this.alphaPre.length !== fw * fh) this.alphaPre = new Uint8Array(fw * fh);
       const pre = this.alphaPre;
       for (let i = 3, j = 0; i < pix.length; i += 4, j++) {
@@ -960,7 +994,7 @@ class AsciiReveal {
         // Soft, feathered edge: the photo crossfades in rather than snapping on.
         pix[i] = REVEAL_LUT[a];
       }
-      f.putImageData(id, 0, 0);
+      f2.putImageData(id, 0, 0);
       const rc = this.rctx;
       rc.setTransform(1, 0, 0, 1, 0, 0);
       rc.clearRect(0, 0, this.rev.width, this.rev.height);
@@ -970,7 +1004,7 @@ class AsciiReveal {
       rc.drawImage(this.field, 0, 0, this.rev.width, this.rev.height);
       rc.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
       rc.globalCompositeOperation = "source-over";
-      if (!this.reduced && (++this.frameN & 1)) this.drawOverlay(now, t);
+      if (!this.reduced) this.drawOverlay(now, t);
       this.parallaxStep();
       requestAnimationFrame(tick);
     };
@@ -985,9 +1019,9 @@ class AsciiReveal {
     const nx = this.par.nx, ny = this.par.ny;
     const tilt = this.opts.parallaxTilt, shift = this.opts.parallaxShift;
     this.el.style.transform = "perspective(900px) rotateX(" + (-ny * tilt).toFixed(2) + "deg) rotateY(" + (nx * tilt).toFixed(2) + "deg)";
-    this.ascii.style.transform = "translate(" + (-nx * shift * .45).toFixed(1) + "px," + (-ny * shift * .45).toFixed(1) + "px) scale(1.05)";
+    this.ascii.style.transform = "translate(" + (-nx * shift * .45).toFixed(2) + "px," + (-ny * shift * .45).toFixed(2) + "px) scale(1.05)";
     this.ov.style.transform = this.ascii.style.transform;
-    this.rev.style.transform = "translate(" + (-nx * shift).toFixed(1) + "px," + (-ny * shift).toFixed(1) + "px) scale(1.05)";
+    this.rev.style.transform = "translate(" + (-nx * shift).toFixed(2) + "px," + (-ny * shift).toFixed(2) + "px) scale(1.05)";
   }
   bindEvents() {
     const el = this.el;
