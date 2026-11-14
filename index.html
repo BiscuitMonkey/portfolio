@@ -221,27 +221,19 @@ main { padding-block: 56px 96px; }
 .peaks.on .peak-art .wp { opacity: .55; transition-delay: calc(var(--d) * 24ms + 200ms), 0s; }
 .peaks.on .peak-art .wp:hover { opacity: 1; color: var(--link); }
 .peaks.on .peak-art .wp.on { opacity: 1; color: var(--link); text-shadow: 0 0 6px color-mix(in srgb, var(--link) 55%, transparent); }
-/* The ring walks the trail to whichever photo is on top; trail past it dims */
-.peak-art pre { position: relative; }
+/* Active waypoint ring; drag or hover along the art to scrub through the photos */
 .peak-art .wp, .peak-art .me { width: 1ch; text-align: center; }
-.peak-art .tr.ah { opacity: .38; }
-.peak-art .hk { position: absolute; left: calc((var(--c, 0) + .5) * 1ch); top: calc((var(--y, 0) + .5) * var(--lh, 1.18em)); width: 1.8em; height: 1.8em; margin: -.9em 0 0 -.9em; border: 1.5px solid var(--link); border-radius: 50%; opacity: 0; pointer-events: none; transition: opacity .35s ease; }
-.peak-art .hk.vis { opacity: 1; }
-.peak-art .hk::after { content: ""; position: absolute; inset: -1.5px; border: 1.5px solid var(--link); border-radius: 50%; opacity: 0; }
-.peak-art .hk.vis:not(.walk)::after { animation: wpRing 1.8s ease-out infinite; }
-@keyframes wpRing { 0% { transform: scale(.7); opacity: .8; } 100% { transform: scale(1.9); opacity: 0; } }
-/* New top photo develops out of ASCII, sweeping left to right like the headshot */
-.pp-img { position: relative; }
-.pp-dev { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(20, 1fr); grid-template-rows: repeat(15, 1fr); pointer-events: none; }
-.pp-dev i { display: grid; place-items: center; font: 700 9px/1 var(--font); font-style: normal; color: var(--muted); background: var(--bg); }
-.peaks.on .pp-dev.go i { animation: ppDev .5s ease-in both; animation-delay: var(--t); }
-@keyframes ppDev { 0% { opacity: 1; } 45% { opacity: 1; color: var(--link); } 100% { opacity: 0; color: var(--link); } }
+.peak-art .wp.on::before { content: ""; position: absolute; left: 50%; top: 50%; width: 1.7em; height: 1.7em; margin: -.85em 0 0 -.85em; border: 1.5px solid var(--link); border-radius: 50%; animation: wpRing 1.8s ease-out infinite; pointer-events: none; }
+@keyframes wpRing { 0% { transform: scale(.5); opacity: .9; } 100% { transform: scale(1.8); opacity: 0; } }
+.peak-art { touch-action: pan-y; }
+.pp-card figcaption { display: grid; gap: 2px; }
+.pp-stat { font-size: 12.5px; font-weight: 600; color: var(--muted); opacity: .8; font-variant-numeric: tabular-nums; }
 @media (max-width: 1000px) { .peak { grid-template-columns: 210px minmax(0, 1fr); } .peak-photos { grid-column: 1 / -1; } }
 .peak-art .dn { color: var(--ink); }
 .peaks.on .peak-art .dn { animation: peakDescend 2.8s ease-in-out infinite; animation-delay: calc(1.8s + var(--d) * 70ms); }
 @keyframes peakDescend { 0%, 55%, 100% { color: var(--ink); } 18% { color: var(--link); } }
 @keyframes peakBob { 50% { transform: translateY(-3px); } }
-@media (prefers-reduced-motion: reduce) { .peak-status i, .peaks.on .prog .peak-art .me, .peaks.on .peak-art .dn, .peak-art .hk::after { animation: none !important; } .pp-dev { display: none; } .peaks.on .peak-art .dn { color: var(--link); } }
+@media (prefers-reduced-motion: reduce) { .peak-status i, .peaks.on .prog .peak-art .me, .peaks.on .peak-art .dn, .peak-art .wp.on::before { animation: none; } .peaks.on .peak-art .dn { color: var(--link); } }
 
 /* Case study */
 .back { display: inline-flex; align-items: center; gap: 8px; justify-self: start; width: max-content; padding: 8px 16px 8px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); text-decoration: none; font-size: 15px; font-weight: 600; transition: color .15s, border-color .15s; }
@@ -1202,7 +1194,6 @@ function peakArt(pk) {
   const r = []; for (let c = 0; c < W; c++) r.push((H - 1) - Math.round(hAt(c / (W - 1)) * (H - 3)));
   const G = Array.from({ length: H }, () => Array.from({ length: W }, () => ({ ch: " ", k: "" })));
   const pc = Math.round(pk.at * (W - 1));
-  pk._r = r;
   for (let c = 0; c < W; c++) {
     const prev = c ? r[c - 1] : r[c], next = c < W - 1 ? r[c + 1] : r[c];
     const k = cc => cc <= pc ? "tr" : pk.done ? "dn" : "rg"; // done: the far side is the way back down
@@ -1233,31 +1224,32 @@ function peakArt(pk) {
 const MOUNTAIN_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 19l6.5-10 4 6 2.5-3.5L21 19z"/><circle cx="17" cy="6.5" r="1.6"/></svg>';
 const peakPics = pk => pk.photos && pk.photos.length ? pk.photos : [null, null, null, null];
 const TILT = [-4, 3, -2, 5, -5, 2];
-// A loose stack of polaroids. Real photos: { src, alt, caption, at } where "at" (0-1) places its waypoint on the trail.
+// A loose stack of polaroids. Real photos: { src, alt, caption, at, mi, ft, time } where "at" (0-1) places its waypoint
+// on the trail and mi / ft / time are the trail-log stats under the caption (e.g. mi: 2.4, ft: "6,900", time: "7:42 AM").
+const ppStat = p => p ? [p.mi != null && "Mile " + p.mi, p.ft && p.ft + " ft", p.time].filter(Boolean).join(" · ") : "Mile — · — ft · —";
 function peakPhotos(pk) {
   const ph = peakPics(pk), n = ph.length;
   return `<div class="peak-photos">
       <button class="pp-stack" type="button" aria-label="${esc(pk.name)} photos. Show next photo">${ph.map((p, i) => `
         <figure class="pp-card${i >= 3 ? " deep" : ""}" data-i="${i}" style="--pos:${i};--rot:${TILT[i % TILT.length]}deg;z-index:${n - i}"${i ? ' aria-hidden="true"' : ""}>
           <div class="pp-img">${p ? `<img src="${p.src}" alt="${esc(p.alt || pk.name)}" loading="lazy" decoding="async">` : `<div class="pp-ph pp-ph${i % 4}">${MOUNTAIN_ICON}</div>`}</div>
-          <figcaption>${esc(p && p.caption ? p.caption : "Photo " + (i + 1))}</figcaption>
+          <figcaption><span>${esc(p && p.caption ? p.caption : "Photo " + (i + 1))}</span>${ppStat(p) ? `<span class="pp-stat">${esc(ppStat(p))}</span>` : ""}</figcaption>
         </figure>`).join("")}
       </button>
       <p class="pp-count" aria-live="polite"><b>1</b> / ${n}</p>
     </div>`;
 }
-const peakRow = pk => `<article data-r="${(peakArt(pk), pk._r.join(","))}" class="peak ${pk.done ? "done" : "prog"}">
+const peakRow = pk => `<article class="peak ${pk.done ? "done" : "prog"}">
     <div class="peak-info">
       <h3>${esc(pk.name)}</h3>
       <span class="peak-status">${pk.done ? '<b aria-hidden="true">[x]</b> Complete' : '<b aria-hidden="true">[<i>&gt;</i>]</b> In progress'}</span>
       <p>${esc(pk.where)}</p>
       <p class="peak-elev">${esc(pk.elev)}</p>
     </div>
-    <div class="peak-art" role="img" aria-label="${esc(pk.name)} side profile, ${pk.done ? "trail complete to the summit" : "trail in progress"}"><pre>${peakArt(pk)}<span class="hk" aria-hidden="true"></span></pre></div>
+    <div class="peak-art" role="img" aria-label="${esc(pk.name)} side profile, ${pk.done ? "trail complete to the summit" : "trail in progress"}"><pre>${peakArt(pk)}</pre></div>
     ${peakPhotos(pk)}
   </article>`;
 function initPeaks() {
-  const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const sec = document.querySelector(".peaks");
   if (!sec) return;
   sec.querySelectorAll(".peak").forEach(card => {
@@ -1265,56 +1257,20 @@ function initPeaks() {
     const cards = [...box.querySelectorAll(".pp-card")], wps = [...card.querySelectorAll(".wp")], n = cards.length;
     const count = box.querySelector(".pp-count b"), stack = box.querySelector(".pp-stack");
     let order = cards.map((_, i) => i), busy = false;
-    // Walker: a ring that follows the trail (one row above it) to the current photo's waypoint
-    const pre = card.querySelector(".peak-art pre"), hk = pre.querySelector(".hk"), R = card.dataset.r.split(",").map(Number);
-    const ROWS = pre.textContent.split("\n").length, trs = [...pre.querySelectorAll(".tr")].map(el => [el, parseInt(el.style.getPropertyValue("--d"))]);
-    let hc = 0, raf = 0, lastCol = -1;
-    const yAt = c => { const a = Math.floor(c), b = Math.min(R.length - 1, a + 1), t = c - a; return (R[a] - 1) * (1 - t) + (R[b] - 1) * t; };
-    const place = c => {
-      hk.style.setProperty("--c", c.toFixed(2)); hk.style.setProperty("--y", yAt(c).toFixed(2));
-      const ci = Math.round(c); if (ci !== lastCol) { lastCol = ci; trs.forEach(([el, d]) => el.classList.toggle("ah", d > ci)); }
-    };
-    const arrive = () => { hk.classList.remove("walk"); wps.forEach(w => w.classList.toggle("on", +w.dataset.i === order[0])); };
-    const walkTo = to => {
-      cancelAnimationFrame(raf);
-      pre.style.setProperty("--lh", pre.getBoundingClientRect().height / ROWS + "px");
-      const from = hc, dur = REDUCED ? 0 : Math.min(1400, Math.max(260, Math.abs(to - from) * 34));
-      wps.forEach(w => w.classList.remove("on")); hk.classList.add("walk");
-      const t0 = performance.now();
-      const step = now => {
-        const t = dur ? Math.min(1, (now - t0) / dur) : 1, e = t < .5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
-        hc = from + (to - from) * e; place(hc);
-        if (t < 1) raf = requestAnimationFrame(step); else arrive();
-      };
-      raf = requestAnimationFrame(step);
-    };
-    const wpCol = i => { const w = wps.find(w => +w.dataset.i === i); return w ? +w.dataset.c : 0; };
-    // Develop the top photo out of ASCII (brightness from the photo when it's loaded)
-    const RAMP = "@%#*+=-:. ";
-    const develop = (fig, go) => {
-      if (REDUCED) return;
-      const box = fig.querySelector(".pp-img"); box.querySelector(".pp-dev")?.remove();
-      const C = 20, Rw = 15, img = box.querySelector("img"); let px = null;
-      if (img && img.complete && img.naturalWidth) try { const cv = document.createElement("canvas"); cv.width = C; cv.height = Rw; const x = cv.getContext("2d", { willReadFrequently: true }); x.drawImage(img, 0, 0, C, Rw); px = x.getImageData(0, 0, C, Rw).data; } catch (_) { px = null; }
-      let h = "";
-      for (let y = 0; y < Rw; y++) for (let x = 0; x < C; x++) {
-        const k = y * C + x, rnd = ((Math.sin(k * 78.233 + +fig.dataset.i * 12.9898) * 43758.5453) % 1 + 1) % 1;
-        const L = px ? (px[k * 4] * .3 + px[k * 4 + 1] * .59 + px[k * 4 + 2] * .11) / 255 : .55 + .35 * Math.sin(x * .45 + y * .3 + +fig.dataset.i) * rnd;
-        h += `<i style="--t:${Math.round(x / C * 380 + rnd * 260)}ms">${esc(RAMP[Math.min(RAMP.length - 1, Math.floor(L * RAMP.length))].trim() || "·")}</i>`;
-      }
-      const d = document.createElement("div"); d.className = "pp-dev" + (go ? " go" : ""); d.setAttribute("aria-hidden", "true"); d.innerHTML = h; box.appendChild(d);
-      setTimeout(() => d.isConnected && d.classList.contains("go") && d.remove(), 1300);
-    };
-    const lay = (walk = true) => {
+    const lay = () => {
       order.forEach((ci, pos) => { const c = cards[ci]; c.style.setProperty("--pos", pos); c.style.zIndex = n - pos; c.toggleAttribute("aria-hidden", pos > 0); c.classList.toggle("deep", pos >= 3); });
+      wps.forEach(w => w.classList.toggle("on", +w.dataset.i === order[0]));
       count.textContent = order[0] + 1;
-      if (walk) { walkTo(wpCol(order[0])); develop(cards[order[0]], true); }
     };
-    card._start = () => { // first view: ring sets off from the trailhead once the trail has lit up
-      const d = REDUCED ? 0 : R.length && trs.length ? trs[trs.length - 1][1] * 24 + 450 : 0;
-      setTimeout(() => { hk.classList.add("vis"); hc = 0; place(0); walkTo(wpCol(order[0])); cards[order[0]].querySelector(".pp-dev")?.classList.add("go"); setTimeout(() => cards[order[0]].querySelector(".pp-dev.go")?.remove(), 1300); }, d);
-    };
-    develop(cards[order[0]], false);
+    // Scrub: hovering or dragging along the mountain brings the nearest waypoint's photo to the top
+    const art = card.querySelector(".peak-art pre");
+    const jump = i => { if (busy || order[0] === i) return; const k = order.indexOf(i); order = order.slice(k).concat(order.slice(0, k)); lay(); };
+    art.addEventListener("pointermove", e => {
+      if (!wps.length || (e.pointerType !== "mouse" && !e.buttons && e.pressure === 0)) return;
+      const x = e.clientX; let best = null, bd = Infinity;
+      wps.forEach(w => { const r = w.getBoundingClientRect(), d = Math.abs(r.left + r.width / 2 - x); if (d < bd) { bd = d; best = w; } });
+      jump(+best.dataset.i);
+    });
     // Toss the top photo to the back of the pile
     const flip = () => {
       if (busy || n < 2) return; busy = true;
@@ -1325,11 +1281,10 @@ function initPeaks() {
     stack.addEventListener("click", flip);
     stack.addEventListener("keydown", e => { if (e.key === "ArrowRight" || e.key === "ArrowLeft") { e.preventDefault(); flip(); } });
     wps.forEach(w => w.addEventListener("click", () => show(+w.dataset.i)));
-    lay(false);
+    lay();
   });
-  const start = () => { sec.classList.add("on"); sec.querySelectorAll(".peak").forEach(c => c._start && c._start()); };
-  if (!("IntersectionObserver" in window)) { start(); return; }
-  const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { start(); io.disconnect(); } }, { threshold: .25 });
+  if (!("IntersectionObserver" in window)) { sec.classList.add("on"); return; }
+  const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { sec.classList.add("on"); io.disconnect(); } }, { threshold: .25 });
   io.observe(sec);
 }
 function viewHome() {
