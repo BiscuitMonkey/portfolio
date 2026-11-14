@@ -1672,7 +1672,9 @@ function initNameFx() {
     const X = sweepX(now);
     const sx = X === null ? null : X - SWEEP.nameLeft; // shared band, in this heading's pixels
     const bs = X === null ? 0 : sweepStrength(X, SWEEP.nameSpan[0], SWEEP.nameSpan[1]); // grows in, eases off
-    const core = HALF * bs, hole = `rgba(0,0,0,${(1 - bs).toFixed(3)})`;
+    // light mode keeps a faint ghost of the letters under the glyphs (like the headshot's faint photo) so the pass reads dark
+    const ghost = light ? .24 : 0;
+    const core = HALF * bs, hole = `rgba(0,0,0,${(1 - bs * (1 - ghost)).toFixed(3)})`;
     hov.s += ((hov.in ? 1 : 0) - hov.s) * .12;
     if (hov.in) { hov.cx += (hov.x - hov.cx) * .2; hov.cy += (hov.y - hov.cy) * .2; }
     const lens = hov.s > .01;
@@ -1683,7 +1685,7 @@ function initNameFx() {
     const L1 = sx === null ? "linear-gradient(#000,#000)" :
       `linear-gradient(90deg, #000 ${sx - core - FEATH - ox}px, ${hole} ${sx - core - ox}px, ${hole} ${sx + core - ox}px, #000 ${sx + core + FEATH - ox}px)`;
     const L2 = !lens ? "linear-gradient(#000,#000)" :
-      `radial-gradient(circle at ${hov.cx - ox}px ${hov.cy - oy}px, transparent ${R * hov.s}px, #000 ${(R + RF) * hov.s}px)`;
+      `radial-gradient(circle at ${hov.cx - ox}px ${hov.cy - oy}px, rgba(0,0,0,${(1 - hov.s * (1 - ghost)).toFixed(3)}) ${R * hov.s}px, #000 ${(R + RF) * hov.s}px)`;
     const m = L1 + ", " + L2;
     wrap.style.maskImage = m; wrap.style.webkitMaskImage = m;
 
