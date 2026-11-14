@@ -182,7 +182,7 @@ main { padding-block: 56px 96px; }
 .peak-info h3 { font-size: 24px; font-weight: 800; letter-spacing: -0.01em; }
 .peak-info p { font-size: 15px; color: var(--muted); line-height: 1.45; }
 .peak-info .peak-elev { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
-.peak-status { display: inline-flex; align-items: baseline; gap: 8px; margin: 4px 0 6px; font: 600 13.5px/1.2 ui-monospace, Menlo, Consolas, monospace; letter-spacing: .01em; color: var(--muted); }
+.peak-status { display: inline-flex; align-items: baseline; gap: 8px; margin: 4px 0 6px; font: 600 15px/1.2 var(--font); color: var(--muted); }
 .peak-status b { font-weight: 700; color: var(--ink); }
 .done .peak-status, .done .peak-status b { color: var(--link); }
 .peak-status i { font-style: normal; color: var(--link); animation: peakCaret 1.1s steps(1) infinite; }
@@ -213,25 +213,35 @@ main { padding-block: 56px 96px; }
 .pp-ph1 { background: linear-gradient(195deg, color-mix(in srgb, var(--link) 10%, var(--bg)), color-mix(in srgb, var(--ink) 8%, var(--bg))); }
 .pp-ph2 { background: linear-gradient(150deg, color-mix(in srgb, var(--ink) 9%, var(--bg)), color-mix(in srgb, var(--link) 14%, var(--bg))); }
 .pp-ph3 { background: linear-gradient(210deg, var(--wash), color-mix(in srgb, var(--link) 20%, var(--bg))); }
-.pp-card figcaption { padding: 8px 2px 10px; font: 600 12.5px/1.3 ui-monospace, Menlo, Consolas, monospace; color: var(--muted); text-align: left; }
-.pp-count { font: 600 12.5px ui-monospace, Menlo, Consolas, monospace; color: var(--muted); }
+.pp-card figcaption { padding: 8px 2px 10px; font: 600 14px/1.3 var(--font); color: var(--muted); text-align: left; }
+.pp-count { font: 600 14px var(--font); font-variant-numeric: tabular-nums; color: var(--muted); }
 .pp-count b { color: var(--link); }
 .peak-art pre { overflow: visible; }
 .peak-art .wp { position: relative; display: inline-block; color: var(--muted); cursor: pointer; opacity: 0; transition: opacity .3s ease, color .2s ease; }
 .peaks.on .peak-art .wp { opacity: .55; transition-delay: calc(var(--d) * 24ms + 200ms), 0s; }
 .peaks.on .peak-art .wp:hover { opacity: 1; color: var(--link); }
 .peaks.on .peak-art .wp.on { opacity: 1; color: var(--link); text-shadow: 0 0 6px color-mix(in srgb, var(--link) 55%, transparent); }
-/* Current photo: a pulsing ring around its waypoint and a label tag pointing at it */
-.peak-art .wp.on::before { content: ""; position: absolute; left: 50%; top: 50%; width: 1.7em; height: 1.7em; margin: -.85em 0 0 -.85em; border: 1.5px solid var(--link); border-radius: 50%; animation: wpRing 1.8s ease-out infinite; pointer-events: none; }
-.peak-art .wp.on::after { content: attr(data-label); position: absolute; left: 50%; bottom: calc(100% + 7px); translate: -50% 0; padding: 3px 7px; border-radius: 4px; background: var(--link); color: var(--bg); font-size: max(10px, .8em); font-weight: 700; line-height: 1.2; white-space: nowrap; text-shadow: none; pointer-events: none; animation: wpTag .3s ease-out; }
-@keyframes wpRing { 0% { transform: scale(.5); opacity: .9; } 100% { transform: scale(1.8); opacity: 0; } }
-@keyframes wpTag { from { opacity: 0; translate: -50% 4px; } }
+/* The ring walks the trail to whichever photo is on top; trail past it dims */
+.peak-art pre { position: relative; }
+.peak-art .wp, .peak-art .me { width: 1ch; text-align: center; }
+.peak-art .tr.ah { opacity: .38; }
+.peak-art .hk { position: absolute; left: calc((var(--c, 0) + .5) * 1ch); top: calc((var(--y, 0) + .5) * var(--lh, 1.18em)); width: 1.8em; height: 1.8em; margin: -.9em 0 0 -.9em; border: 1.5px solid var(--link); border-radius: 50%; opacity: 0; pointer-events: none; transition: opacity .35s ease; }
+.peak-art .hk.vis { opacity: 1; }
+.peak-art .hk::after { content: ""; position: absolute; inset: -1.5px; border: 1.5px solid var(--link); border-radius: 50%; opacity: 0; }
+.peak-art .hk.vis:not(.walk)::after { animation: wpRing 1.8s ease-out infinite; }
+@keyframes wpRing { 0% { transform: scale(.7); opacity: .8; } 100% { transform: scale(1.9); opacity: 0; } }
+/* New top photo develops out of ASCII, sweeping left to right like the headshot */
+.pp-img { position: relative; }
+.pp-dev { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(20, 1fr); grid-template-rows: repeat(15, 1fr); pointer-events: none; }
+.pp-dev i { display: grid; place-items: center; font: 700 9px/1 var(--font); font-style: normal; color: var(--muted); background: var(--bg); }
+.peaks.on .pp-dev.go i { animation: ppDev .5s ease-in both; animation-delay: var(--t); }
+@keyframes ppDev { 0% { opacity: 1; } 45% { opacity: 1; color: var(--link); } 100% { opacity: 0; color: var(--link); } }
 @media (max-width: 1000px) { .peak { grid-template-columns: 210px minmax(0, 1fr); } .peak-photos { grid-column: 1 / -1; } }
 .peak-art .dn { color: var(--ink); }
 .peaks.on .peak-art .dn { animation: peakDescend 2.8s ease-in-out infinite; animation-delay: calc(1.8s + var(--d) * 70ms); }
 @keyframes peakDescend { 0%, 55%, 100% { color: var(--ink); } 18% { color: var(--link); } }
 @keyframes peakBob { 50% { transform: translateY(-3px); } }
-@media (prefers-reduced-motion: reduce) { .peak-status i, .peaks.on .prog .peak-art .me, .peaks.on .peak-art .dn, .peak-art .wp.on::before, .peak-art .wp.on::after { animation: none; } .peaks.on .peak-art .dn { color: var(--link); } }
+@media (prefers-reduced-motion: reduce) { .peak-status i, .peaks.on .prog .peak-art .me, .peaks.on .peak-art .dn, .peak-art .hk::after { animation: none !important; } .pp-dev { display: none; } .peaks.on .peak-art .dn { color: var(--link); } }
 
 /* Case study */
 .back { display: inline-flex; align-items: center; gap: 8px; justify-self: start; width: max-content; padding: 8px 16px 8px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); text-decoration: none; font-size: 15px; font-weight: 600; transition: color .15s, border-color .15s; }
@@ -1192,6 +1202,7 @@ function peakArt(pk) {
   const r = []; for (let c = 0; c < W; c++) r.push((H - 1) - Math.round(hAt(c / (W - 1)) * (H - 3)));
   const G = Array.from({ length: H }, () => Array.from({ length: W }, () => ({ ch: " ", k: "" })));
   const pc = Math.round(pk.at * (W - 1));
+  pk._r = r;
   for (let c = 0; c < W; c++) {
     const prev = c ? r[c - 1] : r[c], next = c < W - 1 ? r[c + 1] : r[c];
     const k = cc => cc <= pc ? "tr" : pk.done ? "dn" : "rg"; // done: the far side is the way back down
@@ -1207,14 +1218,14 @@ function peakArt(pk) {
   peakPics(pk).forEach((ph, i, all) => { // one waypoint per photo, sitting on the trail
     let c = Math.round((ph && ph.at != null ? ph.at : pk.at * (i + 1) / (all.length + 1)) * (W - 1));
     c = Math.max(1, Math.min(pc - 1, c));
-    G[r[c] - 1][c] = { ch: "◆", k: "wp", i, label: ph && ph.caption ? ph.caption : "Photo " + (i + 1) };
+    G[r[c] - 1][c] = { ch: "◆", k: "wp", i };
   });
   // Emit rows, merging runs of the same class; trail cells carry their column so they light up in order
   return G.map(row => { let out = "", run = "", k0 = null;
     const flush = () => { if (run) out += k0 ? `<span class="${k0}">${esc(run)}</span>` : esc(run); run = ""; };
     row.forEach((cell, c) => {
       if (cell.k === "tr" || cell.k === "me") { flush(); k0 = null; out += `<span class="${cell.k}" style="--d:${c}">${esc(cell.ch)}</span>`; return; }
-      if (cell.k === "wp") { flush(); k0 = null; out += `<span class="wp" data-i="${cell.i}" data-label="${esc(cell.label)}" style="--d:${c}">${esc(cell.ch)}</span>`; return; }
+      if (cell.k === "wp") { flush(); k0 = null; out += `<span class="wp" data-i="${cell.i}" data-c="${c}" style="--d:${c}">${esc(cell.ch)}</span>`; return; }
       if (cell.k === "dn") { flush(); k0 = null; out += `<span class="dn" style="--d:${c - pc}">${esc(cell.ch)}</span>`; return; }
       if (cell.k !== k0) { flush(); k0 = cell.k; } run += cell.ch; });
     flush(); return out; }).join("\n");
@@ -1235,17 +1246,18 @@ function peakPhotos(pk) {
       <p class="pp-count" aria-live="polite"><b>1</b> / ${n}</p>
     </div>`;
 }
-const peakRow = pk => `<article class="peak ${pk.done ? "done" : "prog"}">
+const peakRow = pk => `<article data-r="${(peakArt(pk), pk._r.join(","))}" class="peak ${pk.done ? "done" : "prog"}">
     <div class="peak-info">
       <h3>${esc(pk.name)}</h3>
       <span class="peak-status">${pk.done ? '<b aria-hidden="true">[x]</b> Complete' : '<b aria-hidden="true">[<i>&gt;</i>]</b> In progress'}</span>
       <p>${esc(pk.where)}</p>
       <p class="peak-elev">${esc(pk.elev)}</p>
     </div>
-    <div class="peak-art" role="img" aria-label="${esc(pk.name)} side profile, ${pk.done ? "trail complete to the summit" : "trail in progress"}"><pre>${peakArt(pk)}</pre></div>
+    <div class="peak-art" role="img" aria-label="${esc(pk.name)} side profile, ${pk.done ? "trail complete to the summit" : "trail in progress"}"><pre>${peakArt(pk)}<span class="hk" aria-hidden="true"></span></pre></div>
     ${peakPhotos(pk)}
   </article>`;
 function initPeaks() {
+  const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const sec = document.querySelector(".peaks");
   if (!sec) return;
   sec.querySelectorAll(".peak").forEach(card => {
@@ -1253,11 +1265,56 @@ function initPeaks() {
     const cards = [...box.querySelectorAll(".pp-card")], wps = [...card.querySelectorAll(".wp")], n = cards.length;
     const count = box.querySelector(".pp-count b"), stack = box.querySelector(".pp-stack");
     let order = cards.map((_, i) => i), busy = false;
-    const lay = () => {
-      order.forEach((ci, pos) => { const c = cards[ci]; c.style.setProperty("--pos", pos); c.style.zIndex = n - pos; c.toggleAttribute("aria-hidden", pos > 0); c.classList.toggle("deep", pos >= 3); });
-      wps.forEach(w => w.classList.toggle("on", +w.dataset.i === order[0]));
-      count.textContent = order[0] + 1;
+    // Walker: a ring that follows the trail (one row above it) to the current photo's waypoint
+    const pre = card.querySelector(".peak-art pre"), hk = pre.querySelector(".hk"), R = card.dataset.r.split(",").map(Number);
+    const ROWS = pre.textContent.split("\n").length, trs = [...pre.querySelectorAll(".tr")].map(el => [el, parseInt(el.style.getPropertyValue("--d"))]);
+    let hc = 0, raf = 0, lastCol = -1;
+    const yAt = c => { const a = Math.floor(c), b = Math.min(R.length - 1, a + 1), t = c - a; return (R[a] - 1) * (1 - t) + (R[b] - 1) * t; };
+    const place = c => {
+      hk.style.setProperty("--c", c.toFixed(2)); hk.style.setProperty("--y", yAt(c).toFixed(2));
+      const ci = Math.round(c); if (ci !== lastCol) { lastCol = ci; trs.forEach(([el, d]) => el.classList.toggle("ah", d > ci)); }
     };
+    const arrive = () => { hk.classList.remove("walk"); wps.forEach(w => w.classList.toggle("on", +w.dataset.i === order[0])); };
+    const walkTo = to => {
+      cancelAnimationFrame(raf);
+      pre.style.setProperty("--lh", pre.getBoundingClientRect().height / ROWS + "px");
+      const from = hc, dur = REDUCED ? 0 : Math.min(1400, Math.max(260, Math.abs(to - from) * 34));
+      wps.forEach(w => w.classList.remove("on")); hk.classList.add("walk");
+      const t0 = performance.now();
+      const step = now => {
+        const t = dur ? Math.min(1, (now - t0) / dur) : 1, e = t < .5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
+        hc = from + (to - from) * e; place(hc);
+        if (t < 1) raf = requestAnimationFrame(step); else arrive();
+      };
+      raf = requestAnimationFrame(step);
+    };
+    const wpCol = i => { const w = wps.find(w => +w.dataset.i === i); return w ? +w.dataset.c : 0; };
+    // Develop the top photo out of ASCII (brightness from the photo when it's loaded)
+    const RAMP = "@%#*+=-:. ";
+    const develop = (fig, go) => {
+      if (REDUCED) return;
+      const box = fig.querySelector(".pp-img"); box.querySelector(".pp-dev")?.remove();
+      const C = 20, Rw = 15, img = box.querySelector("img"); let px = null;
+      if (img && img.complete && img.naturalWidth) try { const cv = document.createElement("canvas"); cv.width = C; cv.height = Rw; const x = cv.getContext("2d", { willReadFrequently: true }); x.drawImage(img, 0, 0, C, Rw); px = x.getImageData(0, 0, C, Rw).data; } catch (_) { px = null; }
+      let h = "";
+      for (let y = 0; y < Rw; y++) for (let x = 0; x < C; x++) {
+        const k = y * C + x, rnd = ((Math.sin(k * 78.233 + +fig.dataset.i * 12.9898) * 43758.5453) % 1 + 1) % 1;
+        const L = px ? (px[k * 4] * .3 + px[k * 4 + 1] * .59 + px[k * 4 + 2] * .11) / 255 : .55 + .35 * Math.sin(x * .45 + y * .3 + +fig.dataset.i) * rnd;
+        h += `<i style="--t:${Math.round(x / C * 380 + rnd * 260)}ms">${esc(RAMP[Math.min(RAMP.length - 1, Math.floor(L * RAMP.length))].trim() || "·")}</i>`;
+      }
+      const d = document.createElement("div"); d.className = "pp-dev" + (go ? " go" : ""); d.setAttribute("aria-hidden", "true"); d.innerHTML = h; box.appendChild(d);
+      setTimeout(() => d.isConnected && d.classList.contains("go") && d.remove(), 1300);
+    };
+    const lay = (walk = true) => {
+      order.forEach((ci, pos) => { const c = cards[ci]; c.style.setProperty("--pos", pos); c.style.zIndex = n - pos; c.toggleAttribute("aria-hidden", pos > 0); c.classList.toggle("deep", pos >= 3); });
+      count.textContent = order[0] + 1;
+      if (walk) { walkTo(wpCol(order[0])); develop(cards[order[0]], true); }
+    };
+    card._start = () => { // first view: ring sets off from the trailhead once the trail has lit up
+      const d = REDUCED ? 0 : R.length && trs.length ? trs[trs.length - 1][1] * 24 + 450 : 0;
+      setTimeout(() => { hk.classList.add("vis"); hc = 0; place(0); walkTo(wpCol(order[0])); cards[order[0]].querySelector(".pp-dev")?.classList.add("go"); setTimeout(() => cards[order[0]].querySelector(".pp-dev.go")?.remove(), 1300); }, d);
+    };
+    develop(cards[order[0]], false);
     // Toss the top photo to the back of the pile
     const flip = () => {
       if (busy || n < 2) return; busy = true;
@@ -1268,10 +1325,11 @@ function initPeaks() {
     stack.addEventListener("click", flip);
     stack.addEventListener("keydown", e => { if (e.key === "ArrowRight" || e.key === "ArrowLeft") { e.preventDefault(); flip(); } });
     wps.forEach(w => w.addEventListener("click", () => show(+w.dataset.i)));
-    lay();
+    lay(false);
   });
-  if (!("IntersectionObserver" in window)) { sec.classList.add("on"); return; }
-  const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { sec.classList.add("on"); io.disconnect(); } }, { threshold: .25 });
+  const start = () => { sec.classList.add("on"); sec.querySelectorAll(".peak").forEach(c => c._start && c._start()); };
+  if (!("IntersectionObserver" in window)) { start(); return; }
+  const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { start(); io.disconnect(); } }, { threshold: .25 });
   io.observe(sec);
 }
 function viewHome() {
@@ -1870,5 +1928,6 @@ document.addEventListener("keydown", e => {
 addEventListener("hashchange", render);
 render();
 </script>
+
 </body>
 </html>
