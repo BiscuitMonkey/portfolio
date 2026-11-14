@@ -681,7 +681,7 @@ const REVEAL_LUT = new Uint8ClampedArray(256).map((_, a) => Math.round(255 * smo
    travelling left to right from just before the name to just past the photo. Gentle ramp in,
    steady cruise, gentle ramp out. Both read it every frame, so their speeds are identical. */
 const SWEEP = { t0: -1, x0: 0, x1: 1, dur: 1, nameLeft: 0, portLeft: 0 };
-const SWEEP_SPEED = .32, SWEEP_RAMP = .14; // px per ms at cruise; share of the pass spent ramping at each end
+const SWEEP_SPEED = .32, SWEEP_RAMP = .14, SWEEP_CORE = 46, SWEEP_FADE = 52; // band: fully-ASCII half-width, then a short fade (px) // px per ms at cruise; share of the pass spent ramping at each end
 function sweepX(now) {
   if (SWEEP.t0 < 0) return null;
   const k = (now - SWEEP.t0) / SWEEP.dur;
@@ -897,7 +897,7 @@ class AsciiReveal {
         }
         if (front !== null) {
           const proj = pxc + .35 * pyc + (h01 - .5) * 10;
-          const band = 1 - ss((Math.abs(proj - front) - 22) / 80);
+          const band = 1 - ss((Math.abs(proj - front) - SWEEP_CORE) / SWEEP_FADE);
           if (band > 0) { cover = Math.max(cover, band * .92); w = Math.max(w, band * (.5 + .35 * h01)); }
         }
         // Halo: a gentle stir around the cursor, strongest just outside the lens.
@@ -1481,7 +1481,7 @@ function initNameFx() {
 
   const easeIO = t => -(Math.cos(Math.PI * t) - 1) / 2; // sine in-out: no sudden rush mid-sweep
   const smooth = t => t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t);
-  const HALF = 56, FEATH = 130; // sweep band core and crossfade (px); position comes from the shared SWEEP clock
+  const HALF = SWEEP_CORE, FEATH = SWEEP_FADE; // same band shape as the headshot; position from the shared SWEEP clock
   const R = 48, RF = 38;                    // hover lens radius, crossfade
   const hov = { in: false, x: 0, y: 0, cx: 0, cy: 0, s: 0 };
   let running = false, ink = "#161917", acc = "#007F3F";
@@ -1526,9 +1526,11 @@ function initNameFx() {
       if (sx !== null) w = 1 - smooth((Math.abs(mx - sx) - HALF) / FEATH);
       if (lens) w = Math.max(w, 1 - smooth((Math.hypot(mx - hov.cx, my - hov.cy) - R * hov.s) / (RF * hov.s)));
       if (w < .02) continue;
-      const idx = Math.max(1, Math.min(n, Math.round(c.a * n) + (((c.k * 97 + tick) | 0) % 3) - 1));
-      const jit = (1 - w) * 3;
-      ctx.globalAlpha = w * (.55 + .45 * c.a);
+      const sw = sx !== null ? 1 - smooth((Math.abs(mx - sx) - HALF) / FEATH) : 0; // inside the sweep band
+      const idx = sw > .25 ? 1 + (((c.k * 997) | 0) + ((now / 70 + c.k * 11) | 0)) % n // scramble like the headshot
+        : Math.max(1, Math.min(n, Math.round(c.a * n) + (((c.k * 97 + tick) | 0) % 3) - 1));
+      const jit = (1 - w) * 2;
+      ctx.globalAlpha = w * (.78 + .22 * c.a);
       ctx.fillStyle = ((c.k * 31 + tick * .25) % 1) > .9 ? acc : ink;
       ctx.fillText(DENS[idx], c.x + (c.k - .5) * 2 * jit, c.y + (((c.k * 7) % 1) - .5) * 2 * jit);
     }
