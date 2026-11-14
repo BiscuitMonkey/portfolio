@@ -182,6 +182,7 @@ main { padding-block: 56px 96px; }
 .peak-info h3 { font-size: 24px; font-weight: 800; letter-spacing: -0.01em; }
 .peak-info p { font-size: 15px; color: var(--muted); line-height: 1.45; }
 .peak-info .peak-elev { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.peak-info .peak-trip { font-size: 14px; font-variant-numeric: tabular-nums; }
 .peak-status { display: inline-flex; align-items: baseline; gap: 8px; margin: 4px 0 6px; font: 600 15px/1.2 var(--font); color: var(--muted); }
 .peak-status b { font-weight: 700; color: var(--ink); }
 .done .peak-status, .done .peak-status b { color: var(--link); }
@@ -1172,22 +1173,37 @@ function card(p) {
   </a>`;
 }
 
-/* Peaks: side profiles traced from Jack's sketches as (x, height) points, 0-1.
-   "at" is how far along the profile Jack is (the green dot). */
+/* Peaks: each trail drawn from its real elevation profile, all on one shared scale so heights and lengths compare
+   honestly (1 row = 250 ft, 1 column = 0.133 mi; vertical exaggeration is roughly 5x, like a printed trail profile).
+   trail: [miles from the trailhead, feet] up to the summit. far: [0-1 across the far side, feet] for the other flank.
+   atMi: where Jack is on the trail (summit when done). Profiles from published trail data; some features
+   (switchbacks, false summits, the bridge, El Capitan's cliff) are accentuated a little so they read in ASCII. */
 const PEAKS = [
-  { name: "Guadalupe Peak", done: false, photos: [], where: "Guadalupe Mountains National Park, Texas", elev: "8,751 ft", at: .48,
-    profile: [[0, .04], [.05, .12], [.11, .22], [.16, .19], [.23, .36], [.29, .32], [.36, .5], [.41, .46], [.47, .66], [.52, .77], [.56, .85], [.59, .81], [.64, .97], [.67, .9], [.72, .89], [.73, .72], [.79, .73], [.81, .61], [.88, .59], [.9, .48], [.93, .28], [.96, .1], [1, .02]] },
-  { name: "Emory Peak", done: true, photos: [], where: "Big Bend National Park, Texas", elev: "7,825 ft", at: .76,
-    profile: [[0, .03], [.07, .1], [.16, .22], [.25, .31], [.34, .4], [.43, .5], [.52, .58], [.6, .68], [.67, .8], [.72, .9], [.76, .98], [.8, .86], [.84, .7], [.88, .52], [.92, .33], [.96, .15], [1, .05]] },
-  { name: "Huckleberry Peak", done: true, photos: [], where: "Glacier National Park, Montana", elev: "6,593 ft", at: .725, tower: true,
-    profile: [[0, .03], [.06, .08], [.13, .15], [.2, .2], [.26, .27], [.31, .25], [.37, .33], [.44, .41], [.5, .47], [.55, .52], [.6, .6], [.64, .67], [.67, .72], [.79, .72], [.82, .64], [.86, .52], [.89, .43], [.93, .28], [.97, .12], [1, .04]] }
+  { name: "Guadalupe Peak", done: false, photos: [], where: "Guadalupe Mountains National Park, Texas", elev: "8,751 ft", atMi: 2,
+    // Steep switchbacks for the first mile and a half, an easier wooded third mile, the bridge, then a rocky push past a false summit
+    trail: [[0, 5830], [.3, 6080], [.6, 6330], [1, 6730], [1.3, 6950], [1.6, 7150], [2, 7430], [2.4, 7600], [2.7, 7700], [3, 7830], [3.2, 7790], [3.4, 7900], [3.7, 8250], [3.9, 8620], [4, 8370], [4.1, 8420], [4.2, 8751]],
+    far: [[.1, 8520], [.25, 8150], [.36, 8080], [.44, 7900], [.5, 6500], [.7, 6050], [1, 5600]] },
+  { name: "Emory Peak", done: true, photos: [], where: "Big Bend National Park, Texas", elev: "7,825 ft",
+    // A gentle start out of Chisos Basin, switchbacks to Pinnacles Pass, a short dip to the junction, then the spur and summit scramble
+    trail: [[0, 5400], [.8, 5650], [1.5, 5950], [2.2, 6300], [2.8, 6700], [3.3, 7000], [3.5, 6960], [3.7, 7010], [4.3, 7200], [4.8, 7480], [5.05, 7700], [5.2, 7825]],
+    far: [[.12, 7350], [.3, 6800], [.55, 6150], [1, 5400]] },
+  { name: "Huckleberry Peak", done: true, photos: [], where: "Glacier National Park, Montana", elev: "6,593 ft", tower: true,
+    // No switchbacks: a long, steady forest climb to the south ridge around mile 4.5, a dip along it, then open slopes to the lookout
+    trail: [[0, 3878], [.5, 4050], [1, 4300], [1.5, 4550], [2, 4800], [2.5, 5050], [3, 5300], [3.5, 5550], [4, 5800], [4.5, 6050], [4.8, 5980], [5.1, 6100], [5.5, 6320], [5.8, 6490], [6, 6593]],
+    far: [[.2, 6250], [.45, 5550], [.7, 4800], [1, 4000]] }
 ];
+const PK_W = 64, PK_H = 18, FT_ROW = 250, MI_COL = 7.5, PK_X0 = 1;
+const lerpPts = (P, x) => { for (let i = 1; i < P.length; i++) if (x <= P[i][0]) { const [x0, y0] = P[i - 1], [x1, y1] = P[i]; return y0 + (y1 - y0) * ((x - x0) / (x1 - x0 || 1)); } return P[P.length - 1][1]; };
+const trailMi = pk => pk.trail[pk.trail.length - 1][0];
+const trailGain = pk => Math.round((pk.trail[pk.trail.length - 1][1] - pk.trail[0][1]) / 10) * 10;
 function peakArt(pk) {
-  const W = 64, H = 16, TX = ".:;-=+*";
-  const hAt = x => { const P = pk.profile; for (let i = 1; i < P.length; i++) if (x <= P[i][0]) { const [x0, y0] = P[i - 1], [x1, y1] = P[i]; return y0 + (y1 - y0) * ((x - x0) / (x1 - x0 || 1)); } return P[P.length - 1][1]; };
-  const r = []; for (let c = 0; c < W; c++) r.push((H - 1) - Math.round(hAt(c / (W - 1)) * (H - 3)));
+  const W = PK_W, H = PK_H, TX = ".:;-=+*", base = pk.trail[0][1], miles = trailMi(pk);
+  const sc = Math.round(PK_X0 + miles * MI_COL), far = [[0, pk.trail[pk.trail.length - 1][1]], ...pk.far];
+  const ftAt = c => c <= sc ? lerpPts(pk.trail, Math.max(0, (c - PK_X0) / MI_COL)) : lerpPts(far, (c - sc) / (W - 1 - sc));
+  const r = []; for (let c = 0; c < W; c++) r.push(Math.max(0, Math.min(H - 1, (H - 1) - Math.round((ftAt(c) - base) / FT_ROW))));
+  const pc = pk.done ? sc : Math.round(PK_X0 + (pk.atMi || 0) * MI_COL);
+  if (pk.tower) for (let c = sc - 3; c <= sc + 3; c++) r[c] = r[sc]; // the lookout sits on a levelled summit
   const G = Array.from({ length: H }, () => Array.from({ length: W }, () => ({ ch: " ", k: "" })));
-  const pc = Math.round(pk.at * (W - 1));
   for (let c = 0; c < W; c++) {
     const prev = c ? r[c - 1] : r[c], next = c < W - 1 ? r[c + 1] : r[c];
     const k = cc => cc <= pc ? "tr" : pk.done ? "dn" : "rg"; // done: the far side is the way back down
@@ -1237,6 +1253,7 @@ const peakRow = pk => `<article class="peak ${pk.done ? "done" : "prog"}">
       <span class="peak-status">${pk.done ? '<b aria-hidden="true">[x]</b> Complete' : '<b aria-hidden="true">[<i>&gt;</i>]</b> In progress'}</span>
       <p>${esc(pk.where)}</p>
       <p class="peak-elev">${esc(pk.elev)}</p>
+      <p class="peak-trip">${trailMi(pk)} mi up · +${trailGain(pk).toLocaleString("en-US")} ft</p>
     </div>
     <div class="peak-art" role="img" aria-label="${esc(pk.name)} side profile, ${pk.done ? "trail complete to the summit" : "trail in progress"}${pk.tower ? ", with a fire lookout tower on top" : ""}"><pre>${peakArt(pk)}</pre></div>
     ${peakPhotos(pk)}
