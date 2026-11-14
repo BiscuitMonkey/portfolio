@@ -1593,7 +1593,7 @@ function initNameFx() {
   const h = document.getElementById("big-name");
   if (!h || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const DENS = " .:;=+*#%@";
-  const CELL = 6, GLYPH = 7.6, GOFF = (CELL - GLYPH) / 2; // px: glyphs stay small relative to the 88px letters, drawn slightly over-size
+  const CELL = 6, GLYPH = 7, GOFF = (CELL - GLYPH) / 2; // px: glyphs stay small relative to the 88px letters, drawn slightly over-size
   const name = h.textContent;
   h.textContent = "";
   const wrap = document.createElement("span");
@@ -1700,7 +1700,8 @@ function initNameFx() {
       if (lens) w = Math.max(w, 1 - smooth((Math.hypot(mx - hov.cx, my - hov.cy) - R * hov.s) / (RF * hov.s)));
       if (w < .02) continue;
       const sw = sx !== null ? bs * (1 - smooth((Math.abs(mx - sx) - core) / FEATH)) : 0; // inside the sweep band
-      const idx = sw > .25 ? 1 + (((c.k * 997) | 0) + ((now / 70 + c.k * 11) | 0)) % n // scramble like the headshot
+      const lo = light ? 5 : 1; // light mode scrambles through the denser half of the ramp too, so the sweep matches the hover
+      const idx = sw > .25 ? lo + (((c.k * 997) | 0) + ((now / 70 + c.k * 11) | 0)) % (n - lo + 1) // scramble like the headshot
         : Math.max(1, Math.min(n, Math.round(c.a * n) + bias + (((c.k * 97 + tick) | 0) % 3) - 1));
       const jit = (1 - w) * 2;
       ctx.globalAlpha = light ? w : w * (.78 + .22 * c.a);
