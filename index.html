@@ -230,6 +230,8 @@ main { padding-block: 56px 96px; }
 .peak-art pre { overflow: visible; }
 .peak-art .me { width: 1ch; text-align: center; }
 .pp-card figcaption { display: grid; gap: 2px; }
+.pp-note { font-size: 13px; font-weight: 500; line-height: 1.35; color: var(--muted); }
+.pp-note::before { content: "↑ "; color: var(--link); font-weight: 700; }
 .pp-stat { font-size: 12.5px; font-weight: 600; color: var(--muted); opacity: .8; font-variant-numeric: tabular-nums; }
 @media (max-width: 1000px) { .peak { grid-template-columns: 225px minmax(0, 1fr); } .peak-photos { grid-column: 1 / -1; } }
 .peak-art .dn { color: var(--ink); }
@@ -1196,7 +1198,7 @@ const PEAKS = [
   { name: "Emory Peak", done: true, photos: [
       { src: ASSETS["emory-1"], caption: "The road in", alt: "A two-lane desert road with double yellow lines leading toward rocky peaks" },
       { src: ASSETS["emory-2"], caption: "Camp below the Chisos", alt: "A blue tent at camp beneath a towering rock face in the Chisos Mountains" },
-      { src: ASSETS["emory-3"], caption: "On the way up", alt: "Jack standing on the trail with a canyon and desert view behind him" },
+      { src: ASSETS["emory-3"], caption: "On the way up", note: "Look familiar? This is the photo behind my ASCII headshot up top.", alt: "Jack standing on the trail with a canyon and desert view behind him" },
       { src: ASSETS["emory-4"], caption: "View from the summit", alt: "Looking down from rocky crags over layered desert mountains fading into haze" },
       { src: ASSETS["emory-5"], caption: "Under Balanced Rock", alt: "Jack standing beneath a huge boulder wedged between two rocks against a blue sky" }
     ], where: "Big Bend National Park, Texas", elev: "7,825 ft",
@@ -1271,7 +1273,7 @@ function peakPhotos(pk) {
       <button class="pp-stack" type="button" aria-label="${esc(pk.name)} photos. Show next photo">${ph.map((p, i) => `
         <figure class="pp-card${i >= 3 ? " deep" : ""}" data-i="${i}" style="--pos:${i};--rot:${TILT[i % TILT.length]}deg;z-index:${n - i}"${i ? ' aria-hidden="true"' : ""}>
           <div class="pp-img">${p ? `<img src="${p.src}" alt="${esc(p.alt || pk.name)}" loading="lazy" decoding="async">` : `<div class="pp-ph pp-ph${i % 4}">${MOUNTAIN_ICON}</div>`}</div>
-          <figcaption><span>${esc(p && p.caption ? p.caption : "Photo " + (i + 1))}</span>${ppStat(p) ? `<span class="pp-stat">${esc(ppStat(p))}</span>` : ""}</figcaption>
+          <figcaption><span>${esc(p && p.caption ? p.caption : "Photo " + (i + 1))}</span>${ppStat(p) ? `<span class="pp-stat">${esc(ppStat(p))}</span>` : ""}${p && p.note ? `<span class="pp-note">${esc(p.note)}</span>` : ""}</figcaption>
         </figure>`).join("")}
       </button>
       <p class="pp-count" aria-live="polite"><b>1</b> / ${n}</p>
