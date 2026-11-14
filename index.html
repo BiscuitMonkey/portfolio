@@ -217,16 +217,7 @@ main { padding-block: 56px 96px; }
 .pp-count { font: 600 14px var(--font); font-variant-numeric: tabular-nums; color: var(--muted); }
 .pp-count b { color: var(--link); }
 .peak-art pre { overflow: visible; }
-.peak-art .wp { position: relative; display: inline-block; color: var(--ink); cursor: pointer; opacity: 0; transform: scale(.4); z-index: 1;
-  text-shadow: 0 0 2px var(--wash), 0 0 4px var(--wash), 0 0 6px var(--wash);
-  transition: opacity .3s ease, transform .35s cubic-bezier(.2, .9, .3, 1.4), color .2s ease; }
-.peaks.on .peak-art .wp { opacity: 1; transform: scale(1.45); transition-delay: calc(var(--d) * 24ms + 200ms), calc(var(--d) * 24ms + 200ms), 0s; }
-.peaks.on .peak-art .wp:hover { color: var(--link); transform: scale(1.7); transition-delay: 0s; }
-.peaks.on .peak-art .wp.on { color: var(--link); transform: scale(1.7); transition-delay: 0s; text-shadow: 0 0 2px var(--wash), 0 0 4px var(--wash), 0 0 8px color-mix(in srgb, var(--link) 55%, transparent); }
-.peak-art .wp, .peak-art .me { width: 1ch; text-align: center; }
-.peak-art .wp.on::before { content: ""; position: absolute; left: 50%; top: 50%; width: 1.7em; height: 1.7em; margin: -.85em 0 0 -.85em; border: 1.5px solid var(--link); border-radius: 50%; animation: wpRing 1.8s ease-out infinite; pointer-events: none; }
-@keyframes wpRing { 0% { transform: scale(.5); opacity: .9; } 100% { transform: scale(1.8); opacity: 0; } }
-.peak-art { touch-action: pan-y; }
+.peak-art .me { width: 1ch; text-align: center; }
 .pp-card figcaption { display: grid; gap: 2px; }
 .pp-stat { font-size: 12.5px; font-weight: 600; color: var(--muted); opacity: .8; font-variant-numeric: tabular-nums; }
 @media (max-width: 1000px) { .peak { grid-template-columns: 210px minmax(0, 1fr); } .peak-photos { grid-column: 1 / -1; } }
@@ -234,7 +225,7 @@ main { padding-block: 56px 96px; }
 .peaks.on .peak-art .dn { animation: peakDescend 2.8s ease-in-out infinite; animation-delay: calc(1.8s + var(--d) * 70ms); }
 @keyframes peakDescend { 0%, 55%, 100% { color: var(--ink); } 18% { color: var(--link); } }
 @keyframes peakBob { 50% { transform: translateY(-3px); } }
-@media (prefers-reduced-motion: reduce) { .peak-status i, .peaks.on .prog .peak-art .me, .peaks.on .peak-art .dn, .peak-art .wp.on::before { animation: none; } .peaks.on .peak-art .dn { color: var(--link); } }
+@media (prefers-reduced-motion: reduce) { .peak-status i, .peaks.on .prog .peak-art .me, .peaks.on .peak-art .dn { animation: none; } .peaks.on .peak-art .dn { color: var(--link); } }
 
 /* Case study */
 .back { display: inline-flex; align-items: center; gap: 8px; justify-self: start; width: max-content; padding: 8px 16px 8px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); text-decoration: none; font-size: 15px; font-weight: 600; transition: color .15s, border-color .15s; }
@@ -1207,17 +1198,11 @@ function peakArt(pk) {
     }
   }
   G[r[pc] - 1][pc] = { ch: "●", k: "me" };
-  peakPics(pk).forEach((ph, i, all) => { // one waypoint per photo, sitting on the trail
-    let c = Math.round((ph && ph.at != null ? ph.at : pk.at * (i + 1) / (all.length + 1)) * (W - 1));
-    c = Math.max(1, Math.min(pc - 1, c));
-    G[r[c] - 1][c] = { ch: "◆", k: "wp", i };
-  });
   // Emit rows, merging runs of the same class; trail cells carry their column so they light up in order
   return G.map(row => { let out = "", run = "", k0 = null;
     const flush = () => { if (run) out += k0 ? `<span class="${k0}">${esc(run)}</span>` : esc(run); run = ""; };
     row.forEach((cell, c) => {
       if (cell.k === "tr" || cell.k === "me") { flush(); k0 = null; out += `<span class="${cell.k}" style="--d:${c}">${esc(cell.ch)}</span>`; return; }
-      if (cell.k === "wp") { flush(); k0 = null; out += `<span class="wp" data-i="${cell.i}" data-c="${c}" style="--d:${c}">${esc(cell.ch)}</span>`; return; }
       if (cell.k === "dn") { flush(); k0 = null; out += `<span class="dn" style="--d:${c - pc}">${esc(cell.ch)}</span>`; return; }
       if (cell.k !== k0) { flush(); k0 = cell.k; } run += cell.ch; });
     flush(); return out; }).join("\n");
@@ -1225,8 +1210,8 @@ function peakArt(pk) {
 const MOUNTAIN_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 19l6.5-10 4 6 2.5-3.5L21 19z"/><circle cx="17" cy="6.5" r="1.6"/></svg>';
 const peakPics = pk => pk.photos && pk.photos.length ? pk.photos : [null, null, null, null];
 const TILT = [-4, 3, -2, 5, -5, 2];
-// A loose stack of polaroids. Real photos: { src, alt, caption, at, mi, ft, time } where "at" (0-1) places its waypoint
-// on the trail and mi / ft / time are the trail-log stats under the caption (e.g. mi: 2.4, ft: "6,900", time: "7:42 AM").
+// A loose stack of polaroids. Real photos: { src, alt, caption, mi, ft, time } where mi / ft / time are the
+// trail-log stats under the caption (e.g. mi: 2.4, ft: "6,900", time: "7:42 AM").
 const ppStat = p => p ? [p.mi != null && "Mile " + p.mi, p.ft && p.ft + " ft", p.time].filter(Boolean).join(" · ") : "Mile — · — ft · —";
 function peakPhotos(pk) {
   const ph = peakPics(pk), n = ph.length;
@@ -1255,33 +1240,21 @@ function initPeaks() {
   if (!sec) return;
   sec.querySelectorAll(".peak").forEach(card => {
     const box = card.querySelector(".peak-photos"); if (!box) return;
-    const cards = [...box.querySelectorAll(".pp-card")], wps = [...card.querySelectorAll(".wp")], n = cards.length;
+    const cards = [...box.querySelectorAll(".pp-card")], n = cards.length;
     const count = box.querySelector(".pp-count b"), stack = box.querySelector(".pp-stack");
     let order = cards.map((_, i) => i), busy = false;
     const lay = () => {
       order.forEach((ci, pos) => { const c = cards[ci]; c.style.setProperty("--pos", pos); c.style.zIndex = n - pos; c.toggleAttribute("aria-hidden", pos > 0); c.classList.toggle("deep", pos >= 3); });
-      wps.forEach(w => w.classList.toggle("on", +w.dataset.i === order[0]));
       count.textContent = order[0] + 1;
     };
-    // Scrub: hovering or dragging along the mountain brings the nearest waypoint's photo to the top
-    const art = card.querySelector(".peak-art pre");
-    const jump = i => { if (busy || order[0] === i) return; const k = order.indexOf(i); order = order.slice(k).concat(order.slice(0, k)); lay(); };
-    art.addEventListener("pointermove", e => {
-      if (!wps.length || (e.pointerType !== "mouse" && !e.buttons && e.pressure === 0)) return;
-      const x = e.clientX; let best = null, bd = Infinity;
-      wps.forEach(w => { const r = w.getBoundingClientRect(), d = Math.abs(r.left + r.width / 2 - x); if (d < bd) { bd = d; best = w; } });
-      jump(+best.dataset.i);
-    });
     // Toss the top photo to the back of the pile
     const flip = () => {
       if (busy || n < 2) return; busy = true;
       const top = cards[order[0]]; top.classList.add("fly");
       setTimeout(() => { order.push(order.shift()); top.classList.remove("fly"); lay(); busy = false; }, 280);
     };
-    const show = i => { const go = () => { if (order[0] !== i) { flip(); setTimeout(go, 300); } }; go(); };
     stack.addEventListener("click", flip);
     stack.addEventListener("keydown", e => { if (e.key === "ArrowRight" || e.key === "ArrowLeft") { e.preventDefault(); flip(); } });
-    wps.forEach(w => w.addEventListener("click", () => show(+w.dataset.i)));
     lay();
   });
   if (!("IntersectionObserver" in window)) { sec.classList.add("on"); return; }
