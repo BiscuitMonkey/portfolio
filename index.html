@@ -196,34 +196,37 @@ main { padding-block: 56px 96px; }
 .peaks.on .peak-art .me { opacity: 1; transform: none; transition-delay: calc(var(--d) * 24ms + 120ms); }
 .peaks.on .prog .peak-art .me { animation: peakBob 2.4s ease-in-out 2.4s infinite; }
 @keyframes peakCaret { 50% { opacity: 0; } }
-.peak-photos { min-width: 0; }
-.pp-frame { position: relative; }
-.pp-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; aspect-ratio: 4 / 3; border-radius: 10px; background: var(--bg); }
-.pp-track::-webkit-scrollbar { display: none; }
-.pp-track:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
-.pp-slide { flex: 0 0 100%; margin: 0; scroll-snap-align: start; display: block; height: 100%; }
-.pp-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.pp-ph { width: 100%; height: 100%; box-sizing: border-box; display: grid; place-items: center; align-content: center; gap: 8px; border: 1px dashed var(--line); border-radius: 10px; color: var(--muted); font: 600 13px ui-monospace, Menlo, Consolas, monospace; }
-.pp-ph svg { width: 36px; height: 36px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
-.pp-ph0 { background: linear-gradient(165deg, color-mix(in srgb, var(--link) 16%, var(--bg)), var(--bg)); }
-.pp-ph1 { background: linear-gradient(195deg, color-mix(in srgb, var(--link) 10%, var(--bg)), color-mix(in srgb, var(--ink) 6%, var(--bg))); }
-.pp-ph2 { background: linear-gradient(150deg, color-mix(in srgb, var(--ink) 8%, var(--bg)), color-mix(in srgb, var(--link) 12%, var(--bg))); }
-.pp-ph3 { background: linear-gradient(210deg, var(--bg), color-mix(in srgb, var(--link) 18%, var(--bg))); }
-.pp-btn { position: absolute; top: 50%; translate: 0 -50%; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 88%, transparent); color: var(--ink); display: grid; place-items: center; padding: 0; cursor: pointer; opacity: 0; transition: opacity .2s, border-color .15s, color .15s; }
-.pp-btn.pp-prev { left: 8px; } .pp-btn.pp-next { right: 8px; }
-.pp-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.pp-frame:hover .pp-btn, .pp-btn:focus-visible { opacity: 1; }
-.pp-btn:hover { color: var(--link); border-color: var(--link); }
-.pp-dots { display: flex; justify-content: center; gap: 6px; margin-top: 10px; }
-.pp-dot { width: 6px; height: 6px; padding: 0; border: 0; border-radius: 3px; background: var(--line); cursor: pointer; transition: width .25s ease, background-color .2s; }
-.pp-dot.on { width: 18px; background: var(--link); }
-@media (hover: none) { .pp-btn { opacity: 1; } }
-@media (max-width: 1000px) { .peak { grid-template-columns: 210px minmax(0, 1fr); } .peak-photos { grid-column: 1 / -1; max-width: 520px; } }
+.peak-photos { min-width: 0; display: grid; justify-items: center; gap: 12px; }
+.pp-stack { display: grid; width: 100%; max-width: 260px; padding: 10px 18px 14px 4px; background: none; border: 0; cursor: pointer; font: inherit; color: inherit; }
+.pp-stack:focus-visible { outline: 2px solid var(--link); outline-offset: 4px; border-radius: 6px; }
+.pp-card { grid-area: 1 / 1; display: block; margin: 0; padding: 8px 8px 0; background: var(--bg); border: 1px solid var(--line); border-radius: 3px; box-shadow: 0 6px 18px rgba(0, 0, 0, .08);
+  transform: translate(calc(var(--pos) * 7px), calc(var(--pos) * 5px)) rotate(var(--rot)) scale(calc(1 - var(--pos) * .035));
+  transition: transform .45s cubic-bezier(.2, .8, .2, 1), opacity .3s ease; }
+.pp-card.deep { opacity: 0; }
+.pp-stack:hover .pp-card:not([aria-hidden]) { transform: translate(0, -4px) rotate(calc(var(--rot) * .4)) scale(1.01); }
+.pp-card.fly { transform: translate(115%, -12%) rotate(16deg) !important; opacity: 0; transition: transform .28s ease-in, opacity .28s ease-in; }
+.pp-img { aspect-ratio: 4 / 3; overflow: hidden; background: var(--wash); }
+.pp-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pp-ph { width: 100%; height: 100%; display: grid; place-items: center; color: var(--muted); }
+.pp-ph svg { width: 34px; height: 34px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; }
+.pp-ph0 { background: linear-gradient(165deg, color-mix(in srgb, var(--link) 18%, var(--bg)), var(--wash)); }
+.pp-ph1 { background: linear-gradient(195deg, color-mix(in srgb, var(--link) 10%, var(--bg)), color-mix(in srgb, var(--ink) 8%, var(--bg))); }
+.pp-ph2 { background: linear-gradient(150deg, color-mix(in srgb, var(--ink) 9%, var(--bg)), color-mix(in srgb, var(--link) 14%, var(--bg))); }
+.pp-ph3 { background: linear-gradient(210deg, var(--wash), color-mix(in srgb, var(--link) 20%, var(--bg))); }
+.pp-card figcaption { padding: 8px 2px 10px; font: 600 12.5px/1.3 ui-monospace, Menlo, Consolas, monospace; color: var(--muted); text-align: left; }
+.pp-count { font: 600 12.5px ui-monospace, Menlo, Consolas, monospace; color: var(--muted); }
+.pp-count b { color: var(--link); }
+.peak-art .wp { display: inline-block; color: var(--muted); cursor: pointer; opacity: 0; transition: opacity .3s ease, color .2s ease, transform .2s ease; }
+.peaks.on .peak-art .wp { opacity: 1; transition-delay: calc(var(--d) * 24ms + 200ms), 0s, 0s; }
+.peak-art .wp:hover { color: var(--link); transform: scale(1.35); }
+.peak-art .wp.on { color: var(--link); animation: wpGlow 1.6s ease-in-out infinite; }
+@keyframes wpGlow { 50% { transform: scale(1.4); } }
+@media (max-width: 1000px) { .peak { grid-template-columns: 210px minmax(0, 1fr); } .peak-photos { grid-column: 1 / -1; } }
 .peak-art .dn { color: var(--ink); }
 .peaks.on .peak-art .dn { animation: peakDescend 2.8s ease-in-out infinite; animation-delay: calc(1.8s + var(--d) * 70ms); }
 @keyframes peakDescend { 0%, 55%, 100% { color: var(--ink); } 18% { color: var(--link); } }
 @keyframes peakBob { 50% { transform: translateY(-3px); } }
-@media (prefers-reduced-motion: reduce) { .peak-status i, .peaks.on .prog .peak-art .me, .peaks.on .peak-art .dn { animation: none; } .peaks.on .peak-art .dn { color: var(--link); } }
+@media (prefers-reduced-motion: reduce) { .peak-status i, .peaks.on .prog .peak-art .me, .peaks.on .peak-art .dn, .peak-art .wp.on { animation: none; } .peaks.on .peak-art .dn { color: var(--link); } }
 
 /* Case study */
 .back { display: inline-flex; align-items: center; gap: 8px; justify-self: start; width: max-content; padding: 8px 16px 8px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); text-decoration: none; font-size: 15px; font-weight: 600; transition: color .15s, border-color .15s; }
@@ -321,7 +324,7 @@ figure .img.fit img { cursor: zoom-in; }
 .bux-card::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); opacity: var(--p); transition: border-color .2s, background-color .2s; }
 .bux-card:hover::before { border-color: var(--link); }
 .bux-card.on::before { border-color: var(--link); background: color-mix(in srgb, var(--link) 9%, var(--bg)); }
-.bux-img { display: block; height: calc(var(--img-h, 300px) * (1 - var(--p) * var(--p))); opacity: calc(1 - max(0, var(--p) - .5) * 2); border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: var(--wash); outline: 2px solid transparent; outline-offset: 4px; transition: outline-color .2s; }
+.bux-img { display: block; height: calc(var(--img-h, 300px) * (1 - var(--p))); opacity: calc(1 - var(--p) * 1.5); border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: var(--wash); outline: 2px solid transparent; outline-offset: 4px; transition: outline-color .2s; }
 .bux-cards.stuck .bux-img { visibility: hidden; }
 .bux-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s ease; }
 .bux-card:hover .bux-img img { transform: scale(1.035); }
@@ -1196,30 +1199,35 @@ function peakArt(pk) {
     }
   }
   G[r[pc] - 1][pc] = { ch: "●", k: "me" };
+  peakPics(pk).forEach((ph, i, all) => { // one waypoint per photo, sitting on the trail
+    let c = Math.round((ph && ph.at != null ? ph.at : pk.at * (i + 1) / (all.length + 1)) * (W - 1));
+    c = Math.max(1, Math.min(pc - 1, c));
+    G[r[c] - 1][c] = { ch: "◆", k: "wp", i };
+  });
   // Emit rows, merging runs of the same class; trail cells carry their column so they light up in order
   return G.map(row => { let out = "", run = "", k0 = null;
     const flush = () => { if (run) out += k0 ? `<span class="${k0}">${esc(run)}</span>` : esc(run); run = ""; };
     row.forEach((cell, c) => {
       if (cell.k === "tr" || cell.k === "me") { flush(); k0 = null; out += `<span class="${cell.k}" style="--d:${c}">${esc(cell.ch)}</span>`; return; }
+      if (cell.k === "wp") { flush(); k0 = null; out += `<span class="wp" data-i="${cell.i}" style="--d:${c}">${esc(cell.ch)}</span>`; return; }
       if (cell.k === "dn") { flush(); k0 = null; out += `<span class="dn" style="--d:${c - pc}">${esc(cell.ch)}</span>`; return; }
       if (cell.k !== k0) { flush(); k0 = cell.k; } run += cell.ch; });
     flush(); return out; }).join("\n");
 }
 const MOUNTAIN_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 19l6.5-10 4 6 2.5-3.5L21 19z"/><circle cx="17" cy="6.5" r="1.6"/></svg>';
-const ARROW = d => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d ? "M9 5l7 7-7 7" : "M15 5l-7 7 7 7"}"/></svg>`;
-// Photo carousel for a peak. Add real photos as { src: "assets/...", alt: "..." }; until then, placeholders.
+const peakPics = pk => pk.photos && pk.photos.length ? pk.photos : [null, null, null, null];
+const TILT = [-4, 3, -2, 5, -5, 2];
+// A loose stack of polaroids. Real photos: { src, alt, caption, at } where "at" (0-1) places its waypoint on the trail.
 function peakPhotos(pk) {
-  const ph = pk.photos && pk.photos.length ? pk.photos : [null, null, null, null], n = ph.length;
+  const ph = peakPics(pk), n = ph.length;
   return `<div class="peak-photos">
-      <div class="pp-frame">
-        <div class="pp-track" tabindex="0" role="group" aria-roledescription="carousel" aria-label="${esc(pk.name)} photos">${ph.map((p, i) => `
-          <figure class="pp-slide" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${n}">${p
-            ? `<img src="${p.src}" alt="${esc(p.alt || pk.name)}" loading="lazy" decoding="async">`
-            : `<div class="pp-ph pp-ph${i % 4}">${MOUNTAIN_ICON}<span>Photo ${i + 1}</span></div>`}</figure>`).join("")}
-        </div>
-        ${n > 1 ? `<button class="pp-btn pp-prev" type="button" aria-label="Previous photo">${ARROW(0)}</button><button class="pp-btn pp-next" type="button" aria-label="Next photo">${ARROW(1)}</button>` : ""}
-      </div>
-      ${n > 1 ? `<div class="pp-dots">${ph.map((_, i) => `<button class="pp-dot${i ? "" : " on"}" type="button" data-i="${i}" aria-label="Photo ${i + 1} of ${n}"></button>`).join("")}</div>` : ""}
+      <button class="pp-stack" type="button" aria-label="${esc(pk.name)} photos. Show next photo">${ph.map((p, i) => `
+        <figure class="pp-card${i >= 3 ? " deep" : ""}" data-i="${i}" style="--pos:${i};--rot:${TILT[i % TILT.length]}deg;z-index:${n - i}"${i ? ' aria-hidden="true"' : ""}>
+          <div class="pp-img">${p ? `<img src="${p.src}" alt="${esc(p.alt || pk.name)}" loading="lazy" decoding="async">` : `<div class="pp-ph pp-ph${i % 4}">${MOUNTAIN_ICON}</div>`}</div>
+          <figcaption>${esc(p && p.caption ? p.caption : "Photo " + (i + 1))}</figcaption>
+        </figure>`).join("")}
+      </button>
+      <p class="pp-count" aria-live="polite"><b>1</b> / ${n}</p>
     </div>`;
 }
 const peakRow = pk => `<article class="peak ${pk.done ? "done" : "prog"}">
@@ -1235,18 +1243,27 @@ const peakRow = pk => `<article class="peak ${pk.done ? "done" : "prog"}">
 function initPeaks() {
   const sec = document.querySelector(".peaks");
   if (!sec) return;
-  sec.querySelectorAll(".peak-photos").forEach(box => {
-    const track = box.querySelector(".pp-track"), dots = [...box.querySelectorAll(".pp-dot")];
-    const at = () => Math.round(track.scrollLeft / Math.max(1, track.clientWidth));
-    const go = i => track.scrollTo({ left: Math.max(0, Math.min(dots.length - 1, i)) * track.clientWidth, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
-    let raf = 0;
-    track.addEventListener("scroll", () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; const i = at(); dots.forEach((d, k) => d.classList.toggle("on", k === i)); }); }, { passive: true });
-    box.addEventListener("click", e => {
-      const b = e.target.closest(".pp-btn, .pp-dot"); if (!b) return;
-      if (b.classList.contains("pp-dot")) go(+b.dataset.i);
-      else { const n = dots.length, i = at(); go(b.classList.contains("pp-next") ? (i + 1) % n : (i - 1 + n) % n); }
-    });
-    track.addEventListener("keydown", e => { if (e.key === "ArrowRight" || e.key === "ArrowLeft") { e.preventDefault(); go(at() + (e.key === "ArrowRight" ? 1 : -1)); } });
+  sec.querySelectorAll(".peak").forEach(card => {
+    const box = card.querySelector(".peak-photos"); if (!box) return;
+    const cards = [...box.querySelectorAll(".pp-card")], wps = [...card.querySelectorAll(".wp")], n = cards.length;
+    const count = box.querySelector(".pp-count b"), stack = box.querySelector(".pp-stack");
+    let order = cards.map((_, i) => i), busy = false;
+    const lay = () => {
+      order.forEach((ci, pos) => { const c = cards[ci]; c.style.setProperty("--pos", pos); c.style.zIndex = n - pos; c.toggleAttribute("aria-hidden", pos > 0); c.classList.toggle("deep", pos >= 3); });
+      wps.forEach(w => w.classList.toggle("on", +w.dataset.i === order[0]));
+      count.textContent = order[0] + 1;
+    };
+    // Toss the top photo to the back of the pile
+    const flip = () => {
+      if (busy || n < 2) return; busy = true;
+      const top = cards[order[0]]; top.classList.add("fly");
+      setTimeout(() => { order.push(order.shift()); top.classList.remove("fly"); lay(); busy = false; }, 280);
+    };
+    const show = i => { const go = () => { if (order[0] !== i) { flip(); setTimeout(go, 300); } }; go(); };
+    stack.addEventListener("click", flip);
+    stack.addEventListener("keydown", e => { if (e.key === "ArrowRight" || e.key === "ArrowLeft") { e.preventDefault(); flip(); } });
+    wps.forEach(w => w.addEventListener("click", () => show(+w.dataset.i)));
+    lay();
   });
   if (!("IntersectionObserver" in window)) { sec.classList.add("on"); return; }
   const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { sec.classList.add("on"); io.disconnect(); } }, { threshold: .25 });
