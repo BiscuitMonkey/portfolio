@@ -1202,7 +1202,7 @@ function peakArt(pk) {
   const ftAt = c => c <= sc ? lerpPts(pk.trail, Math.max(0, (c - PK_X0) / MI_COL)) : lerpPts(far, (c - sc) / (W - 1 - sc));
   const r = []; for (let c = 0; c < W; c++) r.push(Math.max(0, Math.min(H - 1, (H - 1) - Math.round((ftAt(c) - base) / FT_ROW))));
   const pc = pk.done ? sc : Math.round(PK_X0 + (pk.atMi || 0) * MI_COL);
-  if (pk.tower) for (let c = sc - 3; c <= sc + 3; c++) r[c] = r[sc]; // the lookout sits on a levelled summit
+  if (pk.tower) for (let c = sc - 1; c <= sc + 1; c++) r[c] = r[sc]; // the lookout sits on a levelled summit
   const G = Array.from({ length: H }, () => Array.from({ length: W }, () => ({ ch: " ", k: "" })));
   for (let c = 0; c < W; c++) {
     const prev = c ? r[c - 1] : r[c], next = c < W - 1 ? r[c + 1] : r[c];
@@ -1217,8 +1217,8 @@ function peakArt(pk) {
   }
   G[r[pc] - 1][pc] = { ch: "●", k: "me" };
   if (pk.tower) { // fire lookout on the summit, with Jack's dot up in the cab
-    const T = ["   _   ", " _/ \\_ ", " |_●_| ", "  |X|  ", "  /X\\  "], top = r[pc] - T.length;
-    T.forEach((line, j) => [...line].forEach((ch, k) => { if (ch !== " ") G[top + j][pc - 3 + k] = ch === "●" ? { ch, k: "me" } : { ch, k: "tw" }; }));
+    const T = [" ^ ", "[●]", "/ \\"], top = r[pc] - T.length;
+    T.forEach((line, j) => [...line].forEach((ch, k) => { G[top + j][pc - 1 + k] = ch === "●" ? { ch, k: "me" } : ch === " " ? { ch, k: "" } : { ch, k: "tw" }; }));
   }
   // Emit rows, merging runs of the same class; trail cells carry their column so they light up in order
   return G.map(row => { let out = "", run = "", k0 = null;
