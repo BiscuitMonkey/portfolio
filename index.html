@@ -255,6 +255,11 @@ main { padding-block: 56px 96px; }
 /* In light mode the brand page takes the brand's Offwhite as its page colour, so the Offwhite tiles sit on their own ground */
 :root[data-theme="light"] body.brand-mode { --bg: #FDFFF8; --wash: #F2F5EC; --line: #E1E5D9; background: var(--bg); }
 @media (prefers-color-scheme: light) { :root:not([data-theme]) body.brand-mode { --bg: #FDFFF8; --wash: #F2F5EC; --line: #E1E5D9; background: var(--bg); } }
+.bh { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 14px 26px; }
+.bh-wm { display: block; width: clamp(200px, 30vw, 330px); }
+.bh-wm .wm { display: block; }
+.bh-wm .bk { fill: var(--ink); } .bh-wm .bg { fill: #007F3F; }
+.bh .bh-t { color: var(--muted); font-weight: 500; line-height: 1; padding-bottom: .04em; }
 .brand-page .col-p { color: var(--muted); max-width: 60ch; }
 .bt { position: relative; display: grid; place-items: center; align-content: center; grid-template-columns: minmax(0, 1fr); margin: 0; border-radius: 10px; padding: 9% 10%; min-width: 0; }
 .bt.l { background: #FDFFF8; border: 1px solid var(--line); --bk: #000; }
@@ -1748,7 +1753,7 @@ function viewBrand() {
   const tile = (inner, dark, cls = "") => `<div class="bt ${dark ? "d" : "l"} ${cls}">${inner}</div>`;
   return `<article class="brand-page">
     <header class="cs-head">
-      <h1>TRAIL WLK.R <span>My brand</span></h1>
+      <h1 class="bh"><span class="bh-wm">${brandWordmark("wlkr", "TRAIL WLK.R")}</span><span class="bh-t">My personal brand</span></h1>
       <p class="sum">This is the identity that I attach to my work. I created the wordmark, logomark, colors, and motion graphics.</p>
       <dl class="brand-meta"><div><dt>Tools</dt><dd>Adobe Illustrator, Figma Motion</dd></div><div><dt>Typeface</dt><dd>Neue Haas Display Bold</dd></div></dl>
     </header>
