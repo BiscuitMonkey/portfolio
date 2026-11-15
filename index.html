@@ -263,42 +263,14 @@ main { padding-block: 56px 96px; }
 .bgrid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .bgrid .bt { aspect-ratio: 4 / 3; }
 .bgrid.two .still .wm { width: 100%; }
-.brand-hero { margin-top: 40px; aspect-ratio: 16 / 7; padding: 7% 12%; }
+.brand-hero { margin-top: 40px; aspect-ratio: 16 / 7; padding: 2% 6%; overflow: hidden; }
 .brand-hero .wm { width: min(100%, 720px); }
 .wm { display: block; width: 100%; height: auto; overflow: visible; }
-.wm-replay { position: absolute; right: 14px; bottom: 12px; font: 600 13px var(--font); color: #555; background: none; border: 1px solid rgba(0, 0, 0, .15); border-radius: 999px; padding: 4px 11px; cursor: pointer; }
-.bt.d .wm-replay { color: #bbb; border-color: rgba(255, 255, 255, .25); }
-.wm-replay:hover { color: #007F3F; border-color: #007F3F; }
-.motion { gap: 0; }
-.motion .lm { width: 46%; max-width: 230px; }
-.motion .wm { width: 86%; }
-.lm-bar, .lm-gap, .lm-wipe { transform-box: fill-box; }
-.lm-bar { transform-origin: 50% 0; }
-.lm-gap { transform-origin: 50% 50%; }
-.lm-wipe { transform-origin: 50% 0; }
-.lm.pre .lm-bar, .lm.pre .lm-wipe { transform: scaleY(0); }
-.lm.play .lm-bar { animation: wmSq .6s cubic-bezier(.65, 0, .25, 1) both; }
-.lm.play .lm-wipe { animation: wmSq .5s cubic-bezier(.65, 0, .25, 1) .55s both; }
-.lm.play .lm-gap { animation: lmGap .45s cubic-bezier(.65, 0, .25, 1) 1.1s both; }
-@keyframes lmGap { to { transform: scaleY(0); } }
-.lm:not(.pre):not(.play) .lm-gap { display: none; }
-.motion figcaption { position: absolute; left: 16px; bottom: 12px; font-size: 13px; font-weight: 600; color: #666; display: flex; gap: 8px; align-items: center; }
-.motion.d figcaption { color: #aaa; }
-.motion figcaption .wm-replay { position: static; padding: 0 8px; line-height: 20px; }
-/* wordmark motion: squares drop in, then each line walks out from behind them; the full stop lands last */
-.wm .sq, .wm .dot { transform-box: fill-box; }
-.wm .sq { transform-origin: 50% 0; }
-.wm.pre .sq { transform: scaleY(0); }
-.wm.pre .ln { transform: translateX(calc(var(--dx) * -1px)); }
-.wm.pre .dot { opacity: 0; }
-.wm.play .sq { animation: wmSq .44s cubic-bezier(.2, .9, .25, 1) both; animation-delay: calc(var(--i) * 120ms); }
-.wm.play .ln { animation: wmLt .95s cubic-bezier(.65, 0, .2, 1) both; animation-delay: calc(560ms + var(--row) * 220ms); }
-.wm.play .dot { animation: wmDot .5s cubic-bezier(.3, 1.6, .5, 1) both, wmDotC 1.1s ease both; animation-delay: 1.75s, 1.75s; }
-@keyframes wmSq { from { transform: scaleY(0); } }
-@keyframes wmLt { from { transform: translateX(calc(var(--dx) * -1px)); } }
-@keyframes wmDot { from { transform: scale(0); opacity: 0; } 20% { opacity: 1; } }
-@keyframes wmDotC { 0%, 55% { fill: #007F3F; } 100% { fill: var(--bk); } }
-@media (prefers-reduced-motion: reduce) { .wm .sq, .wm .ln, .wm .dot, .lm * { animation: none !important; transform: none !important; opacity: 1 !important; } .wm-replay { display: none; } }
+.bt .gif { display: block; width: 100%; height: auto; }
+.brand-hero .gif { width: 112%; max-width: 900px; margin-inline: -6%; } /* the GIF carries its own margin */
+.motion .logo-gif { width: 64%; max-width: 270px; }
+.motion .gif:not(.logo-gif) { width: 112%; margin-inline: -6%; }
+.motion figcaption { position: absolute; left: 16px; bottom: 12px; font-size: 13px; font-weight: 600; color: #666; }
 /* construction plate: always printed on paper */
 .plate { margin: 0; background: #F3F3EE; color: #111; border: 2px solid #111; display: grid; }
 .plate-head { display: grid; grid-template-columns: 1.2fr 1.2fr .8fr; border-bottom: 2px solid #111; }
@@ -600,7 +572,7 @@ footer { border-top: 1px solid var(--line); }
 <script>
 /* Draft notes (yellow boxes) mark what Jack still needs to supply. Set to false to hide them all. */
 const DRAFT = true;
-const ASSETS = {"cover-quarters": "assets/cover-quarters.webp", "cover-stewart-title": "assets/cover-stewart-title.png", "cover-amazon-music": "assets/cover-amazon-music.webp", "cover-savannah-parking": "assets/cover-savannah-parking.webp", "cover-national-park-service": "assets/cover-national-park-service.webp", "cover-nest-thermostat": "assets/cover-nest-thermostat.webp", "nps-topo": "assets/nps-topo.webp", "nps-real": "assets/nps-real.webp", "nps-nat": "assets/nps-nat.webp", "nps-con": "assets/nps-con.webp", "nps-color": "assets/nps-color.webp", "nps-type": "assets/nps-type.webp", "nps-layout": "assets/nps-layout.webp", "nps-mirage": "assets/nps-mirage.webp", "nps-sunday": "assets/nps-sunday.png", "nps-hikeon": "assets/nps-hikeon.webp", "nps-palette": "assets/nps-palette.webp", "nps-typefaces": "assets/nps-typefaces.webp", "nps-shapes": "assets/nps-shapes.webp", "nps-illus": "assets/nps-illus.webp", "nps-components": "assets/nps-components.webp", "nps-flow": "assets/nps-flow.webp", "nest-lookbook": "assets/nest-lookbook.webp", "nest-poster": "assets/nest-poster.webp", "nest-summary": "assets/nest-summary.webp", "nest-sg1": "assets/nest-sg1.png", "nest-sg2": "assets/nest-sg2.png", "nest-sg3": "assets/nest-sg3.png", "nest-sg4": "assets/nest-sg4.png", "nest-sg5": "assets/nest-sg5.png", "nest-sg6": "assets/nest-sg6.png", "nest-eco": "assets/nest-eco.png", "nest-cool": "assets/nest-cool.webp", "nest-heat": "assets/nest-heat.webp", "nest-home": "assets/nest-home.png", "nest-schedule": "assets/nest-schedule.png", "fr-hero": "assets/fr-hero.webp", "fr-obs1": "assets/fr-obs1.webp", "fr-obs2": "assets/fr-obs2.webp", "fr-stake": "assets/fr-stake.png", "fr-screener": "assets/fr-screener.png", "fr-questions": "assets/fr-questions.png", "fr-insights": "assets/fr-insights.png", "fr-workshop": "assets/fr-workshop.webp", "fr-kit": "assets/fr-kit.webp", "fr-data": "assets/fr-data.webp", "fr-aff1": "assets/fr-aff1.webp", "fr-aff2": "assets/fr-aff2.webp", "fr-front": "assets/fr-front.webp", "fr-back": "assets/fr-back.webp", "fr-p12": "assets/fr-p12.webp", "fr-p34": "assets/fr-p34.webp", "fr-p56": "assets/fr-p56.webp", "fr-mock": "assets/fr-mock.webp", "gd-chloris": "assets/gd-chloris.webp", "gd-film": "assets/gd-film.png", "gd-type": "assets/gd-type.webp", "pw-back": "assets/pw-back.webp", "pw-front": "assets/pw-front.webp", "pw-sticker": "assets/pw-sticker.webp", "pw-sticker-ai": "assets/pw-sticker-ai.webp", "pw-coaster": "assets/pw-coaster.webp", "pw-coaster-ai": "assets/pw-coaster-ai.webp", "id-model": "assets/id-model.webp", "id-proto": "assets/id-proto.webp", "nps-landing": "assets/nps-landing.mp4", "nps-alaska": "assets/nps-alaska.mp4", "nps-denali": "assets/nps-denali.mp4", "jack-walker-headshot": "assets/jack-walker-headshot.webp", "arc-02": "assets/arc-02.webp", "arc-03": "assets/arc-03.webp", "arc-04": "assets/arc-04.webp", "arc-05": "assets/arc-05.webp", "arc-06": "assets/arc-06.webp", "arc-cover": "assets/arc-cover.webp", "arc-fb": "assets/arc-fb.webp", "arc-p12": "assets/arc-p12.webp", "arc-p34": "assets/arc-p34.webp", "arc-p78": "assets/arc-p78.webp", "arc-p910": "assets/arc-p910.webp", "arc-p1112": "assets/arc-p1112.webp", "arc-rebird": "assets/arc-rebird.webp", "gd-bigbend1": "assets/gd-bigbend1.webp", "gd-bigbend2": "assets/gd-bigbend2.webp", "gd-brand": "assets/gd-brand.webp", "gd-chloris2": "assets/gd-chloris2.webp", "gd-chloris3": "assets/gd-chloris3.webp", "gd-escape": "assets/gd-escape.webp", "gd-farm1": "assets/gd-farm1.webp", "gd-farm2": "assets/gd-farm2.webp", "gd-farm3": "assets/gd-farm3.webp", "gd-farm4": "assets/gd-farm4.webp", "gd-focus": "assets/gd-focus.webp", "gd-hwy-poster": "assets/gd-hwy-poster.webp", "gd-mntpr": "assets/gd-mntpr.webp", "gd-nina1": "assets/gd-nina1.webp", "gd-nina2": "assets/gd-nina2.webp", "gd-tsa": "assets/gd-tsa.webp", "id-gpu1": "assets/id-gpu1.webp", "id-gpu2": "assets/id-gpu2.webp", "id-gpu3": "assets/id-gpu3.webp", "id-gpu4": "assets/id-gpu4.webp", "id-gpu5": "assets/id-gpu5.webp", "id-gpu6": "assets/id-gpu6.webp", "lamp-01": "assets/lamp-01.webp", "lamp-02": "assets/lamp-02.webp", "lamp-03": "assets/lamp-03.webp", "lamp-04": "assets/lamp-04.webp", "lamp-05": "assets/lamp-05.webp", "lamp-06": "assets/lamp-06.webp", "lamp-07": "assets/lamp-07.webp", "lamp-08": "assets/lamp-08.webp", "lamp-09": "assets/lamp-09.webp", "lamp-10": "assets/lamp-10.webp", "lamp-11": "assets/lamp-11.webp", "lamp-12": "assets/lamp-12.webp", "lamp-13a": "assets/lamp-13a.webp", "lamp-13b": "assets/lamp-13b.webp", "pw-bmw-ai": "assets/pw-bmw-ai.webp", "huck-1": "assets/huck-1.webp", "huck-2": "assets/huck-2.webp", "huck-3": "assets/huck-3.webp", "huck-4": "assets/huck-4.webp", "huck-5": "assets/huck-5.webp", "huck-6": "assets/huck-6.webp", "huck-7": "assets/huck-7.webp", "huck-8": "assets/huck-8.webp", "emory-1": "assets/emory-1.webp", "emory-2": "assets/emory-2.webp", "emory-3": "assets/emory-3.webp", "emory-4": "assets/emory-4.webp", "emory-6": "assets/emory-6.webp", "emory-7": "assets/emory-7.webp"};
+const ASSETS = {"cover-quarters": "assets/cover-quarters.webp", "cover-stewart-title": "assets/cover-stewart-title.png", "cover-amazon-music": "assets/cover-amazon-music.webp", "cover-savannah-parking": "assets/cover-savannah-parking.webp", "cover-national-park-service": "assets/cover-national-park-service.webp", "cover-nest-thermostat": "assets/cover-nest-thermostat.webp", "nps-topo": "assets/nps-topo.webp", "nps-real": "assets/nps-real.webp", "nps-nat": "assets/nps-nat.webp", "nps-con": "assets/nps-con.webp", "nps-color": "assets/nps-color.webp", "nps-type": "assets/nps-type.webp", "nps-layout": "assets/nps-layout.webp", "nps-mirage": "assets/nps-mirage.webp", "nps-sunday": "assets/nps-sunday.png", "nps-hikeon": "assets/nps-hikeon.webp", "nps-palette": "assets/nps-palette.webp", "nps-typefaces": "assets/nps-typefaces.webp", "nps-shapes": "assets/nps-shapes.webp", "nps-illus": "assets/nps-illus.webp", "nps-components": "assets/nps-components.webp", "nps-flow": "assets/nps-flow.webp", "nest-lookbook": "assets/nest-lookbook.webp", "nest-poster": "assets/nest-poster.webp", "nest-summary": "assets/nest-summary.webp", "nest-sg1": "assets/nest-sg1.png", "nest-sg2": "assets/nest-sg2.png", "nest-sg3": "assets/nest-sg3.png", "nest-sg4": "assets/nest-sg4.png", "nest-sg5": "assets/nest-sg5.png", "nest-sg6": "assets/nest-sg6.png", "nest-eco": "assets/nest-eco.png", "nest-cool": "assets/nest-cool.webp", "nest-heat": "assets/nest-heat.webp", "nest-home": "assets/nest-home.png", "nest-schedule": "assets/nest-schedule.png", "fr-hero": "assets/fr-hero.webp", "fr-obs1": "assets/fr-obs1.webp", "fr-obs2": "assets/fr-obs2.webp", "fr-stake": "assets/fr-stake.png", "fr-screener": "assets/fr-screener.png", "fr-questions": "assets/fr-questions.png", "fr-insights": "assets/fr-insights.png", "fr-workshop": "assets/fr-workshop.webp", "fr-kit": "assets/fr-kit.webp", "fr-data": "assets/fr-data.webp", "fr-aff1": "assets/fr-aff1.webp", "fr-aff2": "assets/fr-aff2.webp", "fr-front": "assets/fr-front.webp", "fr-back": "assets/fr-back.webp", "fr-p12": "assets/fr-p12.webp", "fr-p34": "assets/fr-p34.webp", "fr-p56": "assets/fr-p56.webp", "fr-mock": "assets/fr-mock.webp", "gd-chloris": "assets/gd-chloris.webp", "gd-film": "assets/gd-film.png", "gd-type": "assets/gd-type.webp", "pw-back": "assets/pw-back.webp", "pw-front": "assets/pw-front.webp", "pw-sticker": "assets/pw-sticker.webp", "pw-sticker-ai": "assets/pw-sticker-ai.webp", "pw-coaster": "assets/pw-coaster.webp", "pw-coaster-ai": "assets/pw-coaster-ai.webp", "id-model": "assets/id-model.webp", "id-proto": "assets/id-proto.webp", "nps-landing": "assets/nps-landing.mp4", "nps-alaska": "assets/nps-alaska.mp4", "nps-denali": "assets/nps-denali.mp4", "jack-walker-headshot": "assets/jack-walker-headshot.webp", "arc-02": "assets/arc-02.webp", "arc-03": "assets/arc-03.webp", "arc-04": "assets/arc-04.webp", "arc-05": "assets/arc-05.webp", "arc-06": "assets/arc-06.webp", "arc-cover": "assets/arc-cover.webp", "arc-fb": "assets/arc-fb.webp", "arc-p12": "assets/arc-p12.webp", "arc-p34": "assets/arc-p34.webp", "arc-p78": "assets/arc-p78.webp", "arc-p910": "assets/arc-p910.webp", "arc-p1112": "assets/arc-p1112.webp", "arc-rebird": "assets/arc-rebird.webp", "gd-bigbend1": "assets/gd-bigbend1.webp", "gd-bigbend2": "assets/gd-bigbend2.webp", "gd-brand": "assets/gd-brand.webp", "gd-chloris2": "assets/gd-chloris2.webp", "gd-chloris3": "assets/gd-chloris3.webp", "gd-escape": "assets/gd-escape.webp", "gd-farm1": "assets/gd-farm1.webp", "gd-farm2": "assets/gd-farm2.webp", "gd-farm3": "assets/gd-farm3.webp", "gd-farm4": "assets/gd-farm4.webp", "gd-focus": "assets/gd-focus.webp", "gd-hwy-poster": "assets/gd-hwy-poster.webp", "gd-mntpr": "assets/gd-mntpr.webp", "gd-nina1": "assets/gd-nina1.webp", "gd-nina2": "assets/gd-nina2.webp", "gd-tsa": "assets/gd-tsa.webp", "id-gpu1": "assets/id-gpu1.webp", "id-gpu2": "assets/id-gpu2.webp", "id-gpu3": "assets/id-gpu3.webp", "id-gpu4": "assets/id-gpu4.webp", "id-gpu5": "assets/id-gpu5.webp", "id-gpu6": "assets/id-gpu6.webp", "lamp-01": "assets/lamp-01.webp", "lamp-02": "assets/lamp-02.webp", "lamp-03": "assets/lamp-03.webp", "lamp-04": "assets/lamp-04.webp", "lamp-05": "assets/lamp-05.webp", "lamp-06": "assets/lamp-06.webp", "lamp-07": "assets/lamp-07.webp", "lamp-08": "assets/lamp-08.webp", "lamp-09": "assets/lamp-09.webp", "lamp-10": "assets/lamp-10.webp", "lamp-11": "assets/lamp-11.webp", "lamp-12": "assets/lamp-12.webp", "lamp-13a": "assets/lamp-13a.webp", "lamp-13b": "assets/lamp-13b.webp", "pw-bmw-ai": "assets/pw-bmw-ai.webp", "huck-1": "assets/huck-1.webp", "huck-2": "assets/huck-2.webp", "huck-3": "assets/huck-3.webp", "huck-4": "assets/huck-4.webp", "huck-5": "assets/huck-5.webp", "huck-6": "assets/huck-6.webp", "huck-7": "assets/huck-7.webp", "huck-8": "assets/huck-8.webp", "emory-1": "assets/emory-1.webp", "emory-2": "assets/emory-2.webp", "emory-3": "assets/emory-3.webp", "emory-4": "assets/emory-4.webp", "emory-6": "assets/emory-6.webp", "emory-7": "assets/emory-7.webp", "brand-logo-gif": "assets/brand-logo.gif", "brand-wordmark-gif": "assets/brand-wordmark.gif"};
 const EMAIL = "walkerajack@gmail.com";
 const LINKEDIN = "https://www.linkedin.com/in/jack-walker-b20035321/";
 const INSTAGRAM = "https://www.instagram.com/trailwlk.r/";
@@ -1676,29 +1648,10 @@ const BRAND_COLORS = [
 ];
 const MARK_VB = "186 97 390 503";
 const brandMark = (cls = "") => `<svg class="bmark ${cls}" viewBox="${MARK_VB}" aria-hidden="true"><path class="bk" d="${BRAND_SVG.mark.bar}"/>${BRAND_SVG.mark.sq.map(d => `<path class="bg" d="${d}"/>`).join("")}</svg>`;
-// Logomark motion (vector rebuild of Jack's GIF): a 4u green bar grows down, the stroke draws in beside it,
-// then the bar opens into the three squares
-function brandMarkAnim() {
-  const x = 191.59, y = 102.24, u = 123.156;
-  return `<svg class="bmark lm pre" viewBox="${MARK_VB}" role="img" aria-label="Animated logomark">
-    <defs><clipPath id="lmclip"><rect class="lm-wipe" x="300" y="${y}" width="290" height="${4 * u}"/></clipPath></defs>
-    <g clip-path="url(#lmclip)"><path class="bk" d="${BRAND_SVG.mark.bar}"/></g>
-    <g class="lm-bar">${BRAND_SVG.mark.sq.map(d => `<path class="bg" d="${d}"/>`).join("")}
-      <rect class="bg lm-gap" x="${x}" y="${y + u - 1.5}" width="${u}" height="${u / 2 + 3}"/><rect class="bg lm-gap" x="${x}" y="${y + 2.5 * u - 1.5}" width="${u}" height="${u / 2 + 3}"/></g>
-  </svg>`;
-}
-let wmSeq = 0;
-// Wordmark, built so it can animate: the squares drop in like trail blazes, then each line walks out from behind them
+// Wordmark lockups, drawn from the brand file's vectors
 function brandWordmark(kind, label) {
-  const W = BRAND_SVG[kind], id = "wmclip" + (++wmSeq), [vx, vy, vw, vh] = W.vb, edge = 199;
-  const rows = [0, 1].map(r => W.lt.filter(l => l.row === r));
-  const glyph = l => `<path class="bk${l.dot ? " dot" : ""}" d="${l.d}"/>`;
-  const rowG = (r, ri) => `<g class="ln" style="--row:${ri};--dx:${Math.round(Math.max(...r.map(l => l.x1)) - edge + 10)}">${r.map(glyph).join("")}</g>`;
-  return `<svg class="wm pre" viewBox="${vx - 6} ${vy - 6} ${vw + 12} ${vh + 12}" role="img" aria-label="${esc(label)}">
-    <defs><clipPath id="${id}"><rect x="${edge}" y="${vy - 40}" width="${vw + 40}" height="${vh + 80}"/></clipPath></defs>
-    <g clip-path="url(#${id})">${rows.map(rowG).join("")}</g>
-    ${W.sq.map((d, i) => `<path class="bg sq" style="--i:${i}" d="${d}"/>`).join("")}
-  </svg>`;
+  const W = BRAND_SVG[kind], [vx, vy, vw, vh] = W.vb;
+  return `<svg class="wm" viewBox="${vx - 6} ${vy - 6} ${vw + 12} ${vh + 12}" role="img" aria-label="${esc(label)}">${W.lt.map(l => `<path class="bk" d="${l.d}"/>`).join("")}${W.sq.map(d => `<path class="bg" d="${d}"/>`).join("")}</svg>`;
 }
 // Construction plate: the mark on its unit grid, the way logo breakdowns are drawn
 function brandPlate() {
@@ -1749,7 +1702,7 @@ function viewBrand() {
       <p class="sum">The identity I put on my own work: a four-shape mark, a stacked wordmark, three colors and the motion that ties them together.</p>
     </header>
     <dl class="facts"><div><dt>Role</dt><dd>Designer</dd></div><div><dt>Type</dt><dd>Personal brand</dd></div><div><dt>Tools</dt><dd>Adobe Illustrator</dd></div><div><dt>Typeface</dt><dd>Neue Haas Display Bold</dd></div></dl>
-    <div class="brand-hero bt l">${brandWordmark("wlkr", "TRAIL WLK.R")}<button class="wm-replay" type="button" aria-label="Replay the wordmark animation">↻ Replay</button></div>
+    <div class="brand-hero bt l"><img class="gif" src="${ASSETS["brand-wordmark-gif"]}" alt="TRAIL WLK.R wordmark animation" width="756" height="240"></div>
     <div class="cs-body">
       <section class="sec"><h2>The mark</h2>
         <p class="col-p">Four shapes: three Celtic Green squares and one black stroke. It works on offwhite and reversed on black.</p>
@@ -1767,10 +1720,10 @@ function viewBrand() {
         <div class="swatches">${BRAND_COLORS.map(c => `<div class="sw"><span style="background:${c.hex}"></span><b>${c.name}</b><code>${c.hex}</code><small>RGB ${c.rgb}</small></div>`).join("")}</div>
       </section>
       <section class="sec"><h2>Motion</h2>
-        <p class="col-p">The mark builds from a single green bar; the wordmark's squares drop in like trail blazes and each line walks out from behind them.</p>
+        <p class="col-p">The mark builds out of a single green bar that splits into the three squares, and the wordmark grows out of the mark.</p>
         <div class="bgrid two">
-          <figure class="bt l motion">${brandMarkAnim()}<figcaption>Logomark <button class="wm-replay" type="button" aria-label="Replay the logomark animation">↻</button></figcaption></figure>
-          <figure class="bt d motion">${brandWordmark("wlkr", "TRAIL WLK.R")}<figcaption>Wordmark <button class="wm-replay" type="button" aria-label="Replay the wordmark animation">↻</button></figcaption></figure>
+          <figure class="bt l motion"><img class="gif logo-gif" src="${ASSETS["brand-logo-gif"]}" alt="Logomark animation" width="1080" height="1080" loading="lazy"><figcaption>Logomark</figcaption></figure>
+          <figure class="bt l motion"><img class="gif" src="${ASSETS["brand-wordmark-gif"]}" alt="Wordmark animation" width="756" height="240" loading="lazy"><figcaption>Wordmark</figcaption></figure>
         </div>
       </section>
       <section class="sec"><h2>In use</h2>
@@ -1780,19 +1733,7 @@ function viewBrand() {
     </div>
   </article>`;
 }
-function initBrand() {
-  const page = document.querySelector(".brand-page"); if (!page) return;
-  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const play = svg => { svg.classList.remove("pre", "play"); void svg.getBoundingClientRect(); svg.classList.add("play"); };
-  const anims = [...page.querySelectorAll(".wm, .lm")].filter(w => !w.closest(".still"));
-  page.querySelectorAll(".still .wm").forEach(w => w.classList.remove("pre"));
-  if (reduced || !("IntersectionObserver" in window)) { anims.forEach(w => w.classList.remove("pre")); }
-  else {
-    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { play(e.target); io.unobserve(e.target); } }), { threshold: .5 });
-    anims.forEach(w => io.observe(w));
-  }
-  page.querySelectorAll(".wm-replay").forEach(b => b.addEventListener("click", () => { const w = b.closest(".bt").querySelector(".wm, .lm"); if (w && !reduced) play(w); }));
-}
+function initBrand() {} // the motion is Jack's own GIFs, which play on their own
 
 function viewAbout() {
   return `<div class="about">
