@@ -473,9 +473,23 @@ figure .img.fit img { cursor: zoom-in; }
 .steps li::before { content: counter(st, decimal-leading-zero); font-size: 13px; font-weight: 700; color: var(--link); }
 .steps b { color: var(--ink); font-size: 16.5px; } .steps .n { font-weight: 700; color: var(--ink); }
 .list-cap { font-size: 16px; margin-bottom: 8px; } .tasks { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
-.finding { border-top: 1px solid var(--line); padding: 56px 0 24px; display: grid; gap: 28px; }
-.finding + .finding { margin-top: 48px; }
-@media (max-width: 760px) { .finding { padding: 40px 0 16px; } .finding + .finding { margin-top: 32px; } }
+.finding { border-top: 1px solid var(--line); padding: 88px 0 40px; display: grid; gap: 44px; }
+.finding + .finding { margin-top: 72px; }
+.finding .figs { margin-top: 8px; gap: 28px; }
+.finding .fquotes { gap: 20px 40px; }
+/* the Bandcamp research page: roomier overall rhythm */
+.cs-bandcamp-testing .cs-body { gap: 128px; margin-top: 112px; }
+.cs-bandcamp-testing .sec { gap: 32px; }
+.cs-bandcamp-testing .hero { margin-top: 56px; }
+.cs-bandcamp-testing .myrole { margin-top: 32px; padding-top: 20px; gap: 14px; }
+.cs-bandcamp-testing .myrole ul { gap: 12px; }
+.cs-bandcamp-testing .steps { gap: 20px; } .cs-bandcamp-testing .steps li { padding: 22px; gap: 6px; }
+.cs-bandcamp-testing .tasks { gap: 10px; } .cs-bandcamp-testing .recs { gap: 20px; }
+.cs-bandcamp-testing .nums { gap: 24px 64px; }
+@media (max-width: 760px) {
+  .finding { padding: 56px 0 24px; gap: 32px; } .finding + .finding { margin-top: 40px; }
+  .cs-bandcamp-testing .cs-body { gap: 88px; margin-top: 72px; }
+}
 .finding header { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 16px; align-items: baseline; }
 .finding .fn { grid-row: span 2; font-size: 26px; font-weight: 800; color: color-mix(in srgb, var(--muted) 55%, transparent); }
 .finding h3 { font-size: 24px; letter-spacing: -0.01em; } .ftag { font-size: 14px; color: var(--muted); }
@@ -1684,7 +1698,7 @@ function viewCase(p) {
     ${ASSETS[p.hero] ? `<div class="hero">${media(p.hero, p.title + " cover", true)}</div>` : ""}
     <div class="cs-body">${p.sections.filter(s => DRAFT || !s.blocks.every(b => b.todo || (b.decision && !b.decision.p && !b.decision.figs))).map(s => `<section class="sec"><h2>${esc(s.h)}</h2>${s.blocks.map(block).join("")}</section>`).join("")}</div>
     <nav class="next" aria-label="Project navigation"><a class="back" href="#projects"><span aria-hidden="true">&larr;</span> All projects</a><div class="next-go"><span>Next project</span><a href="#${next.id}">${esc(next.title)} &rarr;</a></div></nav>`;
-  if (!p.proto) return `<article>${inner}</article>`;
+  if (!p.proto) return `<article class="cs-${p.id}">${inner}</article>`;
   return `<article class="cs-split">
     <aside class="proto-col" aria-label="${esc(p.title)} interactive prototype">
       <h2 class="proto-h">Interactive Prototype</h2>
