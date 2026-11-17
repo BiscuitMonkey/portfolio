@@ -490,9 +490,9 @@ figure .img.fit img { cursor: zoom-in; }
   .finding { padding: 56px 0 24px; gap: 32px; } .finding + .finding { margin-top: 40px; }
   .cs-bandcamp-testing .cs-body { gap: 88px; margin-top: 72px; }
 }
-.finding header { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 20px; align-items: baseline; }
-.finding .fn { grid-row: span 2; font-size: clamp(40px, 4.6vw, 56px); line-height: 1; letter-spacing: -0.02em; font-weight: 800; color: color-mix(in srgb, var(--muted) 55%, transparent); }
-.finding h3 { font-size: clamp(26px, 3vw, 34px); line-height: 1.15; letter-spacing: -0.015em; } .ftag { font-size: 15px; color: var(--muted); }
+.finding header { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 20px; align-items: center; } /* number centred on the title */
+.finding .fn { grid-row: 1; width: 1.3em; /* same width for every number so the titles line up */ font-size: clamp(40px, 4.6vw, 56px); line-height: 1; letter-spacing: -0.02em; font-weight: 800; color: color-mix(in srgb, var(--muted) 55%, transparent); }
+.finding h3 { font-size: clamp(26px, 3vw, 34px); line-height: 1.15; letter-spacing: -0.015em; } .ftag { grid-column: 2; font-size: 15px; color: var(--muted); }
 /* Before → After: no tinted boxes; hairline rules, big numbers stacked over short labels, an arrow between */
 .fstats { display: grid; grid-template-columns: minmax(0, 1fr) 96px minmax(0, 1fr); align-items: stretch; }
 .fstats::before { content: "→"; grid-column: 2; grid-row: 1; align-self: start; margin-top: 102px; justify-self: center; font-size: 28px; line-height: 1; /* level with the big numbers */ color: var(--muted); }
