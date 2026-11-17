@@ -159,6 +159,9 @@ main { padding-block: 56px 96px; }
 .lock > span { width: 58px; height: 58px; border-radius: 50%; background: rgba(255, 255, 255, .94); color: #161917; display: grid; place-items: center; transform: scale(.82); transition: transform .3s cubic-bezier(.2, .9, .3, 1.3); box-shadow: 0 6px 18px rgba(0, 0, 0, .18); }
 .lock svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .card.locked:hover .lock, .card.locked:focus-visible .lock { opacity: 1; }
+.card.locked { cursor: not-allowed; }
+.card.locked:hover h2 { color: inherit; text-decoration: none; }
+.card.locked:hover .shot img { transform: none; }
 .card.locked:hover .lock > span, .card.locked:focus-visible .lock > span { transform: scale(1); }
 @media (hover: none) {
   .lock { opacity: 1; background: none; place-items: start end; padding: 10px; }
@@ -1350,12 +1353,13 @@ function block(b) {
 }
 const LOCK = '<span class="lock" aria-hidden="true"><span><svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.2" fill="currentColor" stroke="none"/></svg></span></span>';
 function card(p) {
-  return `<a class="card${p.highlight ? " hl" : ""}${p.locked ? " locked" : ""}" href="#${p.id}">
+  const tag = p.locked ? `div aria-disabled="true" title="Coming soon"` : `a href="#${p.id}"`; // locked work can't be opened for now
+  return `<${tag} class="card${p.highlight ? " hl" : ""}${p.locked ? " locked" : ""}">
     <div class="shot">${media(p.hero, "")}${p.locked ? LOCK : ""}</div>
     <h2>${esc(p.title)}${p.sub ? ` <span>${esc(p.sub)}</span>` : ""}</h2>
     <p>${esc(p.summary)}</p>
     <span class="meta">${p.highlight ? '<span class="hl-tag">Highlighted Work</span> · ' : ""}${esc(p.meta)}</span>
-  </a>`;
+  </${p.locked ? "div" : "a"}>`;
 }
 
 /* Peaks: each trail drawn from its real elevation profile, all on one shared scale so heights and lengths compare
@@ -1520,7 +1524,7 @@ function viewHome() {
 }
 
 function viewCase(p) {
-  const i = ALL.indexOf(p), next = ALL[(i + 1) % ALL.length];
+  const OPEN = ALL.filter(x => !x.locked), i = OPEN.indexOf(p), next = OPEN[(i + 1) % OPEN.length];
   const inner = `
     <a class="back" href="#projects"><span aria-hidden="true">&larr;</span> All projects</a>
     <header class="cs-head">
@@ -2036,7 +2040,8 @@ function render() {
   const id = location.hash.replace(/^#/, "");
   const [base, sub] = id.split("/");
   const isBux = base === "beyond-ux" || id === "other-work";
-  const p = ALL.find(x => x.id === id);
+  const p = ALL.find(x => x.id === id && !x.locked);
+  if (!p && ALL.some(x => x.id === id)) history.replaceState(null, "", location.pathname + location.search);
   const cameFrom = ALL.find(x => x.id === lastId);
   lastId = id;
   let html, nav = "work";
@@ -2049,7 +2054,8 @@ function render() {
   if (portraitWidget) { portraitWidget.destroy(); portraitWidget = null; }
   $("#app").innerHTML = html;
   document.querySelectorAll("[data-nav]").forEach(a => { if (a.dataset.nav === nav) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
-  document.title = p ? `${p.title} · Jack Walker` : id === "brand" ? "My Brand · Jack Walker" : "Jack Walker's Portfolio";
+  const page = p ? p.title : isBux ? "Beyond UX" : id === "about" ? "About" : id === "brand" ? "My Brand" : "";
+  document.title = page ? `${page} · Jack Walker` : "Jack Walker's Portfolio";
   const crumb = document.getElementById("crumb");
   if (crumb) crumb.innerHTML = p ? `<a href="#projects">UX Projects</a><i aria-hidden="true">/</i><b aria-current="page">${esc(p.title)}</b>`
     : isBux ? '<b aria-current="page">Beyond UX</b>' : id === "about" ? '<b aria-current="page">About</b>' : id === "brand" ? '<b aria-current="page">My Brand</b>' : "";
