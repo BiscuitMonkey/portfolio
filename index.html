@@ -155,6 +155,8 @@ main { padding-block: 56px 96px; }
 .card .shot img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
 .card:hover .shot img { transform: scale(1.015); }
 .card .shot { position: relative; }
+.card .shot.ph { display: grid; place-items: center; border-style: dashed; }
+.card .shot.ph span { font-size: 14px; font-weight: 600; color: var(--muted); }
 .lock { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(12, 13, 14, .4); opacity: 0; transition: opacity .25s ease; pointer-events: none; }
 .lock > span { width: 58px; height: 58px; border-radius: 50%; background: rgba(255, 255, 255, .94); color: #161917; display: grid; place-items: center; transform: scale(.82); transition: transform .3s cubic-bezier(.2, .9, .3, 1.3); box-shadow: 0 6px 18px rgba(0, 0, 0, .18); }
 .lock svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
@@ -744,6 +746,25 @@ const MORE = [
     sections: [
       { h: "Overview", blocks: [
         { todo: "This one needs a short case study: the problem, two decisions with screens, and the final design. The live parking map on the cover is a good lead image." } ] }
+    ]},
+  { id: "bandcamp-testing", title: "Bandcamp", sub: "User Testing", summary: "A user testing study of Bandcamp, the music marketplace where fans buy directly from artists.",
+    meta: "Research · Add year", hero: "",
+    facts: { Role: "Add your role", Team: "Add team", Timeline: "Add dates", Method: "User testing" },
+    sections: [
+      { h: "Overview", blocks: [
+        { todo: "Two or three sentences: what part of Bandcamp you tested, why, and what you were trying to learn." } ] },
+      { h: "Research questions", blocks: [
+        { todo: "List the two to four questions the study set out to answer." } ] },
+      { h: "Method & participants", blocks: [
+        { todo: "How you ran it (moderated or unmoderated, in person or remote), how many participants, who they were, and how you recruited them." } ] },
+      { h: "Tasks", blocks: [
+        { todo: "The tasks participants were asked to complete, e.g. find an artist, buy an album, follow a label. Add your test script or screenshots of each task." } ] },
+      { h: "Findings", blocks: [
+        { todo: "Three to five key findings, each with evidence: a quote, a success rate or time on task, and a screenshot of where it happened." } ] },
+      { h: "Recommendations", blocks: [
+        { todo: "What you would change based on the findings, ideally with a before and after or a quick redesign of the problem screen." } ] },
+      { h: "Reflection", blocks: [
+        { todo: "What you learned about running user tests, and what you would do differently next time." } ] }
     ]},
   { id: "nest-thermostat", title: "Nest Thermostat", summary: "A redesign of the Nest Thermostat app and device screen to feel greener and more affordable.",
     meta: "UX/UI design lead · Winter 2025", hero: "cover-nest-thermostat",
@@ -1419,7 +1440,7 @@ const LOCK = '<span class="lock" aria-hidden="true"><span><svg viewBox="0 0 24 2
 function card(p) {
   const tag = p.locked ? `div aria-disabled="true" title="Coming soon"` : `a href="#${p.id}"`; // locked work can't be opened for now
   return `<${tag} class="card${p.highlight ? " hl" : ""}${p.locked ? " locked" : ""}">
-    <div class="shot">${media(p.thumb || p.hero, "")}${p.locked ? LOCK : ""}</div>
+    <div class="shot${ASSETS[p.thumb || p.hero] ? "" : " ph"}">${ASSETS[p.thumb || p.hero] ? media(p.thumb || p.hero, "") : "<span>Cover coming soon</span>"}${p.locked ? LOCK : ""}</div>
     <h2>${esc(p.title)}${p.sub ? ` <span>${esc(p.sub)}</span>` : ""}</h2>
     <p>${esc(p.summary)}</p>
     <span class="meta">${p.highlight ? '<span class="hl-tag">Highlighted Work</span> · ' : ""}${esc(p.meta)}</span>
@@ -1600,7 +1621,7 @@ function viewCase(p) {
       <p class="sum">${esc(p.summary)}</p>
     </header>
     <dl class="facts">${Object.entries(p.facts).map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
-    <div class="hero">${media(p.hero, p.title + " cover", true)}</div>
+    ${ASSETS[p.hero] ? `<div class="hero">${media(p.hero, p.title + " cover", true)}</div>` : ""}
     <div class="cs-body">${p.sections.map(s => `<section class="sec"><h2>${esc(s.h)}</h2>${s.blocks.map(block).join("")}</section>`).join("")}</div>
     <nav class="next" aria-label="Project navigation"><a class="back" href="#projects"><span aria-hidden="true">&larr;</span> All projects</a><div class="next-go"><span>Next project</span><a href="#${next.id}">${esc(next.title)} &rarr;</a></div></nav>`;
   if (!p.proto) return `<article>${inner}</article>`;
