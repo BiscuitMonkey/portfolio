@@ -150,7 +150,7 @@ main { padding-block: 56px 96px; }
 .has-cursor.lb-open * { cursor: zoom-out !important; }
 
 .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px 32px; }
-.card { display: grid; gap: 14px; color: inherit; text-decoration: none; }
+.card { display: grid; gap: 14px; align-content: start; color: inherit; text-decoration: none; }
 .card .shot { aspect-ratio: 16 / 10; max-width: 100%; background: var(--wash); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
 .card .shot img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
 .card:hover .shot img { transform: scale(1.015); }
@@ -728,6 +728,30 @@ const FEATURED = [
       { h: "Outcome", blocks: [
         { todo: "Final screens and how Amazon responded." } ] }
     ]},
+  { id: "national-park-service", title: "National Park Service", summary: "A redesign of the National Park Service website, from mood boards to a working prototype.",
+    meta: "Website redesign · 2025", hero: "cover-national-park-service",
+    facts: { Timeline: "2025", Platform: "Web", Tools: "Figma" },
+    sections: [
+      { h: "Final design", blocks: [
+        { figs: [["nps-landing", "Landing page"]], n: 1 },
+        { figs: [["nps-alaska", "Alaska page"], ["nps-denali", "Denali National Park page"]] } ] },
+      { h: "Direction", blocks: [
+        { p: "I based the redesign on four key works and built a mood board around each one, then made color, type and layout boards. I wanted imagery to carry more of the design than color." },
+        { figs: [["nps-topo", "Topographic"], ["nps-real", "Graphic realism"], ["nps-nat", "Naturalistic"], ["nps-con", "Contrasting"]] } ] },
+      { h: "Design system", blocks: [
+        { p: "With the direction set, I defined type, color, shape and illustration palettes, then built the components." },
+        { figs: [["nps-palette", "Color palette"], ["nps-typefaces", "Typefaces"], ["nps-components", "Components"], ["nps-flow", "User flow"]] } ] }
+    ]}
+];
+
+const MORE = [
+  { id: "savannah-parking", title: "Savannah Parking", summary: "A redesign of how people find and pay for parking in downtown Savannah.",
+    meta: "App redesign · 2026", hero: "cover-savannah-parking",
+    facts: { Timeline: "2026", Platform: "Mobile", Tools: "Figma, Illustrator" },
+    sections: [
+      { h: "Overview", blocks: [
+        { todo: "This one needs a short case study: the problem, two decisions with screens, and the final design. The live parking map on the cover is a good lead image." } ] }
+    ]},
   { id: "nest-thermostat", title: "Nest Thermostat", summary: "A redesign of the Nest Thermostat app and device screen to feel greener and more affordable.",
     meta: "UX/UI design lead · Winter 2025", hero: "cover-nest-thermostat",
     facts: { Role: "UX/UI design lead", Team: "Team project", Timeline: "Jan to Mar 2025", Tools: "Figma, Illustrator" },
@@ -753,30 +777,6 @@ const FEATURED = [
         { todo: "One finding from testing and what it changed." } ] },
       { h: "Reflection", blocks: [
         { todo: "A short outcome: the feedback the project got, and what you'd push further with more time." } ] }
-    ]}
-];
-
-const MORE = [
-  { id: "savannah-parking", title: "Savannah Parking", summary: "A redesign of how people find and pay for parking in downtown Savannah.",
-    meta: "App redesign · 2026", hero: "cover-savannah-parking",
-    facts: { Timeline: "2026", Platform: "Mobile", Tools: "Figma, Illustrator" },
-    sections: [
-      { h: "Overview", blocks: [
-        { todo: "This one needs a short case study: the problem, two decisions with screens, and the final design. The live parking map on the cover is a good lead image." } ] }
-    ]},
-  { id: "national-park-service", title: "National Park Service", summary: "A redesign of the National Park Service website, from mood boards to a working prototype.",
-    meta: "Website redesign · 2025", hero: "cover-national-park-service",
-    facts: { Timeline: "2025", Platform: "Web", Tools: "Figma" },
-    sections: [
-      { h: "Final design", blocks: [
-        { figs: [["nps-landing", "Landing page"]], n: 1 },
-        { figs: [["nps-alaska", "Alaska page"], ["nps-denali", "Denali National Park page"]] } ] },
-      { h: "Direction", blocks: [
-        { p: "I based the redesign on four key works and built a mood board around each one, then made color, type and layout boards. I wanted imagery to carry more of the design than color." },
-        { figs: [["nps-topo", "Topographic"], ["nps-real", "Graphic realism"], ["nps-nat", "Naturalistic"], ["nps-con", "Contrasting"]] } ] },
-      { h: "Design system", blocks: [
-        { p: "With the direction set, I defined type, color, shape and illustration palettes, then built the components." },
-        { figs: [["nps-palette", "Color palette"], ["nps-typefaces", "Typefaces"], ["nps-components", "Components"], ["nps-flow", "User flow"]] } ] }
     ]}
 ];
 
