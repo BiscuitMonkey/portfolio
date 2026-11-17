@@ -465,13 +465,28 @@ figure .img.fit img { cursor: zoom-in; }
 .sub-h { font-size: 20px; font-weight: 700; margin: 28px 0 0; }
 .sub-p { color: var(--muted); margin-top: -8px; }
 
+/* Approach as a timeline: one rule runs across all four steps with a node at each; my step is green */
+.proc { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); counter-reset: st; }
+.proc li { counter-increment: st; position: relative; border-top: 2px solid var(--line); padding: 26px 28px 0 0; display: grid; gap: 6px; align-content: start; }
+.proc li::before { content: ""; position: absolute; left: 0; top: -7px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--muted); box-sizing: border-box; }
+.proc .pn { font-size: 14px; font-weight: 600; color: var(--muted); min-height: 1.2em; }
+.proc .pn:empty::before { content: counter(st, decimal-leading-zero); }
+.proc b { font-size: 19px; font-weight: 700; color: var(--ink); line-height: 1.25; }
+.proc .n { font-size: 16px; font-weight: 700; color: var(--ink); }
+.proc .d { font-size: 15.5px; line-height: 1.5; color: var(--muted); margin-top: 4px; }
+.proc li.mine { border-top-color: var(--link); }
+.proc li.mine::before { background: var(--link); border-color: var(--link); }
+.proc li.mine .pn, .proc li.mine .n { color: var(--link); }
+@media (max-width: 760px) {
+  .proc { grid-template-columns: 1fr; }
+  .proc li { border-top: 0; border-left: 2px solid var(--line); padding: 0 0 32px 26px; }
+  .proc li:last-child { padding-bottom: 0; }
+  .proc li::before { left: -7px; top: 2px; }
+  .proc li.mine { border-left-color: var(--link); }
+}
 .myrole { margin-top: 16px; border-top: 2px solid var(--link); padding-top: 14px; display: grid; gap: 10px; }
 .myrole h3 { font-size: 16px; font-weight: 700; color: var(--link); }
 .myrole ul { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
-.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; counter-reset: st; }
-.steps li { counter-increment: st; border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 4px; align-content: start; font-size: 15px; color: var(--muted); }
-.steps li::before { content: counter(st, decimal-leading-zero); font-size: 13px; font-weight: 700; color: var(--link); }
-.steps b { color: var(--ink); font-size: 16.5px; } .steps .n { font-weight: 700; color: var(--ink); }
 .list-cap { font-size: 16px; margin-bottom: 8px; } .tasks { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
 .finding { border-top: 1px solid var(--line); padding: 88px 0 40px; display: grid; gap: 44px; }
 .finding + .finding { margin-top: 72px; }
@@ -483,7 +498,6 @@ figure .img.fit img { cursor: zoom-in; }
 .cs-bandcamp-testing .hero { margin-top: 56px; }
 .cs-bandcamp-testing .myrole { margin-top: 32px; padding-top: 20px; gap: 14px; }
 .cs-bandcamp-testing .myrole ul { gap: 12px; }
-.cs-bandcamp-testing .steps { gap: 20px; } .cs-bandcamp-testing .steps li { padding: 22px; gap: 6px; }
 .cs-bandcamp-testing .tasks { gap: 10px; } .cs-bandcamp-testing .recs { gap: 20px; }
 .cs-bandcamp-testing .nums { gap: 24px 64px; }
 @media (max-width: 760px) {
@@ -514,8 +528,6 @@ figure .img.fit img { cursor: zoom-in; }
 .recs { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 .recs li { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; align-items: baseline; }
 .recs span { font-weight: 800; color: var(--link); } .recs p { font-size: 17px; }
-@media (max-width: 760px) { .steps { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 420px) { .steps { grid-template-columns: 1fr; } }
 .nums { display: flex; flex-wrap: wrap; gap: 16px 40px; }
 .nums b { display: block; font-size: 34px; font-weight: 800; line-height: 1.1; }
 .nums span { font-size: 15px; color: var(--muted); }
@@ -809,7 +821,7 @@ const MORE = [
         { p: "Bandcamp lets fans pay artists directly; fans have paid artists $1.82 billion through it. But new fans, especially people coming from Spotify, struggle to find their way around the desktop site and to buy anything." },
         { quote: "We believed Bandcamp's segmented navigation forces people to know exactly what they want before they arrive, making them less likely to discover new artists or come back.", by: "Our hypothesis" } ] },
       { h: "Approach", blocks: [
-        { steps: [["Heuristic review", "5 evaluators", "Each of us audited five workflows to find where Bandcamp breaks usability heuristics."], ["Moderated testing", "10 participants", "Remote think-aloud sessions on Zoom, to see where new users get lost and hear why."], ["Redesign prototype", "Figma", "I designed fixes for the three problem areas as a clickable prototype."], ["Unmoderated validation", "9 tests", "A pilot and two rounds of 4 on UserTesting.com, so no moderator could steer the result."]] },
+        { steps: [["Heuristic review", "5 evaluators", "Each of us audited five workflows to find where Bandcamp breaks usability heuristics."], ["Moderated testing", "10 participants", "Remote think-aloud sessions on Zoom, to see where new users get lost and hear why."], ["Redesign prototype", "Figma", "I designed fixes for the three problem areas as a clickable prototype.", true], ["Unmoderated validation", "9 tests", "A pilot and two rounds of 4 on UserTesting.com, so no moderator could steer the result."]] },
         { p: "Who we tested: Spotify listeners interested in physical media who had visited Bandcamp fewer than three times, recruited through a screener. We excluded design students, who judge interfaces like experts." },
         { list: ["You recently found a band called “Caspian” that you really enjoy. Find some music that is alike to this band.", "You want to learn more about this artist aside from their music. Find 2 pieces of media about “Caspian” that are not music.", "Purchase a piece of physical media from “Caspian”. Please mind this is a prototype, you will not be asked to put in any personal information.", "You enjoyed the physical media you bought, so you want a piece of merchandise. Purchase a t-shirt from “Caspian”. Please mind this is a prototype, you will not be asked to put in any personal information."], cap: "The unmoderated test tasks I wrote" } ] },
       { h: "Key findings", blocks: [
@@ -1500,7 +1512,7 @@ function block(b) {
   if (b.todo) return `<div class="col">${todo(b.todo)}</div>`;
   if (b.figs) return figs(b.figs, b.n, b.kind);
   if (b.role) return `<aside class="myrole"><h3>My role</h3><ul>${b.role.map(i => `<li>${esc(i)}</li>`).join("")}</ul></aside>`;
-  if (b.steps) return `<ol class="steps">${b.steps.map(([h, n, d]) => `<li><b>${esc(h)}</b><span class="n">${esc(n)}</span><span>${esc(d)}</span></li>`).join("")}</ol>`;
+  if (b.steps) return `<ol class="proc">${b.steps.map(([h, n, d, mine]) => `<li${mine ? ' class="mine"' : ""}><span class="pn">${mine ? "Led by me" : ""}</span><b>${esc(h)}</b><span class="n">${esc(n)}</span><span class="d">${esc(d)}</span></li>`).join("")}</ol>`;
   if (b.recs) return `<ol class="recs">${b.recs.map(([n, t]) => `<li><span>${esc(n)}</span><p>${esc(t)}</p></li>`).join("")}</ol>`;
   if (b.finding) { const f = b.finding, st = (x, c) => x ? `<div class="${c}"><b>${esc(x[0])}</b><span>${esc(x[1])}</span></div>` : "", q = x => x ? `<blockquote><p>“${esc(x[0])}”</p><cite>${esc(x[1])}</cite></blockquote>` : "";
     return `<article class="finding"><header><span class="fn">${esc(f.n)}</span><h3>${esc(f.h)}</h3><span class="ftag">${esc(f.tag)}</span></header>
