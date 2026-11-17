@@ -467,9 +467,9 @@ figure .img.fit img { cursor: zoom-in; }
 
 /* Approach as a timeline: one rule runs across all four steps with a node at each; my step is green */
 .proc { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); counter-reset: st; }
-.proc li { counter-increment: st; position: relative; border-top: 2px solid var(--line); padding: 26px 28px 0 0; display: grid; gap: 6px; align-content: start; }
+.proc li { counter-increment: st; position: relative; border-top: 2px solid var(--line); padding: 44px 28px 0 0; display: grid; gap: 6px; align-content: start; }
 .proc li::before { content: ""; position: absolute; left: 0; top: -7px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--muted); box-sizing: border-box; }
-.proc .pn { font-size: 14px; font-weight: 600; color: var(--muted); min-height: 1.2em; }
+.proc .pn { position: absolute; left: 0; top: 16px; font-size: 14px; font-weight: 600; color: var(--muted); } /* sits above the title without pushing it down */
 .proc b { font-size: 19px; font-weight: 700; color: var(--ink); line-height: 1.25; }
 .proc .n { font-size: 16px; font-weight: 700; color: var(--ink); }
 .proc .d { font-size: 15.5px; line-height: 1.5; color: var(--muted); margin-top: 4px; }
@@ -479,6 +479,7 @@ figure .img.fit img { cursor: zoom-in; }
 @media (max-width: 760px) {
   .proc { grid-template-columns: 1fr; }
   .proc li { border-top: 0; border-left: 2px solid var(--line); padding: 0 0 32px 26px; }
+  .proc .pn { position: static; } .proc .pn:empty { display: none; }
   .proc li:last-child { padding-bottom: 0; }
   .proc li::before { left: -7px; top: 2px; }
   .proc li.mine { border-left-color: var(--link); }
