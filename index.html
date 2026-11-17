@@ -513,6 +513,28 @@ figure .img.fit img { cursor: zoom-in; }
 .bux-piece .proj:has(.proj-toggle:hover) .sub-h::before { color: var(--link); }
 .bux-piece .proj .sub-p { padding-left: var(--idx, 64px); }
 @media (max-width: 560px) { .bux-piece { --idx: 42px; } }
+/* TEMPORARY: four numbering styles to compare, one per project row (1st row = option 1, and so on) */
+.bux-piece { --ts: clamp(24px, 2.8vw, 30px); --pad: 28px; }
+@media (max-width: 560px) { .bux-piece { --pad: 22px; } }
+.projs > .proj .proj-title::after { margin-left: 12px; padding: 2px 8px; border: 1px dashed var(--line); border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: .02em; color: var(--muted); vertical-align: middle; white-space: nowrap; }
+.projs > .proj:nth-child(4n+1) .proj-title::after { content: "Option 1"; }
+.projs > .proj:nth-child(4n+2) .proj-title::after { content: "Option 2"; }
+.projs > .proj:nth-child(4n+3) .proj-title::after { content: "Option 3"; }
+.projs > .proj:nth-child(4n+4) .proj-title::after { content: "Option 4"; }
+/* 1: same size and weight as the title, in grey */
+.projs > .proj:nth-child(4n+1) .sub-h { grid-template-columns: calc(var(--ts) * 1.7) minmax(0, 1fr); }
+.projs > .proj:nth-child(4n+1) .sub-h::before { font-size: 1em; font-weight: 800; letter-spacing: -0.015em; color: color-mix(in srgb, var(--muted) 55%, transparent); }
+.projs > .proj:nth-child(4n+1) .sub-p { padding-left: calc(var(--ts) * 1.7); }
+/* 2: small number pinned to the top of the capitals */
+.projs > .proj:nth-child(4n+2) .sub-h { align-items: start; }
+.projs > .proj:nth-child(4n+2) .sub-h::before { font-size: 13px; line-height: 1; margin-top: calc(var(--ts) * .19); }
+/* 3: label above the title */
+.projs > .proj:nth-child(4n+3) .sub-h { grid-template-columns: minmax(0, 1fr); }
+.projs > .proj:nth-child(4n+3) .sub-h::before { margin-bottom: 10px; font-size: 14px; font-weight: 700; letter-spacing: .06em; color: var(--link); }
+.projs > .proj:nth-child(4n+3) .sub-p { padding-left: 0; }
+/* 4: in the margin, hung from the row's divider with a short dark rule */
+.projs > .proj:nth-child(4n+4) .sub-h { align-items: start; }
+.projs > .proj:nth-child(4n+4) .sub-h::before { font-size: 12px; line-height: 1; margin-top: calc(var(--pad) * -1 - 1px); padding-top: 10px; border-top: 2px solid var(--ink); width: 2.6em; }
 
 .bux-piece .sub-p { font-size: 17px; max-width: 62ch; color: var(--muted); }
 .toc { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 8px; }
