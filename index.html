@@ -470,7 +470,6 @@ figure .img.fit img { cursor: zoom-in; }
 .proc li { counter-increment: st; position: relative; border-top: 2px solid var(--line); padding: 26px 28px 0 0; display: grid; gap: 6px; align-content: start; }
 .proc li::before { content: ""; position: absolute; left: 0; top: -7px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 2px solid var(--muted); box-sizing: border-box; }
 .proc .pn { font-size: 14px; font-weight: 600; color: var(--muted); min-height: 1.2em; }
-.proc .pn:empty::before { content: counter(st, decimal-leading-zero); }
 .proc b { font-size: 19px; font-weight: 700; color: var(--ink); line-height: 1.25; }
 .proc .n { font-size: 16px; font-weight: 700; color: var(--ink); }
 .proc .d { font-size: 15.5px; line-height: 1.5; color: var(--muted); margin-top: 4px; }
