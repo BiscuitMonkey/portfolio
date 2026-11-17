@@ -513,12 +513,11 @@ figure .img.fit img { cursor: zoom-in; }
 .bux-piece .proj:has(.proj-toggle:hover) .sub-h::before { color: var(--link); }
 .bux-piece .proj .sub-p { padding-left: var(--idx, 64px); }
 @media (max-width: 560px) { .bux-piece { --idx: 42px; } }
-/* Index number hangs from the row's divider: a short dark rule on the line, number beneath it */
-.bux-piece { --pad: 28px; }
-@media (max-width: 560px) { .bux-piece { --pad: 22px; } }
-.projs > .proj .sub-h { align-items: start; }
-.projs > .proj .sub-h::before { font-size: 12px; line-height: 1; margin-top: calc(var(--pad) * -1 - 1px); padding-top: 10px; border-top: 2px solid var(--ink); width: 2.6em; }
-.bux-piece .proj:has(.proj-toggle:hover) .sub-h::before { border-top-color: var(--link); }
+/* Index number set at the title's size and weight, in grey, so number and title read as one line */
+.bux-piece { --ts: clamp(24px, 2.8vw, 30px); }
+.projs > .proj .sub-h { grid-template-columns: calc(var(--ts) * 1.7) minmax(0, 1fr); }
+.projs > .proj .sub-h::before { font-size: 1em; font-weight: 800; letter-spacing: -0.015em; color: color-mix(in srgb, var(--muted) 55%, transparent); }
+.projs > .proj .sub-p { padding-left: calc(var(--ts) * 1.7); }
 
 .bux-piece .sub-p { font-size: 17px; max-width: 62ch; color: var(--muted); }
 .toc { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 8px; }
