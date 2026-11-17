@@ -473,8 +473,9 @@ figure .img.fit img { cursor: zoom-in; }
 .steps li::before { content: counter(st, decimal-leading-zero); font-size: 13px; font-weight: 700; color: var(--link); }
 .steps b { color: var(--ink); font-size: 16.5px; } .steps .n { font-weight: 700; color: var(--ink); }
 .list-cap { font-size: 16px; margin-bottom: 8px; } .tasks { margin: 0; padding-left: 22px; display: grid; gap: 6px; }
-.finding { border-top: 1px solid var(--line); padding-top: 28px; display: grid; gap: 22px; }
-.finding + .finding { margin-top: 28px; }
+.finding { border-top: 1px solid var(--line); padding: 56px 0 24px; display: grid; gap: 28px; }
+.finding + .finding { margin-top: 48px; }
+@media (max-width: 760px) { .finding { padding: 40px 0 16px; } .finding + .finding { margin-top: 32px; } }
 .finding header { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 16px; align-items: baseline; }
 .finding .fn { grid-row: span 2; font-size: 26px; font-weight: 800; color: color-mix(in srgb, var(--muted) 55%, transparent); }
 .finding h3 { font-size: 24px; letter-spacing: -0.01em; } .ftag { font-size: 14px; color: var(--muted); }
