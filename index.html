@@ -126,8 +126,8 @@ main { padding-block: 56px 96px; }
 .ascii-reveal { position: relative; width: 100%; max-width: 320px; background: var(--wash); border-radius: 10px; overflow: hidden; cursor: crosshair; }
 .ascii-reveal canvas { display: block; width: 100%; height: 100%; }
 .ascii-reveal canvas.reveal { position: absolute; inset: 0; pointer-events: none; }
-.ascii-reveal { box-shadow: var(--sx, 0) calc(var(--sy, 12px) * var(--lift, 0)) calc(48px * var(--lift, 0)) rgba(0, 0, 0, calc(.28 * var(--lift, 0))); }
-.ascii-reveal .glare { position: absolute; inset: 0; pointer-events: none; opacity: var(--shine, 0); mix-blend-mode: overlay;
+.ascii-reveal, .tiltcard { box-shadow: var(--sx, 0) calc(var(--sy, 12px) * var(--lift, 0)) calc(48px * var(--lift, 0)) rgba(0, 0, 0, calc(.28 * var(--lift, 0))); }
+.ascii-reveal .glare, .tiltcard .glare { position: absolute; inset: 0; pointer-events: none; opacity: var(--shine, 0); mix-blend-mode: overlay;
   background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, .6), rgba(255, 255, 255, .16) 30%, transparent 60%),
     linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, .14) calc(var(--gx, 50%) - 5%), transparent calc(var(--gx, 50%) + 22%)); }
 /* Custom cursor (fine pointers only; enabled by JS) */
@@ -516,6 +516,8 @@ figure .img.fit img { cursor: zoom-in; }
 .about { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 56px; align-items: start; }
 .about .photo { border-radius: 10px; overflow: hidden; background: var(--wash); aspect-ratio: 1; }
 .about .photo img { width: 100%; height: 100%; object-fit: cover; }
+.about .photo.tiltcard { position: relative; }
+.tiltcard .media-inner, .tiltcard img { transform-origin: 50% 50%; }
 .about h1 { font-size: clamp(30px, 4vw, 44px); font-weight: 800; letter-spacing: -0.02em; }
 .about .lead { font-size: 20px; line-height: 1.55; max-width: 46ch; margin-top: 18px; }
 .cv { display: grid; gap: 72px; margin-top: 80px; }
@@ -1314,7 +1316,49 @@ class AsciiReveal {
     }, { passive: false });
   }
 }
-let portraitWidget = null;
+let portraitWidget = null, aboutTilt = null;
+/* The home headshot's card behaviour without the ASCII: a gentle lean toward the cursor anywhere on the page;
+   hovering tilts it further toward the cursor, lifts it with a shadow, moves a glare with the card's angle and
+   shifts the photo inside for depth; leaving eases it back. Same numbers as the home headshot. */
+class TiltCard {
+  constructor(el) {
+    this.el = el; this.img = el.querySelector("img"); this.raf = 0; this.dead = false;
+    this.P = { nx: 0, ny: 0, tx: 0, ty: 0, h: 0 }; this.hov = false; this.lx = 0; this.ly = 0;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    this.glare = document.createElement("i"); this.glare.className = "glare"; this.glare.setAttribute("aria-hidden", "true"); el.appendChild(this.glare);
+    this.onWin = e => { this.P.tx = e.clientX / innerWidth * 2 - 1; this.P.ty = e.clientY / innerHeight * 2 - 1; this.kick(); };
+    this.onMove = e => { if (e.pointerType === "touch") return; const r = el.getBoundingClientRect(); this.hov = true; this.lx = (e.clientX - r.left) / r.width * 2 - 1; this.ly = (e.clientY - r.top) / r.height * 2 - 1; this.kick(); };
+    this.onLeave = () => { this.hov = false; this.kick(); };
+    addEventListener("pointermove", this.onWin, { passive: true });
+    el.addEventListener("pointermove", this.onMove, { passive: true });
+    el.addEventListener("pointerleave", this.onLeave);
+  }
+  kick() { if (!this.raf && !this.dead) this.raf = requestAnimationFrame(() => this.step()); }
+  step() {
+    this.raf = 0; const P = this.P, hov = this.hov;
+    const tx = hov ? Math.max(-1, Math.min(1, this.lx)) : P.tx, ty = hov ? Math.max(-1, Math.min(1, this.ly)) : P.ty;
+    const dx = tx - P.nx, dy = ty - P.ny, dh = (hov ? 1 : 0) - P.h;
+    if (Math.abs(dx) < .0005 && Math.abs(dy) < .0005 && Math.abs(dh) < .002) return; // settled: stop until the cursor moves
+    const k = hov ? .14 : .035;
+    P.nx += dx * k; P.ny += dy * k; P.h += dh * (hov ? .1 : .04);
+    const nx = P.nx, ny = P.ny, lift = P.h, tilt = ASCII_CFG.parallaxTilt + (ASCII_CFG.hoverTilt - ASCII_CFG.parallaxTilt) * lift, Z = ASCII_CFG.parallaxZoom;
+    const el = this.el, sx = (el.clientWidth / 2) * (Z - 1), sy = (el.clientHeight / 2) * (Z - 1);
+    el.style.transform = `perspective(800px) rotateX(${(-ny * tilt).toFixed(2)}deg) rotateY(${(nx * tilt).toFixed(2)}deg) scale(${(1 + .075 * lift).toFixed(3)})`;
+    const rX = -ny * tilt, rY = nx * tilt, H = ASCII_CFG.hoverTilt, ang = Math.min(1, Math.hypot(rX, rY) / H);
+    el.style.setProperty("--gx", (50 - rY / H * 85).toFixed(1) + "%");
+    el.style.setProperty("--gy", (50 + rX / H * 85).toFixed(1) + "%");
+    el.style.setProperty("--shine", (lift * (.25 + .75 * ang)).toFixed(3));
+    el.style.setProperty("--lift", lift.toFixed(3));
+    el.style.setProperty("--sx", (-nx * 14 * lift).toFixed(1) + "px");
+    el.style.setProperty("--sy", (20 + -ny * 12 * lift).toFixed(1) + "px");
+    if (this.img) this.img.style.transform = `translate(${(-nx * sx).toFixed(2)}px, ${(-ny * sy).toFixed(2)}px) scale(${Z})`;
+    this.kick();
+  }
+  destroy() {
+    this.dead = true; cancelAnimationFrame(this.raf);
+    if (this.onWin) { removeEventListener("pointermove", this.onWin); this.el.removeEventListener("pointermove", this.onMove); this.el.removeEventListener("pointerleave", this.onLeave); }
+  }
+}
 
 /* ---------- Rendering ---------- */
 const $ = s => document.querySelector(s);
@@ -1846,7 +1890,7 @@ function viewAbout() {
         <p class="lead">I'm Jack, a UX designer from Dallas, Texas, finishing my BFA in UX Design at Savannah College of Art &amp; Design. I design mobile and web products and take them from first sketches to developer-ready files.</p>
         ${DRAFT ? `<div class="col" style="margin-top:16px">${todo("A line or two in your own voice: what kind of product work you want to do next, and where.")}</div>` : ""}
       </div>
-      <div class="photo">${media("jack-walker-headshot", "Jack Walker")}</div>
+      <div class="photo tiltcard" id="about-photo">${media("jack-walker-headshot", "Jack Walker")}</div>
     </div>
     <div class="cv">
       <section><h2>Experience</h2>${CV.experience.map(row).join("")}</section>
@@ -2052,6 +2096,7 @@ function render() {
   else html = viewHome();
   document.body.classList.toggle("brand-mode", id === "brand");
   if (portraitWidget) { portraitWidget.destroy(); portraitWidget = null; }
+  if (aboutTilt) { aboutTilt.destroy(); aboutTilt = null; }
   $("#app").innerHTML = html;
   document.querySelectorAll("[data-nav]").forEach(a => { if (a.dataset.nav === nav) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
   const page = p ? p.title : isBux ? "Beyond UX" : id === "about" ? "About" : id === "brand" ? "My Brand" : "";
@@ -2067,6 +2112,8 @@ function render() {
   else window.scrollTo(0, 0);
   const pel = document.getElementById("portrait");
   if (pel) portraitWidget = new AsciiReveal(pel, ASSETS["jack-walker-headshot"], ASCII_CFG);
+  const apel = document.getElementById("about-photo");
+  if (apel) aboutTilt = new TiltCard(apel);
   initNameFx();
   if (p && p.proto) mountProto(p.proto);
   initBux();
