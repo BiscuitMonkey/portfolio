@@ -274,7 +274,7 @@ main { padding-block: 56px 96px; }
 .bh-wm { display: block; width: clamp(200px, 30vw, 330px); }
 .bh-wm .wm { display: block; }
 .bh-wm .bk { fill: var(--ink); } .bh-wm .bg { fill: #007F3F; }
-.bh .bh-t { color: var(--muted); font-size: 15px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; line-height: 1; }
+.bh .bh-t { color: var(--muted); font-size: 15px; font-weight: 600; line-height: 1; }
 .brand-page .col-p { color: var(--muted); max-width: 60ch; }
 .bt { position: relative; display: grid; place-items: center; align-content: center; grid-template-columns: minmax(0, 1fr); margin: 0; border-radius: 10px; padding: 9% 10%; min-width: 0; }
 .bt.l { background: #FDFFF8; border: 1px solid var(--line); --bk: #000; }
@@ -465,8 +465,8 @@ figure .img.fit img { cursor: zoom-in; }
 .sub-h { font-size: 20px; font-weight: 700; margin: 28px 0 0; }
 .sub-p { color: var(--muted); margin-top: -8px; }
 
-.myrole { border: 1.5px solid var(--link); border-radius: 12px; padding: 22px 26px; display: grid; gap: 10px; background: color-mix(in srgb, var(--link) 5%, var(--bg)); }
-.myrole h3 { font-size: 15px; letter-spacing: .08em; text-transform: uppercase; color: var(--link); }
+.myrole { margin-top: 16px; border-top: 2px solid var(--link); padding-top: 14px; display: grid; gap: 10px; }
+.myrole h3 { font-size: 16px; font-weight: 700; color: var(--link); }
 .myrole ul { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
 .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; counter-reset: st; }
 .steps li { counter-increment: st; border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 4px; align-content: start; font-size: 15px; color: var(--muted); }
@@ -479,11 +479,11 @@ figure .img.fit img { cursor: zoom-in; }
 .finding .fn { grid-row: span 2; font-size: 26px; font-weight: 800; color: color-mix(in srgb, var(--muted) 55%, transparent); }
 .finding h3 { font-size: 24px; letter-spacing: -0.01em; } .ftag { font-size: 14px; color: var(--muted); }
 /* Before → After: no tinted boxes; hairline rules, big numbers stacked over short labels, an arrow between */
-.fstats { display: grid; grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr); align-items: stretch; }
-.fstats::before { content: "→"; grid-column: 2; grid-row: 1; align-self: start; margin-top: 60px; justify-self: center; font-size: 26px; color: var(--muted); }
+.fstats { display: grid; grid-template-columns: minmax(0, 1fr) 96px minmax(0, 1fr); align-items: stretch; }
+.fstats::before { content: "→"; grid-column: 2; grid-row: 1; align-self: start; margin-top: 102px; justify-self: center; font-size: 28px; line-height: 1; /* level with the big numbers */ color: var(--muted); }
 .fcol { grid-row: 1; border-top: 2px solid var(--line); padding-top: 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 20px; align-content: start; }
 .fcol:first-child { grid-column: 1; } .fcol.after { grid-column: 3; border-top-color: var(--link); }
-.fcol h4 { grid-column: 1 / -1; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.fcol h4 { grid-column: 1 / -1; font-size: 15px; font-weight: 700; color: var(--muted); }
 .fcol.after h4 { color: var(--link); }
 .fs { display: grid; gap: 4px; align-content: start; }
 .fs b { font-size: clamp(34px, 4vw, 44px); font-weight: 800; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--muted) 70%, transparent); }
@@ -597,7 +597,7 @@ footer { border-top: 1px solid var(--line); }
 .f-avail { display: inline-flex; align-items: center; gap: 9px; color: var(--ink); font-size: 16px; font-weight: 600; }
 .f-avail::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--link); flex: none; }
 .f-col { display: grid; gap: 10px; align-content: start; justify-items: start; }
-.f-col h3 { font-size: 13px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.f-col h3 { font-size: 15px; font-weight: 700; color: var(--muted); }
 .f-col a { color: var(--ink); text-decoration: none; font-size: 16px; }
 .f-col a:hover { color: var(--link); }
 .f-base { display: flex; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-block: 20px calc(20px + env(safe-area-inset-bottom, 0px)); font-size: 14px; color: var(--muted); }
