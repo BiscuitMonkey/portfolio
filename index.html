@@ -184,6 +184,16 @@ main { padding-block: 56px 96px; }
 .more > h2 { font-size: 20px; }
 .more .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 24px; }
 .more .card h2 { font-size: 19px; }
+/* 3-wide preview */
+.featured.three .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px 28px; }
+.featured.three .card h2 { font-size: 21px; }
+.featured.three .card p { font-size: 16.5px; }
+.featured.three .card.hl { padding: 14px; margin: -14px; }
+.more.four .cards { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px 20px; }
+.more.four .card h2 { font-size: 17.5px; }
+.more.four .card p { font-size: 15px; }
+@media (max-width: 1000px) { .featured.three .cards, .more.four .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.preview-note { margin: -12px 0 24px; padding: 10px 14px; border: 1px dashed var(--line); border-radius: 8px; font-size: 14.5px; color: var(--muted); }
 .more .card p { font-size: 16px; }
 .peaks { margin-top: 88px; padding-top: 32px; border-top: 1px solid var(--line); display: grid; gap: 28px; }
 .peaks > h2 { font-size: 20px; }
@@ -558,7 +568,7 @@ footer { border-top: 1px solid var(--line); }
 .f-base { display: flex; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-block: 20px calc(20px + env(safe-area-inset-bottom, 0px)); font-size: 14px; color: var(--muted); }
 
 @media (max-width: 860px) {
-  .cards, .more .cards { grid-template-columns: 1fr; gap: 44px; }
+  .cards, .more .cards, .featured.three .cards, .more.four .cards { grid-template-columns: 1fr; gap: 44px; }
   .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .about { grid-template-columns: 1fr; gap: 32px; }
   .about .photo { max-width: 220px; }
@@ -1547,8 +1557,12 @@ function initPeaks() {
   const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { sec.classList.add("on"); io.disconnect(); } }, { threshold: .25 });
   io.observe(sec);
 }
-function viewHome() {
-  return `<section class="intro has-portrait">
+// three = the 3-wide preview (#home-3): Quarters, Amazon Music and Stewart Title as the big three; the rest move to More work
+function viewHome(three = false) {
+  const byId = id => ALL.find(x => x.id === id);
+  const big = three ? ["quarters", "amazon-music", "stewart-title"].map(byId) : FEATURED;
+  const rest = three ? [...FEATURED, ...MORE].filter(x => !big.includes(x)) : MORE;
+  return `${three ? '<p class="preview-note">Preview: 3-wide home layout · <a href="#">Back to the current home page</a></p>' : ""}<section class="intro has-portrait">
       <div class="intro-text">
         <h1 class="big-name" id="big-name" aria-label="Jack Walker">Jack Walker</h1>
         <p class="intro-sub">Designing new experiences in understandable ways.</p>
@@ -1564,14 +1578,14 @@ function viewHome() {
         <figure class="ascii-reveal" id="portrait" aria-label="Portrait of Jack Walker, revealed as you move across it"></figure>
       </div>
     </section>
-    <section class="featured" id="projects"><h2>UX Projects</h2><div class="cards">${FEATURED.map(card).join("")}
+    <section class="featured${three ? " three" : ""}" id="projects"><h2>UX Projects</h2><div class="cards">${big.map(card).join("")}
       <div class="card capstone" aria-label="Capstone, in progress">
         <h2>Capstone</h2>
         <span class="peak-status"><b aria-hidden="true">[<i>&gt;</i>]</b> In progress</span>
         <span class="meta">SCAD BFA UX Design · Coming 2027</span>
       </div>
     </div></section>
-    <section class="more"><h2>More work</h2><div class="cards">${MORE.map(card).join("")}
+    <section class="more${three ? " four" : ""}"><h2>More work</h2><div class="cards">${rest.map(card).join("")}
       <a class="card" href="#beyond-ux"><div class="shot">${media("gd-type", "")}</div><h2>Beyond UX</h2><p>Graphic design, research, print and industrial design.</p><span class="meta">2023 to 2026</span></a>
     </div></section>
     <section class="peaks" id="peaks"><h2>Where I'm Headed</h2><div class="peak-list">${PEAKS.map(peakRow).join("")}</div></section>`;
@@ -2102,6 +2116,7 @@ function render() {
   if (p) { html = viewCase(p); nav = ""; }
   else if (isBux) { html = viewOther(sub); nav = "other"; }
   else if (id === "about") { html = viewAbout(); nav = "about"; }
+  else if (id === "home-3") { html = viewHome(true); }
   else if (id === "brand") { html = viewBrand(); nav = "brand"; }
   else html = viewHome();
   document.body.classList.toggle("brand-mode", id === "brand");
