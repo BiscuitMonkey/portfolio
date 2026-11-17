@@ -486,10 +486,13 @@ figure .img.fit img { cursor: zoom-in; }
 .fcol h4 { grid-column: 1 / -1; font-size: 15px; font-weight: 700; color: var(--muted); }
 .fcol.after h4 { color: var(--link); }
 .fs { display: grid; gap: 4px; align-content: start; }
-.fs b { font-size: clamp(34px, 4vw, 44px); font-weight: 800; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--muted) 70%, transparent); }
+.fs b { font-size: clamp(34px, 4vw, 44px); font-weight: 800; line-height: 1; letter-spacing: -0.02em; color: color-mix(in srgb, var(--muted) 70%, transparent); }
 .fcol.after .fs b { color: var(--link); }
 .fs span { font-size: 15px; line-height: 1.4; color: var(--muted); max-width: 22ch; }
 @media (max-width: 760px) { .fstats { grid-template-columns: 1fr; gap: 22px; } .fstats::before { display: none; } .fcol, .fcol:first-child, .fcol.after { grid-column: 1; grid-row: auto; } }
+/* every before/after screen in the same 16:10 frame, top-aligned (click opens the full screenshot) */
+.finding .figs figure .img { aspect-ratio: 16 / 10; }
+.finding .figs figure .img.fit img { height: 100%; object-fit: cover; object-position: top center; }
 .fquotes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px 28px; }
 .fquotes blockquote { margin: 0; padding-left: 16px; border-left: 3px solid var(--link); display: grid; gap: 4px; }
 .fquotes p { font-size: 17.5px; line-height: 1.45; } .fquotes cite { font-style: normal; font-size: 14px; color: var(--muted); }
@@ -499,7 +502,7 @@ figure .img.fit img { cursor: zoom-in; }
 @media (max-width: 760px) { .steps { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 420px) { .steps { grid-template-columns: 1fr; } }
 .nums { display: flex; flex-wrap: wrap; gap: 16px 40px; }
-.nums b { display: block; font-size: 34px; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.nums b { display: block; font-size: 34px; font-weight: 800; line-height: 1.1; }
 .nums span { font-size: 15px; color: var(--muted); }
 
 .todo { background: var(--todo-bg); color: var(--todo-ink); border: 1px dashed var(--todo-line); border-radius: 8px; padding: 12px 16px; font-size: 16px; line-height: 1.5; }
